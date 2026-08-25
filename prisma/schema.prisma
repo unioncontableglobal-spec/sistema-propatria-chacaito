@@ -1,0 +1,148 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Socio {
+  id              Int      @id @default(autoincrement())
+  codigo          String?
+  ficha           String?
+  escalafon       String?
+  nombre_apellido String
+  cedula          String?
+  rif             String?
+  f_afiliacion    DateTime?
+  status          String   @default("ACTIVO")
+  detalle         String?
+  telefono        String?
+  correo          String?
+  placa           String?
+  direccion       String?
+  
+  transacciones   Transaccion[]
+  cxc             CuentaPorCobrar[]
+  cxp             CuentaPorPagar[]
+}
+
+model Transaccion {
+  id              Int      @id @default(autoincrement())
+  tipo            String   // "INGRESO" o "EGRESO"
+  recibo          String?
+  fecha           DateTime @default(now())
+  mes             String?
+  socioId         Int?
+  monto_bs        Float
+  monto_usd       Float?
+  tasa_cambio     Float?
+  clasificacion   String?
+  codigo_concepto String?
+  detalle         String?
+  asientoId       Int?     @unique
+  
+  socio           Socio?   @relation(fields: [socioId], references: [id])
+  formas_pago     FormaPago[]
+  asiento         AsientoContable? @relation(fields: [asientoId], references: [id])
+}
+
+model FormaPago {
+  id              Int      @id @default(autoincrement())
+  transaccionId   Int
+  tipo_pago       String   // "Transferencia", "Efectivo", etc.
+  referencia      String?
+  banco           String?
+  monto_bs        Float
+  tasa_cambio     Float?
+  monto_usd       Float?
+  
+  transaccion     Transaccion @relation(fields: [transaccionId], references: [id])
+  conciliacion    Conciliacion?
+}
+
+model CuentaPorCobrar {
+  id               Int      @id @default(autoincrement())
+  socioId          Int
+  tipo_publicacion String?
+  mes              String?
+  monto_a_cobrar   Float
+  estado           String   @default("PENDIENTE") // "PENDIENTE", "PAGADA"
+  
+  socio            Socio    @relation(fields: [socioId], references: [id])
+}
+
+model CuentaPorPagar {
+  id               Int      @id @default(autoincrement())
+  socioId          Int
+  tipo_publicacion String?
+  parentesco       String?
+  mes              String?
+  monto            Float
+  total            Float?
+  estado           String   @default("PENDIENTE") // "PENDIENTE", "LIQUIDADA"
+  
+  socio            Socio    @relation(fields: [socioId], references: [id])
+}
+
+model Conciliacion {
+  id               Int      @id @default(autoincrement())
+  formaPagoId      Int      @unique
+  estado_cuenta_ref String?
+  mes              String?
+  discrepancia     Float?
+  estado           String   @default("TRANSITO") // "CONCILIADO", "TRANSITO"
+  
+  formaPago        FormaPago @relation(fields: [formaPagoId], references: [id])
+}
+
+model ParametroLegal {
+  id               Int      @id @default(autoincrement())
+  ente             String   // "SENIAT", "FAOV", etc.
+  clave_parametro  String
+  valor            Float
+  fecha_vigencia   DateTime?
+}
+
+model PublicacionMensual {
+  id          Int      @id @default(autoincrement())
+  mes         String   @unique // Ej. "01-2026"
+  fecha_pub   DateTime @default(now())
+  estado      String   @default("BORRADOR") // "BORRADOR", "APROBADO"
+  reglas_json String?  // JSON con las instrucciones maestras
+}
+
+model CuentaContable {
+  id          Int      @id @default(autoincrement())
+  codigo      String   @unique
+  nombre      String
+  tipoSaldo   String   // "DEUDOR" | "ACREEDOR"
+  clase       String   // "REAL" | "NOMINAL"
+  
+  detalles    DetalleAsiento[]
+}
+
+model AsientoContable {
+  id          Int      @id @default(autoincrement())
+  numero      Int      @unique
+  fecha       DateTime
+  descripcion String
+  
+  detalles    DetalleAsiento[]
+  transaccion Transaccion?
+}
+
+model DetalleAsiento {
+  id          Int      @id @default(autoincrement())
+  asientoId   Int
+  cuentaId    Int
+  debe        Float    @default(0)
+  haber       Float    @default(0)
+  
+  asiento     AsientoContable @relation(fields: [asientoId], references: [id])
+  cuenta      CuentaContable  @relation(fields: [cuentaId], references: [id])
+}
