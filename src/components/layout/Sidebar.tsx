@@ -129,6 +129,15 @@ export default function Sidebar({ initialRole }: { initialRole: string | null })
             </div>
           )}
 
+          {activeRole !== 'ASISTENTE' && (
+            <div className="space-y-1">
+              <div className="text-[10px] font-bold text-gray-500 tracking-widest px-3 mb-2 uppercase">SISTEMA</div>
+              <ul className="space-y-1">
+                <li><Link href="/configuracion" className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${pathname.startsWith('/configuracion') ? 'bg-[#1E293B] text-white font-medium' : 'text-gray-400 hover:text-white hover:bg-[#1E293B]'}`}><Inbox size={18} /> Configuración y Respaldos</Link></li>
+              </ul>
+            </div>
+          )}
+
         </nav>
       </div>
 
