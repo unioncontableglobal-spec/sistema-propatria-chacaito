@@ -203,7 +203,7 @@ export default function ReceiptForm() {
   };
 
   const receiptData: ReceiptData = {
-    tipo,
+    tipo: (tipo.startsWith('INGRESO') ? 'INGRESO' : 'EGRESO') as 'INGRESO' | 'EGRESO',
     numeroRecibo,
     fecha: new Date(fecha),
     socio: socioSeleccionado || { ficha: '', nombre: '', cedula: '' },

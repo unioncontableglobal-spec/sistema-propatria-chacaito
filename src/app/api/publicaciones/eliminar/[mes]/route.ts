@@ -3,9 +3,9 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-export async function DELETE(req: NextRequest, { params }: { params: { mes: string } }) {
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ mes: string }> }) {
   try {
-    const { mes } = params;
+    const { mes } = await params;
 
     if (!mes) {
       return NextResponse.json({ error: 'Mes es requerido' }, { status: 400 });

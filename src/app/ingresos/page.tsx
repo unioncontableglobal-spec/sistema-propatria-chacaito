@@ -21,7 +21,7 @@ type Transaccion = {
 export default function IngresosPage() {
   const [search, setSearch] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const { transacciones, fetchTransacciones, filtroMesGlobal } = useAppStore();
+  const { transacciones, refreshData, filtroMesGlobal } = useAppStore();
   const ingresos = transacciones.filter(t => t.tipo === 'INGRESO');
 
   const filteredIngresos = ingresos.filter(i => {
@@ -101,9 +101,9 @@ export default function IngresosPage() {
       {isModalOpen && (
         <RegistroIngresoModal 
           onClose={() => setIsModalOpen(false)} 
-          onSuccess={() => {
+          onSuccess={async () => {
             setIsModalOpen(false);
-            fetchTransacciones('TODOS');
+            await refreshData();
           }} 
         />
       )}
