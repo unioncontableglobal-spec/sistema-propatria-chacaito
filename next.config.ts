@@ -1,9 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  outputFileTracingIncludes: {
-    '/api/dashboard': ['./data/**/*'],
-  },
+  // Configuración limpia tras la migración a Turso
 };
 
 export default nextConfig;
