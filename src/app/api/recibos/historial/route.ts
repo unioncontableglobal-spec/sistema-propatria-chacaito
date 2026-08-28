@@ -20,7 +20,21 @@ export async function GET(req: NextRequest) {
     }
 
     if (clasificacion) {
-      whereClause.clasificacion = clasificacion;
+      if (clasificacion === 'INGRESO_CXP') {
+        whereClause.tipo = 'INGRESO';
+        whereClause.clasificacion = { in: ['INGRESO_CXP', 'FINANZAS', 'VIDRIO', 'MONTEPIOS', 'GRUA', 'CxC 2025'] };
+      } else if (clasificacion === 'INGRESO_VARIOS') {
+        whereClause.tipo = 'INGRESO';
+        whereClause.clasificacion = { notIn: ['INGRESO_CXP', 'FINANZAS', 'VIDRIO', 'MONTEPIOS', 'GRUA', 'CxC 2025'] };
+      } else if (clasificacion === 'EGRESO_CXP') {
+        whereClause.tipo = 'EGRESO';
+        whereClause.clasificacion = { in: ['EGRESO_CXP', 'PAGO VIDRIOS', 'PAGO MONTEPIO', 'PAGO DE AYUDAS'] };
+      } else if (clasificacion === 'EGRESO_ADMIN') {
+        whereClause.tipo = 'EGRESO';
+        whereClause.clasificacion = { notIn: ['EGRESO_CXP', 'PAGO VIDRIOS', 'PAGO MONTEPIO', 'PAGO DE AYUDAS'] };
+      } else {
+        whereClause.clasificacion = clasificacion;
+      }
     }
 
     if (busqueda) {
