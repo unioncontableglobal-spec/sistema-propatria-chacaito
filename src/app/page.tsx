@@ -70,8 +70,6 @@ export default function Home() {
       if (!monthlyTrendMap.has(mes)) monthlyTrendMap.set(mes, { ingresos: 0, egresos: 0 });
       monthlyTrendMap.get(mes)!.ingresos += row.montoBs;
       incomeDistributionMap.set(row.clasificacion, (incomeDistributionMap.get(row.clasificacion) || 0) + row.montoBs);
-
-      if (row.clasificacion.toUpperCase().includes('OTRO')) otrosIngresosBs += row.montoBs;
     });
 
     // Egresos
@@ -84,8 +82,7 @@ export default function Home() {
       monthlyTrendMap.get(mes)!.egresos += row.montoBs;
       expenseDistributionMap.set(row.clasificacion, (expenseDistributionMap.get(row.clasificacion) || 0) + row.montoBs);
 
-      if (row.clasificacion.toUpperCase().includes('OTRO')) otrosEgresosBs += row.montoBs;
-      if (row.clasificacion.toUpperCase().includes('PRESTAMO') || row.clasificacion.toUpperCase().includes('PRÉSTAMO')) prestamosBs += row.montoBs;
+      if (row.clasificacion.toUpperCase() === 'PRESTAMOS' || row.clasificacion.toUpperCase() === 'PRESTAMO') prestamosBs += row.montoBs;
     });
 
     // CxC
@@ -136,6 +133,12 @@ export default function Home() {
       else if (row.ficha.startsWith('SB')) nuevosIngresosMesSB++;
     });
 
+    const incomeDistribution = groupTopCategories(incomeDistributionMap);
+    const expenseDistribution = groupTopCategories(expenseDistributionMap);
+
+    otrosIngresosBs = incomeDistribution.find(d => d.name === 'OTROS')?.value || 0;
+    otrosEgresosBs = expenseDistribution.find(d => d.name === 'OTROS')?.value || 0;
+
     return {
       flujoCajaBs: totalIngresosBs - totalEgresosBs,
       flujoCajaUsd: (totalIngresosBs - totalEgresosBs) / TASA_CAMBIO,
@@ -151,8 +154,8 @@ export default function Home() {
       otrosEgresosBs,
       prestamosBs,
       monthlyTrend: Array.from(monthlyTrendMap.entries()).map(([name, data]) => ({ name, ...data })),
-      incomeDistribution: groupTopCategories(incomeDistributionMap),
-      expenseDistribution: groupTopCategories(expenseDistributionMap),
+      incomeDistribution,
+      expenseDistribution,
       cxcComposition: Array.from(cxcCompositionMap.values()),
       totalIngresosBs,
       totalEgresosBs
