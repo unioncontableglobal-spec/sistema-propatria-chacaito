@@ -16,6 +16,14 @@ export type Tercero = {
   direccion: string | null;
 };
 
+export type CategoriaMovimiento = {
+  id: number;
+  nombre: string;
+  tipo: string;
+  codigo: string;
+  activo: boolean;
+};
+
 export type AppData = {
   ingresosRaw: RawIngreso[];
   egresosRaw: RawEgreso[];
@@ -29,6 +37,7 @@ interface AppState {
   data: AppData | null;
   sociosDirectorio: any[];
   terceros: Tercero[];
+  categoriasMovimiento: CategoriaMovimiento[];
   transacciones: any[];
   publicaciones: any[];
   isLoading: boolean;
@@ -45,6 +54,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   data: null,
   sociosDirectorio: [],
   terceros: [],
+  categoriasMovimiento: [],
   transacciones: [],
   publicaciones: [],
   isLoading: true, // starts loading to block initial render
@@ -60,12 +70,13 @@ export const useAppStore = create<AppState>((set, get) => ({
     set({ isLoading: true, error: null });
     
     try {
-      const [dashRes, sociosRes, transaccionesRes, pubRes, tercerosRes] = await Promise.all([
+      const [dashRes, sociosRes, transaccionesRes, pubRes, tercerosRes, catRes] = await Promise.all([
         fetch('/api/dashboard', { cache: 'no-store' }).catch(() => null),
         fetch('/api/socios?status=TODOS', { cache: 'no-store' }).catch(() => null),
         fetch('/api/transacciones?tipo=INGRESO', { cache: 'no-store' }).catch(() => null),
         fetch('/api/publicaciones', { cache: 'no-store' }).catch(() => null),
-        fetch('/api/terceros', { cache: 'no-store' }).catch(() => null)
+        fetch('/api/terceros', { cache: 'no-store' }).catch(() => null),
+        fetch('/api/categorias', { cache: 'no-store' }).catch(() => null)
       ]);
 
       const dashData = (dashRes && dashRes.ok) ? await dashRes.json().catch(() => null) : null;
@@ -73,6 +84,7 @@ export const useAppStore = create<AppState>((set, get) => ({
       const transaccionesData = (transaccionesRes && transaccionesRes.ok) ? await transaccionesRes.json().catch(() => []) : [];
       const pubData = (pubRes && pubRes.ok) ? await pubRes.json().catch(() => []) : [];
       const tercerosData = (tercerosRes && tercerosRes.ok) ? await tercerosRes.json().catch(() => []) : [];
+      const catData = (catRes && catRes.ok) ? await catRes.json().catch(() => []) : [];
 
       console.log("Datos cargados:", { pubDataLength: pubData.length, sociosDataLength: sociosData.length });
 
@@ -82,6 +94,7 @@ export const useAppStore = create<AppState>((set, get) => ({
         transacciones: transaccionesData || [],
         publicaciones: pubData || [],
         terceros: tercerosData || [],
+        categoriasMovimiento: catData || [],
         isLoading: false
       });
     } catch (error) {
@@ -93,12 +106,13 @@ export const useAppStore = create<AppState>((set, get) => ({
   refreshData: async () => {
     set({ isLoading: true, error: null });
     try {
-      const [dashRes, sociosRes, transaccionesRes, pubRes, tercerosRes] = await Promise.all([
+      const [dashRes, sociosRes, transaccionesRes, pubRes, tercerosRes, catRes] = await Promise.all([
         fetch('/api/dashboard', { cache: 'no-store' }).catch(() => null),
         fetch('/api/socios?status=TODOS', { cache: 'no-store' }).catch(() => null),
         fetch('/api/transacciones?tipo=INGRESO', { cache: 'no-store' }).catch(() => null),
         fetch('/api/publicaciones', { cache: 'no-store' }).catch(() => null),
-        fetch('/api/terceros', { cache: 'no-store' }).catch(() => null)
+        fetch('/api/terceros', { cache: 'no-store' }).catch(() => null),
+        fetch('/api/categorias', { cache: 'no-store' }).catch(() => null)
       ]);
 
       const dashData = (dashRes && dashRes.ok) ? await dashRes.json().catch(() => null) : null;
@@ -106,6 +120,7 @@ export const useAppStore = create<AppState>((set, get) => ({
       const transaccionesData = (transaccionesRes && transaccionesRes.ok) ? await transaccionesRes.json().catch(() => []) : [];
       const pubData = (pubRes && pubRes.ok) ? await pubRes.json().catch(() => []) : [];
       const tercerosData = (tercerosRes && tercerosRes.ok) ? await tercerosRes.json().catch(() => []) : [];
+      const catData = (catRes && catRes.ok) ? await catRes.json().catch(() => []) : [];
 
       set({
         data: dashData,
@@ -113,6 +128,7 @@ export const useAppStore = create<AppState>((set, get) => ({
         transacciones: transaccionesData || [],
         publicaciones: pubData || [],
         terceros: tercerosData || [],
+        categoriasMovimiento: catData || [],
         isLoading: false,
         error: null
       });

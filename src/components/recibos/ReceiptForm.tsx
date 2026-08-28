@@ -6,7 +6,7 @@ import { useAppStore } from '@/store/useAppStore';
 import PrintableView, { Concepto, DetallePago, ReceiptData } from './PrintableView';
 
 export default function ReceiptForm() {
-  const { sociosDirectorio, terceros, publicaciones, refreshData } = useAppStore();
+  const { sociosDirectorio, terceros, categoriasMovimiento, publicaciones, refreshData } = useAppStore();
   
   const [tipo, setTipo] = useState<'INGRESO_CXP' | 'INGRESO_VARIOS' | 'EGRESO_ADMIN' | 'EGRESO_CXP'>('INGRESO_CXP');
   const [mesAProcesar, setMesAProcesar] = useState<string>('');
@@ -19,40 +19,17 @@ export default function ReceiptForm() {
   const [isTerceroModalOpen, setIsTerceroModalOpen] = useState(false);
   const [nuevoTerceroForm, setNuevoTerceroForm] = useState({ tipo: 'PROVEEDOR', nombre: '', identificacion: '', telefono: '', direccion: '' });
 
-  const INGRESOS_CATEGORIAS = [
-    'ABONOS', 'COMISION PUNTO', 'PRESTAMO', 'INVENTARIO', 
-    'INGRESO POR REINTEGROS', 'INGRESO POR DEPOSITO', 'IMPUESTO CHACAO', 
-    'INGRESO ESTACIONAMIENTO', 'LOCALES ESTACIONAMIENTO', 'INGRESO A CAJA', 
-    'GRUA', 'TRANSFERENCIA MISMO TITULAR', 'OTROS INGRESOS'
-  ];
+  const categoriasIngreso = categoriasMovimiento ? categoriasMovimiento.filter((c: any) => c.tipo === 'INGRESO') : [];
+  const categoriasEgreso = categoriasMovimiento ? categoriasMovimiento.filter((c: any) => c.tipo === 'EGRESO') : [];
 
-  const EGRESOS_CATEGORIAS = [
-    'REINTEGROS', 'SUMINISTROS', 'NOMINA', 'MANTENIMIENTO SEDE', 
-    'MATERIAL DE OFICINA', 'GASTOS DE REPRESENTACION', 'GASTOS ASISTENCIA SOCIAL', 
-    'GASTOS COMISION ELECTORAL', 'GASTOS TRANSITO Y RECLAMOS', 'GASTOS DE ADMINISTRACION', 
-    'SERVICIOS BASICOS', 'GASTOS GRUA', 'HONORARIOS ABOGADO', 'DONACIONES Y COLABORACIONES', 
-    'PAGO DE AYUDAS', 'MANTENIMIENTO EQUIPOS DE OFICINA', 'PRESTAMOS', 
-    'GASTOS ESTACIONAMIENTO', 'OTROS EGRESOS'
-  ];
+  const INGRESOS_CATEGORIAS = categoriasIngreso.map((c: any) => c.nombre);
+  const EGRESOS_CATEGORIAS = categoriasEgreso.map((c: any) => c.nombre);
 
-  const CODIGOS_INGRESOS: Record<string, string> = {
-    "VIDRIOS": "1197", "MONTEPIO": "1237", "FINANZAS": "1264", "CxC 2025": "1292",
-    "ABONOS": "1285", "COMISION PUNTO": "1172", "PRESTAMO": "1295", "INVENTARIO": "1158",
-    "INGRESO POR REINTEGROS": "1297", "INGRESO POR DEPOSITO": "1132", "IMPUESTO CHACAO": "1310",
-    "INGRESO ESTACIONAMIENTO": "600", "LOCALES ESTACIONAMIENTO": "1262", "ESTACIONAMIENTO": "1134",
-    "INGRESO A CAJA": "114", "GRUA": "1276", "INGRESO A CAJA $": "1305", "TRANSFERENCIA MISMO TITULAR": "116"
-  };
+  const CODIGOS_INGRESOS: Record<string, string> = {};
+  categoriasIngreso.forEach((c: any) => CODIGOS_INGRESOS[c.nombre] = c.codigo);
 
-  const CODIGOS_EGRESOS: Record<string, string> = {
-    "REINTEGROS": "1297", "SUMINISTROS": "1101", "NOMINA": "1303", "MANTENIMIENTO SEDE": "114",
-    "MATERIAL DE OFICINA": "24", "REMANENTE": "27", "GASTOS DE REPRESENTACION": "1094",
-    "GASTOS ASISTENCIA SOCIAL": "303", "GASTOS COMISION ELECTORAL": "133", "GASTOS TRANSITO Y RECLAMOS": "596",
-    "GASTOS DE ADMINISTRACION": "28", "PAGO VIDRIOS": "39", "COMPRA $": "1305", "SERVICIOS BASICOS": "98",
-    "GASTOS GRUA": "1276", "SEC. DEPORTE": "62", "PRESTAMOS": "7", "HONORARIOS ABOGADO": "22",
-    "DONACIONES Y COLABORACIONES": "80", "TRANSFERENCIA ENTRE CUENTAS": "116", "PAGO DE AYUDAS": "112",
-    "GASTOS DE ORGANIZACIÓN": "1102", "INVENTARIO": "10000", "PAGO MONTEPIO": "1237", "BONIFICACIONES": "294",
-    "COMPRA CUPO": "1312", "GASTOS ESTACIONAMIENTO": "1262", "MANTENIMIENTO EQUIPOS DE OFICINA": "78"
-  };
+  const CODIGOS_EGRESOS: Record<string, string> = {};
+  categoriasEgreso.forEach((c: any) => CODIGOS_EGRESOS[c.nombre] = c.codigo);
 
   const [tipoEntidad, setTipoEntidad] = useState<'SOCIO' | 'TERCERO'>('SOCIO');
 

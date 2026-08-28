@@ -150,6 +150,14 @@ model DetalleAsiento {
   cuenta      CuentaContable  @relation(fields: [cuentaId], references: [id])
 }
 
+model CategoriaMovimiento {
+  id          Int      @id @default(autoincrement())
+  nombre      String   @unique
+  tipo        String   // "INGRESO" o "EGRESO"
+  codigo      String   // Código contable (ej. "1101")
+  activo      Boolean  @default(true)
+}
+
 model Tercero {
   id             Int      @id @default(autoincrement())
   tipo           String   // "PROVEEDOR", "EMPLEADO", "CLIENTE", "OTRO"

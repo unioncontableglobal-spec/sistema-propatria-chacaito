@@ -113,6 +113,30 @@ export default function ConfiguracionPage() {
           )}
         </div>
         
+        {/* Panel de Categorías */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="p-3 bg-purple-100 text-purple-600 rounded-lg">
+              <AlertTriangle size={24} /> {/* Placeholder icon */}
+            </div>
+            <div>
+              <h2 className="text-lg font-bold text-gray-800">Gestor de Categorías</h2>
+              <p className="text-sm text-gray-500">Administrar conceptos de Ingresos y Egresos</p>
+            </div>
+          </div>
+          
+          <div className="bg-gray-50 p-4 rounded-lg text-sm text-gray-600 mb-6 border border-gray-100">
+            <p>Gestiona la lista de categorías y sus códigos contables (ej. "SUMINISTROS", "NOMINA") que aparecen al emitir un nuevo recibo.</p>
+          </div>
+          
+          <a
+            href="/configuracion/categorias"
+            className="w-full py-3 px-4 rounded-lg font-bold flex items-center justify-center gap-2 transition-all bg-purple-600 hover:bg-purple-700 text-white shadow-md hover:shadow-lg"
+          >
+            Administrar Categorías
+          </a>
+        </div>
+        
       </div>
     </div>
   );
