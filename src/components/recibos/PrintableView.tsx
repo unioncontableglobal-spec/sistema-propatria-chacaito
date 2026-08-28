@@ -45,14 +45,14 @@ export default function PrintableView({ data }: PrintableViewProps) {
       
       {/* Watermark Logo */}
       <div className="absolute inset-0 z-0 flex items-center justify-center opacity-[0.07] pointer-events-none">
-        <img src="/icon.png" alt="Sello" className="w-48 h-48 object-contain grayscale" />
+        <img src="/logo.png" alt="Sello" className="w-48 h-48 object-contain grayscale" onError={(e) => e.currentTarget.style.display = 'none'} />
       </div>
 
       <div className="relative z-10 h-full flex flex-col">
         {/* Header */}
         <div className="flex justify-between items-start mb-2">
           <div className="flex gap-2 items-center">
-             <img src="/icon.png" alt="Logo" className="w-8 h-8 object-contain" />
+             <img src="/logo.png" alt="Logo" className="w-8 h-8 object-contain" onError={(e) => e.currentTarget.style.display = 'none'} />
              <div>
                <h2 className="font-bold text-[10px] uppercase leading-tight">ASOC. CIVIL PRO-PATRIA CARMELITAS - CHACAITO</h2>
                <p className="text-[9px] font-bold text-gray-800">RIF: J-00188684-2</p>
@@ -153,7 +153,7 @@ export default function PrintableView({ data }: PrintableViewProps) {
       <style dangerouslySetInnerHTML={{__html: `
         @media print {
           @page {
-            size: 8.5in 5.5in;
+            size: letter portrait;
             margin: 0;
           }
           body {
@@ -178,7 +178,7 @@ export default function PrintableView({ data }: PrintableViewProps) {
           }
         }
       `}} />
-      <div id="print-container" className="fixed inset-0 z-[9999] bg-white text-black w-[8.5in] h-[5.5in] box-border flex flex-row shadow-2xl overflow-hidden">
+      <div id="print-container" className="fixed top-0 left-0 z-[9999] bg-white text-black w-[8.5in] h-[5.5in] box-border flex flex-row overflow-hidden">
         {/* Izquierda (Copia) y Derecha (Original) */}
         <ReceiptBlock isCopy={true} />
         <ReceiptBlock isCopy={false} />

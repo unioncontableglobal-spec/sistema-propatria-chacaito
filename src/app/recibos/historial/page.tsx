@@ -55,8 +55,19 @@ export default function HistorialRecibosPage() {
     let conceptos = [];
     try {
       conceptos = JSON.parse(tx.detalle || '[]');
+      if (!Array.isArray(conceptos)) conceptos = [];
     } catch (e) {
-      conceptos = [];
+      if (typeof tx.detalle === 'string' && tx.detalle.trim().length > 0) {
+        conceptos = [{
+          codigo: '-',
+          descripcion: tx.detalle,
+          subtotal: tx.monto_bs,
+          cantidad: 1,
+          total: tx.monto_bs
+        }];
+      } else {
+        conceptos = [];
+      }
     }
 
     let pago: any = {
