@@ -198,7 +198,13 @@ export default function ReceiptForm() {
     }
   };
 
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+
   const handlePrint = () => {
+    setIsPreviewOpen(true);
+  };
+
+  const triggerPrint = () => {
     window.print();
   };
 
@@ -490,6 +496,77 @@ export default function ReceiptForm() {
       {/* Componente para Imprimir - Oculto por defecto, visible solo en print */}
       {showPrint && (
         <PrintableView data={receiptData} />
+      )}
+
+      {/* Preview Modal */}
+      {isPreviewOpen && showPrint && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 no-print">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden">
+            <div className="p-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+              <h2 className="font-bold text-lg text-[#0A1128]">Vista Previa del Recibo: {receiptData.numeroRecibo}</h2>
+              <div className="flex gap-2">
+                <button 
+                  onClick={() => setIsPreviewOpen(false)}
+                  className="px-4 py-2 text-gray-500 hover:text-gray-800 transition"
+                >
+                  Cerrar
+                </button>
+                <button 
+                  onClick={triggerPrint}
+                  className="bg-[#2563EB] text-white px-6 py-2 rounded-lg font-bold flex items-center gap-2 hover:bg-blue-700 transition shadow-sm"
+                >
+                  <Printer size={18} />
+                  Imprimir Ahora
+                </button>
+              </div>
+            </div>
+            
+            <div className="p-6 overflow-y-auto flex-1 bg-gray-100 flex items-start justify-center">
+               <div className="bg-white p-8 shadow-sm border border-gray-200 w-full max-w-2xl">
+                 <h3 className="text-center font-bold text-lg mb-6 border-b pb-2">PREVISUALIZACIÓN DE DATOS (Solo referencial)</h3>
+                 
+                 <div className="grid grid-cols-2 gap-4 mb-6">
+                   <div>
+                     <p className="text-xs text-gray-500 uppercase">Socio</p>
+                     <p className="font-bold">{receiptData.socio.ficha} - {receiptData.socio.nombre}</p>
+                   </div>
+                   <div className="text-right">
+                     <p className="text-xs text-gray-500 uppercase">Recibo / Fecha</p>
+                     <p className="font-bold">{receiptData.numeroRecibo} <br/> {new Date(receiptData.fecha).toLocaleDateString()}</p>
+                   </div>
+                 </div>
+
+                 <h4 className="font-bold text-sm mb-2 text-gray-600">Conceptos a Cobrar:</h4>
+                 <table className="w-full text-sm mb-6 border">
+                   <thead className="bg-gray-50">
+                     <tr>
+                       <th className="p-2 text-left border">Descripción</th>
+                       <th className="p-2 text-right border">Monto Bs</th>
+                     </tr>
+                   </thead>
+                   <tbody>
+                     {receiptData.conceptos.map((c, i) => (
+                       <tr key={i}>
+                         <td className="p-2 border">{c.descripcion}</td>
+                         <td className="p-2 border text-right">{c.total.toLocaleString('es-VE', {minimumFractionDigits: 2})}</td>
+                       </tr>
+                     ))}
+                   </tbody>
+                   <tfoot>
+                     <tr className="bg-gray-50 font-bold">
+                       <td className="p-2 border text-right">TOTAL RECIBO:</td>
+                       <td className="p-2 border text-right">Bs {receiptData.granTotalBs.toLocaleString('es-VE', {minimumFractionDigits: 2})}</td>
+                     </tr>
+                   </tfoot>
+                 </table>
+                 
+                 <p className="text-sm text-gray-500 italic text-center mt-4">
+                   Nota: Al hacer clic en "Imprimir", se generará el formato Media Carta con Original y Copia como se espera.
+                 </p>
+               </div>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
