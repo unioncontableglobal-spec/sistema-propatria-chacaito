@@ -69,9 +69,9 @@ export async function GET(req: NextRequest, { params }: { params: { recibo: stri
     if (baseTx.formas_pago && baseTx.formas_pago.length > 0) {
       const fp = baseTx.formas_pago[0];
       pago = {
-        tipo_pago: fp.metodo,
+        tipo_pago: fp.tipo_pago,
         referencia: fp.referencia || '-',
-        banco: fp.banco_origen || '-',
+        banco: fp.banco || '-',
         tasa_cambio: fp.tasa_cambio,
         monto_bs: fp.monto_bs,
         monto_usd: fp.monto_usd
@@ -92,11 +92,11 @@ export async function GET(req: NextRequest, { params }: { params: { recibo: stri
       tipo: baseTx.tipo,
       numeroRecibo: baseTx.recibo,
       fecha: baseTx.fecha,
-      socio: {
+      socio: baseTx.socio ? {
         ficha: baseTx.socio.ficha,
         nombre: baseTx.socio.nombre_apellido,
         cedula: baseTx.socio.cedula
-      },
+      } : { ficha: 'N/A', nombre: 'N/A', cedula: 'N/A' },
       conceptos,
       pago,
       granTotalBs,
