@@ -87,7 +87,8 @@ export default function Sidebar({ initialRole }: { initialRole: string | null })
           <div className="space-y-1">
             <div className="text-[10px] font-bold text-gray-500 tracking-widest px-3 mb-2 uppercase">MÓDULO DE RECIBOS</div>
             <ul className="space-y-1">
-              <li><Link href="/recibos" className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${pathname.startsWith('/recibos') ? 'bg-[#1E293B] text-white font-medium' : 'text-gray-400 hover:text-white hover:bg-[#1E293B]'}`}><Receipt size={18} /> Emisión de Recibos</Link></li>
+              <li><Link href="/recibos" className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${pathname === '/recibos' ? 'bg-[#1E293B] text-white font-medium' : 'text-gray-400 hover:text-white hover:bg-[#1E293B]'}`}><Receipt size={18} /> Emisión de Recibos</Link></li>
+              <li><Link href="/recibos/historial" className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${pathname.startsWith('/recibos/historial') ? 'bg-[#1E293B] text-white font-medium' : 'text-gray-400 hover:text-white hover:bg-[#1E293B]'}`}><ClipboardList size={18} /> Historial de Recibos</Link></li>
             </ul>
           </div>
 
