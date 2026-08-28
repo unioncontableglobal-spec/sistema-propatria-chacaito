@@ -113,13 +113,13 @@ export default function ReceiptForm() {
 
   const handleBuscarSocio = () => {
     if (!fichaBusqueda || fichaBusqueda.trim() === '') {
-      alert('Por favor ingrese una ficha');
+      alert('Por favor ingrese un Cupo');
       return;
     }
     const cleanSearch = fichaBusqueda.trim().toUpperCase().replace(/[-\s]/g, '');
     const socio = sociosDirectorio.find((s: any) => {
-      const sficha = s.ficha ? s.ficha.trim().toUpperCase().replace(/[-\s]/g, '') : '';
-      return sficha === cleanSearch;
+      const scupo = s.codigo ? s.codigo.trim().toUpperCase().replace(/[-\s]/g, '') : '';
+      return scupo === cleanSearch;
     });
     if (socio) {
       setSocioSeleccionado({
@@ -295,7 +295,7 @@ export default function ReceiptForm() {
               </div>
             )}
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1">Buscar Asociado (Ficha)</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-1">Buscar Asociado (Cupo)</label>
               <div className="flex gap-2">
                 <input 
                   type="text" 
