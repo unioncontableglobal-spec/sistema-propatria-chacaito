@@ -45,14 +45,14 @@ export default function PrintableView({ data }: PrintableViewProps) {
       
       {/* Watermark Logo */}
       <div className="absolute inset-0 z-0 flex items-center justify-center opacity-[0.07] pointer-events-none">
-        <img src="/logo.jpg" alt="Sello" className="w-48 h-48 object-contain grayscale" onError={(e) => e.currentTarget.style.display = 'none'} />
+        <img src="/logo.png" alt="Sello" className="w-48 h-48 object-contain grayscale" onError={(e) => e.currentTarget.style.display = 'none'} />
       </div>
 
       <div className="relative z-10 h-full flex flex-col">
         {/* Header */}
         <div className="flex justify-between items-start mb-2">
           <div className="flex gap-2 items-center">
-             <img src="/logo.jpg" alt="Logo" className="w-8 h-8 object-contain" onError={(e) => e.currentTarget.style.display = 'none'} />
+             <img src="/logo.png" alt="Logo" className="w-8 h-8 object-contain" onError={(e) => e.currentTarget.style.display = 'none'} />
              <div>
                <h2 className="font-bold text-[10px] uppercase leading-tight">ASOC. CIVIL PRO-PATRIA CARMELITAS - CHACAITO</h2>
                <p className="text-[9px] font-bold text-gray-800">RIF: J-00188684-2</p>
