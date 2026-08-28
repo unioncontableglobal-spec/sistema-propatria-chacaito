@@ -15,8 +15,10 @@ export default function HistorialRecibosPage() {
   const [clasificacion, setClasificacion] = useState('');
   const [busqueda, setBusqueda] = useState('');
 
-  // Impresión
+  // Impresión y Vista Previa
   const [printData, setPrintData] = useState<ReceiptData | null>(null);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const [isFetchingPreview, setIsFetchingPreview] = useState(false);
 
   const fetchHistorial = async () => {
     setIsLoading(true);
@@ -51,54 +53,31 @@ export default function HistorialRecibosPage() {
     .filter(p => p.estado === 'APROBADO')
     .map(p => p.mes);
 
-  const handlePrint = (tx: any) => {
-    let conceptos = [];
+  const handlePrint = async (tx: any) => {
+    if (!tx.recibo) {
+      alert('Esta transacción no tiene número de recibo asignado.');
+      return;
+    }
+    setIsFetchingPreview(true);
     try {
-      conceptos = JSON.parse(tx.detalle || '[]');
-      if (!Array.isArray(conceptos)) conceptos = [];
-    } catch (e) {
-      if (typeof tx.detalle === 'string' && tx.detalle.trim().length > 0) {
-        conceptos = [{
-          codigo: '-',
-          descripcion: tx.detalle,
-          subtotal: tx.monto_bs,
-          cantidad: 1,
-          total: tx.monto_bs
-        }];
+      const res = await fetch(`/api/recibos/${tx.recibo}`);
+      const data = await res.json();
+      if (data.success) {
+        setPrintData(data.data);
+        setIsPreviewOpen(true);
       } else {
-        conceptos = [];
+        alert(data.error || 'Error al obtener el recibo completo');
       }
+    } catch (error) {
+      console.error('Error fetching receipt preview:', error);
+      alert('Error al obtener la vista previa');
+    } finally {
+      setIsFetchingPreview(false);
     }
+  };
 
-    let pago: any = {
-      tipo_pago: 'N/A',
-      referencia: '',
-      banco: '',
-      tasa_cambio: tx.tasa_cambio || 1,
-      monto_bs: tx.monto_bs || 0,
-      monto_usd: tx.monto_usd || 0
-    };
-
-    if (tx.formas_pago && tx.formas_pago.length > 0) {
-      pago = tx.formas_pago[0];
-    }
-
-    const receiptData: ReceiptData = {
-      tipo: tx.tipo as 'INGRESO' | 'EGRESO',
-      numeroRecibo: tx.recibo,
-      fecha: new Date(tx.fecha),
-      socio: tx.socio ? { ficha: tx.socio.ficha, nombre: tx.socio.nombre_apellido, cedula: tx.socio.cedula || 'N/A' } : { ficha: 'N/A', nombre: 'N/A', cedula: 'N/A' },
-      conceptos,
-      pago,
-      granTotalBs: tx.monto_bs,
-      nota: ''
-    };
-
-    setPrintData(receiptData);
-    setTimeout(() => {
-      window.print();
-      setPrintData(null);
-    }, 500);
+  const triggerPrint = () => {
+    window.print();
   };
 
   return (
@@ -214,8 +193,80 @@ export default function HistorialRecibosPage() {
         )}
       </div>
 
+      {/* Print View Layer */}
       {printData && (
         <PrintableView data={printData} />
+      )}
+
+      {/* Preview Modal */}
+      {isPreviewOpen && printData && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 no-print">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden">
+            <div className="p-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+              <h2 className="font-bold text-lg text-[#0A1128]">Vista Previa del Recibo: {printData.numeroRecibo}</h2>
+              <div className="flex gap-2">
+                <button 
+                  onClick={() => setIsPreviewOpen(false)}
+                  className="px-4 py-2 text-gray-500 hover:text-gray-800 transition"
+                >
+                  Cerrar
+                </button>
+                <button 
+                  onClick={triggerPrint}
+                  className="bg-[#2563EB] text-white px-6 py-2 rounded-lg font-bold flex items-center gap-2 hover:bg-blue-700 transition shadow-sm"
+                >
+                  <Printer size={18} />
+                  Imprimir Ahora
+                </button>
+              </div>
+            </div>
+            
+            <div className="p-6 overflow-y-auto flex-1 bg-gray-100 flex items-start justify-center">
+               <div className="bg-white p-8 shadow-sm border border-gray-200 w-full max-w-2xl">
+                 <h3 className="text-center font-bold text-lg mb-6 border-b pb-2">PREVISUALIZACIÓN DE DATOS (Solo referencial)</h3>
+                 
+                 <div className="grid grid-cols-2 gap-4 mb-6">
+                   <div>
+                     <p className="text-xs text-gray-500 uppercase">Socio</p>
+                     <p className="font-bold">{printData.socio.ficha} - {printData.socio.nombre}</p>
+                   </div>
+                   <div className="text-right">
+                     <p className="text-xs text-gray-500 uppercase">Recibo / Fecha</p>
+                     <p className="font-bold">{printData.numeroRecibo} <br/> {new Date(printData.fecha).toLocaleDateString()}</p>
+                   </div>
+                 </div>
+
+                 <h4 className="font-bold text-sm mb-2 text-gray-600">Conceptos a Cobrar:</h4>
+                 <table className="w-full text-sm mb-6 border">
+                   <thead className="bg-gray-50">
+                     <tr>
+                       <th className="p-2 text-left border">Descripción</th>
+                       <th className="p-2 text-right border">Monto Bs</th>
+                     </tr>
+                   </thead>
+                   <tbody>
+                     {printData.conceptos.map((c, i) => (
+                       <tr key={i}>
+                         <td className="p-2 border">{c.descripcion}</td>
+                         <td className="p-2 border text-right">{c.total.toLocaleString('es-VE', {minimumFractionDigits: 2})}</td>
+                       </tr>
+                     ))}
+                   </tbody>
+                   <tfoot>
+                     <tr className="bg-gray-50 font-bold">
+                       <td className="p-2 border text-right">TOTAL RECIBO:</td>
+                       <td className="p-2 border text-right">Bs {printData.granTotalBs.toLocaleString('es-VE', {minimumFractionDigits: 2})}</td>
+                     </tr>
+                   </tfoot>
+                 </table>
+                 
+                 <p className="text-sm text-gray-500 italic text-center mt-4">
+                   Nota: Al hacer clic en "Imprimir", se generará el formato Media Carta con Original y Copia como se espera.
+                 </p>
+               </div>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
