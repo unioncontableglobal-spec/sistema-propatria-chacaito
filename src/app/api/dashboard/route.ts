@@ -39,8 +39,16 @@ export async function GET() {
         return { mes: 'HISTÓRICO TRIMESTRAL', tipo }; // Socios don't have month in db, just use dummy month for global filter
       });
 
-    // Nuevos ingresos (we don't have "new" date in db reliably, just map them to SA/SB based on f_afiliacion if we had it, for now empty or dummy)
-    const nuevosIngresosRaw: { mes: string; ficha: string }[] = [];
+    // Nuevos ingresos: parse f_afiliacion from socios
+    const nuevosIngresosRaw: { mes: string; ficha: string }[] = socios
+      .filter(s => s.f_afiliacion !== null)
+      .map(s => {
+        const month = s.f_afiliacion!.toLocaleString('es-ES', { month: 'long', timeZone: 'UTC' });
+        const mes = month.charAt(0).toUpperCase() + month.slice(1);
+        let ficha = 'SA';
+        if (s.codigo?.startsWith('SB') || s.ficha?.startsWith('SB')) ficha = 'SB';
+        return { mes, ficha };
+      });
 
     const rawData = {
       ingresosRaw,
