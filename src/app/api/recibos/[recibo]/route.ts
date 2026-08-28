@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 
-export async function GET(req: NextRequest, { params }: { params: { recibo: string } }) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ recibo: string }> }) {
   try {
-    const { recibo } = params;
+    const { recibo } = await params;
     
     if (!recibo) {
       return NextResponse.json({ error: 'Recibo no especificado' }, { status: 400 });

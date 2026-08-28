@@ -175,10 +175,11 @@ export default function PrintableView({ data }: PrintableViewProps) {
             height: 5.5in !important;
             margin: 0 !important;
             padding: 0 !important;
+            display: flex !important;
           }
         }
       `}} />
-      <div id="print-container" className="fixed top-0 left-0 z-[9999] bg-white text-black w-[8.5in] h-[5.5in] box-border flex flex-row overflow-hidden">
+      <div id="print-container" className="hidden print:flex fixed top-0 left-0 z-[9999] bg-white text-black w-[8.5in] h-[5.5in] box-border flex-row overflow-hidden">
         {/* Izquierda (Copia) y Derecha (Original) */}
         <ReceiptBlock isCopy={true} />
         <ReceiptBlock isCopy={false} />
