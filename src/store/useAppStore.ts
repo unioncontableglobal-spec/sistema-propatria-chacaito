@@ -7,6 +7,15 @@ export type RawCxP = { mes: string; montoUsd: number };
 export type RawSocioActivo = { mes: string; tipo: string };
 export type RawNuevoIngreso = { mes: string; ficha: string };
 
+export type Tercero = {
+  id: number;
+  tipo: string;
+  nombre: string;
+  identificacion: string | null;
+  telefono: string | null;
+  direccion: string | null;
+};
+
 export type AppData = {
   ingresosRaw: RawIngreso[];
   egresosRaw: RawEgreso[];
@@ -19,6 +28,7 @@ export type AppData = {
 interface AppState {
   data: AppData | null;
   sociosDirectorio: any[];
+  terceros: Tercero[];
   transacciones: any[];
   publicaciones: any[];
   isLoading: boolean;
@@ -34,6 +44,7 @@ interface AppState {
 export const useAppStore = create<AppState>((set, get) => ({
   data: null,
   sociosDirectorio: [],
+  terceros: [],
   transacciones: [],
   publicaciones: [],
   isLoading: true, // starts loading to block initial render
@@ -49,18 +60,19 @@ export const useAppStore = create<AppState>((set, get) => ({
     set({ isLoading: true, error: null });
     
     try {
-      // Fetch in parallel
-      const [dashRes, sociosRes, transaccionesRes, pubRes] = await Promise.all([
+      const [dashRes, sociosRes, transaccionesRes, pubRes, tercerosRes] = await Promise.all([
         fetch('/api/dashboard', { cache: 'no-store' }).catch(() => null),
         fetch('/api/socios?status=TODOS', { cache: 'no-store' }).catch(() => null),
         fetch('/api/transacciones?tipo=INGRESO', { cache: 'no-store' }).catch(() => null),
-        fetch('/api/publicaciones', { cache: 'no-store' }).catch(() => null)
+        fetch('/api/publicaciones', { cache: 'no-store' }).catch(() => null),
+        fetch('/api/terceros', { cache: 'no-store' }).catch(() => null)
       ]);
 
       const dashData = (dashRes && dashRes.ok) ? await dashRes.json().catch(() => null) : null;
       const sociosData = (sociosRes && sociosRes.ok) ? await sociosRes.json().catch(() => []) : [];
       const transaccionesData = (transaccionesRes && transaccionesRes.ok) ? await transaccionesRes.json().catch(() => []) : [];
       const pubData = (pubRes && pubRes.ok) ? await pubRes.json().catch(() => []) : [];
+      const tercerosData = (tercerosRes && tercerosRes.ok) ? await tercerosRes.json().catch(() => []) : [];
 
       console.log("Datos cargados:", { pubDataLength: pubData.length, sociosDataLength: sociosData.length });
 
@@ -69,6 +81,7 @@ export const useAppStore = create<AppState>((set, get) => ({
         sociosDirectorio: sociosData || [],
         transacciones: transaccionesData || [],
         publicaciones: pubData || [],
+        terceros: tercerosData || [],
         isLoading: false
       });
     } catch (error) {
@@ -80,24 +93,28 @@ export const useAppStore = create<AppState>((set, get) => ({
   refreshData: async () => {
     set({ isLoading: true, error: null });
     try {
-      const [dashRes, sociosRes, transaccionesRes, pubRes] = await Promise.all([
+      const [dashRes, sociosRes, transaccionesRes, pubRes, tercerosRes] = await Promise.all([
         fetch('/api/dashboard', { cache: 'no-store' }).catch(() => null),
         fetch('/api/socios?status=TODOS', { cache: 'no-store' }).catch(() => null),
         fetch('/api/transacciones?tipo=INGRESO', { cache: 'no-store' }).catch(() => null),
-        fetch('/api/publicaciones', { cache: 'no-store' }).catch(() => null)
+        fetch('/api/publicaciones', { cache: 'no-store' }).catch(() => null),
+        fetch('/api/terceros', { cache: 'no-store' }).catch(() => null)
       ]);
 
       const dashData = (dashRes && dashRes.ok) ? await dashRes.json().catch(() => null) : null;
       const sociosData = (sociosRes && sociosRes.ok) ? await sociosRes.json().catch(() => []) : [];
       const transaccionesData = (transaccionesRes && transaccionesRes.ok) ? await transaccionesRes.json().catch(() => []) : [];
       const pubData = (pubRes && pubRes.ok) ? await pubRes.json().catch(() => []) : [];
+      const tercerosData = (tercerosRes && tercerosRes.ok) ? await tercerosRes.json().catch(() => []) : [];
 
       set({
         data: dashData,
         sociosDirectorio: sociosData || [],
         transacciones: transaccionesData || [],
         publicaciones: pubData || [],
-        isLoading: false
+        terceros: tercerosData || [],
+        isLoading: false,
+        error: null
       });
     } catch (error) {
       console.error("Error crítico en refreshData:", error);

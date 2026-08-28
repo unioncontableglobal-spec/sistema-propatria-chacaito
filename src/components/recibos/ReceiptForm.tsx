@@ -6,14 +6,18 @@ import { useAppStore } from '@/store/useAppStore';
 import PrintableView, { Concepto, DetallePago, ReceiptData } from './PrintableView';
 
 export default function ReceiptForm() {
-  const { sociosDirectorio, publicaciones, refreshData } = useAppStore();
+  const { sociosDirectorio, terceros, publicaciones, refreshData } = useAppStore();
   
   const [tipo, setTipo] = useState<'INGRESO_CXP' | 'INGRESO_VARIOS' | 'EGRESO_ADMIN' | 'EGRESO_CXP'>('INGRESO_CXP');
   const [mesAProcesar, setMesAProcesar] = useState<string>('');
   const [fecha, setFecha] = useState<string>(new Date().toISOString().split('T')[0]);
   const [numeroRecibo, setNumeroRecibo] = useState<string>('');
   const [fichaBusqueda, setFichaBusqueda] = useState('');
+  const [terceroBusqueda, setTerceroBusqueda] = useState('');
   const [socioSeleccionado, setSocioSeleccionado] = useState<{ id: number, ficha: string, nombre: string, cedula: string } | null>(null);
+  const [terceroSeleccionado, setTerceroSeleccionado] = useState<any | null>(null);
+  const [isTerceroModalOpen, setIsTerceroModalOpen] = useState(false);
+  const [nuevoTerceroForm, setNuevoTerceroForm] = useState({ tipo: 'PROVEEDOR', nombre: '', identificacion: '', telefono: '', direccion: '' });
 
   const INGRESOS_CATEGORIAS = [
     'ABONOS', 'COMISION PUNTO', 'PRESTAMO', 'INVENTARIO', 
@@ -176,9 +180,56 @@ export default function ReceiptForm() {
     setConceptos(newConceptos);
   };
 
+  const handleBuscarTercero = () => {
+    if (!terceroBusqueda || terceroBusqueda.trim() === '') {
+      alert('Por favor ingrese Nombre o RIF del Tercero');
+      return;
+    }
+    const cleanSearch = terceroBusqueda.trim().toUpperCase();
+    const tercero = terceros.find((t: any) => 
+      t.nombre.toUpperCase().includes(cleanSearch) || 
+      (t.identificacion && t.identificacion.toUpperCase().includes(cleanSearch))
+    );
+    if (tercero) {
+      setTerceroSeleccionado(tercero);
+      setConceptos([]);
+    } else {
+      alert('No se encontró ningún tercero con ese nombre o RIF. Puedes crear uno nuevo.');
+    }
+  };
+
+  const handleCrearTercero = async () => {
+    if (!nuevoTerceroForm.nombre || !nuevoTerceroForm.tipo) {
+      alert('Nombre y Tipo son obligatorios.');
+      return;
+    }
+    try {
+      const res = await fetch('/api/terceros', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(nuevoTerceroForm)
+      });
+      if (res.ok) {
+        const data = await res.json();
+        await refreshData();
+        setTerceroSeleccionado(data);
+        setIsTerceroModalOpen(false);
+        setNuevoTerceroForm({ tipo: 'PROVEEDOR', nombre: '', identificacion: '', telefono: '', direccion: '' });
+      } else {
+        alert('Error al crear tercero');
+      }
+    } catch (error) {
+      alert('Error de conexión');
+    }
+  };
+
   const handleSave = async () => {
     if ((tipo === 'INGRESO_CXP' || tipo === 'EGRESO_CXP') && !socioSeleccionado) {
       alert('Debe seleccionar un socio para este tipo de recibo.');
+      return;
+    }
+    if ((tipo === 'INGRESO_VARIOS' || tipo === 'EGRESO_ADMIN') && !terceroSeleccionado) {
+      alert('Debe seleccionar o registrar un tercero para este tipo de recibo.');
       return;
     }
     if ((tipo === 'INGRESO_VARIOS' || tipo === 'EGRESO_ADMIN') && !clasificacionCustom) {
@@ -199,6 +250,7 @@ export default function ReceiptForm() {
         clasificacion: (tipo === 'INGRESO_VARIOS' || tipo === 'EGRESO_ADMIN') ? (clasificacionCustom || tipo) : tipo,
         recibo: numeroRecibo,
         socioId: socioSeleccionado ? socioSeleccionado.id : null,
+        terceroId: terceroSeleccionado ? terceroSeleccionado.id : null,
         conceptos,
         pago,
         fecha,
@@ -237,10 +289,22 @@ export default function ReceiptForm() {
   };
 
   const receiptData: ReceiptData = {
-    tipo: (tipo.startsWith('INGRESO') ? 'INGRESO' : 'EGRESO') as 'INGRESO' | 'EGRESO',
+    tipo: tipo.startsWith('EGRESO') ? 'EGRESO' : 'INGRESO',
     numeroRecibo,
     fecha: new Date(fecha),
-    socio: socioSeleccionado || { ficha: '', nombre: '', cedula: '' },
+    socio: socioSeleccionado 
+      ? {
+          ficha: socioSeleccionado.ficha,
+          nombre: socioSeleccionado.nombre,
+          cedula: socioSeleccionado.cedula
+        }
+      : terceroSeleccionado 
+        ? {
+            ficha: terceroSeleccionado.tipo,
+            nombre: terceroSeleccionado.nombre,
+            cedula: terceroSeleccionado.identificacion || 'N/A'
+          }
+        : { ficha: '', nombre: '', cedula: '' },
     conceptos,
     pago,
     granTotalBs,
@@ -322,29 +386,57 @@ export default function ReceiptForm() {
                 </select>
               </div>
             )}
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1">Buscar Asociado (Cupo)</label>
-              <div className="flex gap-2">
-                <input 
-                  type="text" 
-                  placeholder="Ej. SA082" 
-                  value={fichaBusqueda}
-                  onChange={e => setFichaBusqueda(e.target.value)}
-                  onKeyDown={e => e.key === 'Enter' && handleBuscarSocio()}
-                  className="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2563EB] uppercase" 
-                />
-                <button 
-                  onClick={handleBuscarSocio}
-                  className="bg-[#0A1128] text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition"
-                >
-                  Buscar
-                </button>
+            {(tipo === 'INGRESO_CXP' || tipo === 'EGRESO_CXP') ? (
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">Buscar Asociado (Cupo)</label>
+                <div className="flex gap-2">
+                  <input 
+                    type="text" 
+                    placeholder="Ej. SA082" 
+                    value={fichaBusqueda}
+                    onChange={e => setFichaBusqueda(e.target.value)}
+                    onKeyDown={e => e.key === 'Enter' && handleBuscarSocio()}
+                    className="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2563EB] uppercase" 
+                  />
+                  <button 
+                    onClick={handleBuscarSocio}
+                    className="bg-[#0A1128] text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition"
+                  >
+                    Buscar
+                  </button>
+                </div>
               </div>
-            </div>
+            ) : (
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">Buscar Tercero (Nombre o RIF)</label>
+                <div className="flex gap-2">
+                  <input 
+                    type="text" 
+                    placeholder="Ej. J-12345678-9 o Ferretería" 
+                    value={terceroBusqueda}
+                    onChange={e => setTerceroBusqueda(e.target.value)}
+                    onKeyDown={e => e.key === 'Enter' && handleBuscarTercero()}
+                    className="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2563EB] uppercase" 
+                  />
+                  <button 
+                    onClick={handleBuscarTercero}
+                    className="bg-[#0A1128] text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition"
+                  >
+                    Buscar
+                  </button>
+                  <button 
+                    onClick={() => setIsTerceroModalOpen(true)}
+                    className="bg-green-600 text-white px-3 py-2 rounded-lg hover:bg-green-700 transition flex items-center whitespace-nowrap"
+                  >
+                    + Nuevo
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
 
-          {/* Fila 2: Datos del Socio */}
-          {socioSeleccionado && (
+          {/* Fila 2: Datos de la Entidad */}
+          {socioSeleccionado && (tipo === 'INGRESO_CXP' || tipo === 'EGRESO_CXP') && (
             <div className="space-y-4">
               <div className="bg-blue-50 border border-blue-100 rounded-lg p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
@@ -370,6 +462,23 @@ export default function ReceiptForm() {
                   </div>
                 </div>
               )}
+            </div>
+          )}
+
+          {terceroSeleccionado && (tipo === 'INGRESO_VARIOS' || tipo === 'EGRESO_ADMIN') && (
+            <div className="bg-green-50 border border-green-100 rounded-lg p-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <p className="text-xs text-green-600 font-bold uppercase">Nombre / Razón Social</p>
+                <p className="font-semibold text-gray-800 text-lg">{terceroSeleccionado.nombre}</p>
+              </div>
+              <div>
+                <p className="text-xs text-green-600 font-bold uppercase">Identificación (RIF/C.I.)</p>
+                <p className="font-semibold text-gray-800 text-lg">{terceroSeleccionado.identificacion || 'N/A'}</p>
+              </div>
+              <div>
+                <p className="text-xs text-green-600 font-bold uppercase">Tipo</p>
+                <p className="font-semibold text-gray-800 text-lg">{terceroSeleccionado.tipo}</p>
+              </div>
             </div>
           )}
 
@@ -628,6 +737,70 @@ export default function ReceiptForm() {
                    Nota: Al hacer clic en "Imprimir", se generará el formato Media Carta con Original y Copia como se espera.
                  </p>
                </div>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Modal Nuevo Tercero */}
+      {isTerceroModalOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-md p-6">
+            <h3 className="text-xl font-bold mb-4">Registrar Nuevo Tercero</h3>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-semibold mb-1">Tipo</label>
+                <select 
+                  value={nuevoTerceroForm.tipo}
+                  onChange={e => setNuevoTerceroForm({...nuevoTerceroForm, tipo: e.target.value})}
+                  className="w-full p-2 border rounded"
+                >
+                  <option value="PROVEEDOR">Proveedor</option>
+                  <option value="EMPLEADO">Empleado</option>
+                  <option value="CLIENTE">Cliente</option>
+                  <option value="OTRO">Otro</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-semibold mb-1">Nombre / Razón Social *</label>
+                <input 
+                  type="text" 
+                  value={nuevoTerceroForm.nombre}
+                  onChange={e => setNuevoTerceroForm({...nuevoTerceroForm, nombre: e.target.value})}
+                  className="w-full p-2 border rounded uppercase" 
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold mb-1">Cédula o RIF</label>
+                <input 
+                  type="text" 
+                  value={nuevoTerceroForm.identificacion}
+                  onChange={e => setNuevoTerceroForm({...nuevoTerceroForm, identificacion: e.target.value})}
+                  className="w-full p-2 border rounded uppercase" 
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold mb-1">Teléfono</label>
+                <input 
+                  type="text" 
+                  value={nuevoTerceroForm.telefono}
+                  onChange={e => setNuevoTerceroForm({...nuevoTerceroForm, telefono: e.target.value})}
+                  className="w-full p-2 border rounded" 
+                />
+              </div>
+              <div className="flex justify-end gap-2 mt-6">
+                <button 
+                  onClick={() => setIsTerceroModalOpen(false)}
+                  className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded"
+                >
+                  Cancelar
+                </button>
+                <button 
+                  onClick={handleCrearTercero}
+                  className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                >
+                  Guardar
+                </button>
+              </div>
             </div>
           </div>
         </div>

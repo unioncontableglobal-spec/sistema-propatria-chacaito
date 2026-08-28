@@ -46,8 +46,10 @@ model Transaccion {
   codigo_concepto String?
   detalle         String?
   asientoId       Int?     @unique
+  terceroId       Int?
   
   socio           Socio?   @relation(fields: [socioId], references: [id])
+  tercero         Tercero? @relation(fields: [terceroId], references: [id])
   formas_pago     FormaPago[]
   asiento         AsientoContable? @relation(fields: [asientoId], references: [id])
 }
@@ -146,4 +148,15 @@ model DetalleAsiento {
   
   asiento     AsientoContable @relation(fields: [asientoId], references: [id])
   cuenta      CuentaContable  @relation(fields: [cuentaId], references: [id])
+}
+
+model Tercero {
+  id             Int      @id @default(autoincrement())
+  tipo           String   // "PROVEEDOR", "EMPLEADO", "CLIENTE", "OTRO"
+  nombre         String
+  identificacion String?  // RIF o Cédula
+  telefono       String?
+  direccion      String?
+  
+  transacciones  Transaccion[]
 }
