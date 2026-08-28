@@ -550,7 +550,25 @@ export default function ReceiptForm() {
               <label className="block text-sm font-semibold text-purple-800 mb-2">Categoría del Movimiento</label>
               <select
                 value={clasificacionCustom}
-                onChange={e => setClasificacionCustom(e.target.value)}
+                onChange={e => {
+                  const newCat = e.target.value;
+                  setClasificacionCustom(newCat);
+                  if (newCat) {
+                    let code = '';
+                    if (tipo === 'INGRESO_VARIOS') code = CODIGOS_INGRESOS[newCat] || '';
+                    if (tipo === 'EGRESO_ADMIN') code = CODIGOS_EGRESOS[newCat] || '';
+                    
+                    setConceptos([{
+                      codigo: code,
+                      descripcion: newCat,
+                      subtotal: 0,
+                      cantidad: 1,
+                      total: 0
+                    }]);
+                  } else {
+                    setConceptos([]);
+                  }
+                }}
                 className="w-full p-2.5 border border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-500 bg-white"
               >
                 <option value="">-- Selecciona una categoría --</option>

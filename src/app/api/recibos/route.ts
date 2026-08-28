@@ -30,6 +30,7 @@ export async function POST(req: NextRequest) {
         monto_usd: montoTotalUsd,
         tasa_cambio: pago.tasa_cambio,
         clasificacion: data.clasificacion || 'RECIBO',
+        codigo_concepto: conceptos && conceptos.length > 0 ? conceptos.map((c: any) => c.codigo).filter(Boolean).join(',') : null,
         detalle: JSON.stringify(conceptos), // Guardamos los conceptos como JSON
         formas_pago: {
           create: {
