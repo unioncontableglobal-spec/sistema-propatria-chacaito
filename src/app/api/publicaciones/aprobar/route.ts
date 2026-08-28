@@ -83,8 +83,11 @@ export async function POST(req: NextRequest) {
       // 3. Crear Cuentas Por Cobrar masivas para todos los socios
       // Preparamos el array de inserts para que sea más eficiente
       const cxcInserts: any[] = [];
+      const sociosSACount = sociosActivos.filter(s => s.ficha?.toUpperCase().startsWith('SA')).length;
       
       sociosActivos.forEach(socio => {
+        const isSB = socio.ficha?.toUpperCase().startsWith('SB');
+
         // Cuota Finanzas Fija
         cxcInserts.push({
           socioId: socio.id,
@@ -96,12 +99,19 @@ export async function POST(req: NextRequest) {
 
         // Por cada evento agrupado (Vidrio, Montepio, etc), calcular el per-capita y añadir
         Object.keys(eventosAgrupados).forEach(tipo => {
-          let costo = eventosAgrupados[tipo] / sociosActivos.length;
+          const isGrua = tipo.toUpperCase().includes('GRUA');
+          
+          if (isGrua && isSB) {
+            return; // SB no pagan grúa
+          }
+
+          let divisor = isGrua ? sociosSACount : sociosActivos.length;
+          let costo = divisor > 0 ? eventosAgrupados[tipo] / divisor : 0;
           
           if (perCapitaFijos) {
             if (tipo.toUpperCase().includes('VIDRIO') && perCapitaFijos.vidrios !== undefined) costo = perCapitaFijos.vidrios;
             if (tipo.toUpperCase().includes('MONTEPIO') && perCapitaFijos.montepio !== undefined) costo = perCapitaFijos.montepio;
-            if (tipo.toUpperCase().includes('GRUA') && perCapitaFijos.grua !== undefined) costo = perCapitaFijos.grua;
+            if (isGrua && perCapitaFijos.grua !== undefined) costo = perCapitaFijos.grua;
             if (tipo.toUpperCase().includes('AYUDA') && perCapitaFijos.ayudas !== undefined) costo = perCapitaFijos.ayudas;
           }
           

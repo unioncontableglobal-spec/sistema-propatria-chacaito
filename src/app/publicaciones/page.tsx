@@ -208,7 +208,12 @@ export default function PublicacionesPage() {
       if (tipoKey === 'AYUDAS') tipo = 'AYUDA $ BCV';
 
       const total = (eventosAgrupados[tipo] || eventosAgrupados[tipoKey])?.montoTotal || 0;
-      let costo = sociosActivosCount > 0 ? total / sociosActivosCount : 0;
+      let costo = 0;
+      if (tipoKey === 'GRUAS') {
+        costo = sociosSA > 0 ? total / sociosSA : 0;
+      } else {
+        costo = sociosActivosCount > 0 ? total / sociosActivosCount : 0;
+      }
       
       if (perCapitaFijos) {
         if (tipoKey === 'VIDRIOS' && perCapitaFijos.vidrios !== undefined) costo = perCapitaFijos.vidrios;
@@ -449,7 +454,8 @@ export default function PublicacionesPage() {
                   { label: 'Ayudas Bs', key: 'ayudas', match: 'AYUDA' }
                 ].map((campo, i) => {
                   const totalCxP = eventos.filter(ev => ev.tipo.toUpperCase().includes(campo.match)).reduce((acc, ev) => acc + ev.monto, 0);
-                  const perCapitaAuto = sociosActivosCount > 0 ? totalCxP / sociosActivosCount : 0;
+                  const divisor = campo.key === 'grua' ? sociosSA : sociosActivosCount;
+                  const perCapitaAuto = divisor > 0 ? totalCxP / divisor : 0;
                   
                   let perCapitaMostrar = perCapitaAuto;
                   if (perCapitaFijos && perCapitaFijos[campo.key] !== undefined && !isNaN(perCapitaFijos[campo.key])) {
@@ -508,7 +514,8 @@ export default function PublicacionesPage() {
                 { key: 'ayudas', match: 'AYUDA' }
               ].reduce((acc, campo) => {
                 const totalCxP = eventos.filter(ev => ev.tipo.toUpperCase().includes(campo.match)).reduce((sum, ev) => sum + ev.monto, 0);
-                const perCapitaAuto = sociosActivosCount > 0 ? totalCxP / sociosActivosCount : 0;
+                const divisor = campo.key === 'grua' ? sociosSA : sociosActivosCount;
+                const perCapitaAuto = divisor > 0 ? totalCxP / divisor : 0;
                 let perCapitaMostrar = perCapitaAuto;
                 if (perCapitaFijos && perCapitaFijos[campo.key] !== undefined && !isNaN(perCapitaFijos[campo.key])) {
                   perCapitaMostrar = perCapitaFijos[campo.key];
