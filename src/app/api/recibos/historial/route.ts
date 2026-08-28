@@ -6,6 +6,7 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const mes = searchParams.get('mes');
     const tipo = searchParams.get('tipo');
+    const clasificacion = searchParams.get('clasificacion');
     const busqueda = searchParams.get('busqueda');
 
     let whereClause: any = {};
@@ -16,6 +17,10 @@ export async function GET(req: NextRequest) {
 
     if (tipo) {
       whereClause.tipo = tipo;
+    }
+
+    if (clasificacion) {
+      whereClause.clasificacion = clasificacion;
     }
 
     if (busqueda) {

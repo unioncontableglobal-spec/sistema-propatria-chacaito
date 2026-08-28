@@ -12,7 +12,7 @@ export default function HistorialRecibosPage() {
 
   // Filtros
   const [mes, setMes] = useState('');
-  const [tipo, setTipo] = useState('');
+  const [clasificacion, setClasificacion] = useState('');
   const [busqueda, setBusqueda] = useState('');
 
   // Impresión
@@ -23,7 +23,7 @@ export default function HistorialRecibosPage() {
     try {
       const params = new URLSearchParams();
       if (mes) params.append('mes', mes);
-      if (tipo) params.append('tipo', tipo);
+      if (clasificacion) params.append('clasificacion', clasificacion);
       if (busqueda) params.append('busqueda', busqueda);
 
       const res = await fetch(`/api/recibos/historial?${params.toString()}`);
@@ -40,7 +40,7 @@ export default function HistorialRecibosPage() {
 
   useEffect(() => {
     fetchHistorial();
-  }, [mes, tipo]); // Refetch when filters change
+  }, [mes, clasificacion]); // Refetch when filters change
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -110,10 +110,12 @@ export default function HistorialRecibosPage() {
           </div>
           <div>
             <label className="block text-xs font-bold text-gray-600 uppercase mb-1">Tipo de Transacción</label>
-            <select value={tipo} onChange={e => setTipo(e.target.value)} className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-[#2563EB]">
+            <select value={clasificacion} onChange={e => setClasificacion(e.target.value)} className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-[#2563EB]">
               <option value="">Todos</option>
-              <option value="INGRESO">Ingresos (Cobros)</option>
-              <option value="EGRESO">Egresos (Pagos)</option>
+              <option value="INGRESO_CXP">Recibos de Publicaciones (Ingresos)</option>
+              <option value="INGRESO_VARIOS">Recibos Otros Ingresos</option>
+              <option value="EGRESO_CXP">Recibos Egresos Publicaciones</option>
+              <option value="EGRESO_ADMIN">Recibos Otros Egresos</option>
             </select>
           </div>
           <div className="md:col-span-2">
