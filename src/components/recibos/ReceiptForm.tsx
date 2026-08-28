@@ -16,6 +16,7 @@ export default function ReceiptForm() {
   
   const [socioSeleccionado, setSocioSeleccionado] = useState<{ id: number, ficha: string, nombre: string, cedula: string } | null>(null);
   
+  const [mesesPendientes, setMesesPendientes] = useState<string[]>([]);
   const [conceptos, setConceptos] = useState<Concepto[]>([]);
   const [pago, setPago] = useState<DetallePago>({
     tipo_pago: 'TRANSFERENCIA',
@@ -74,8 +75,14 @@ export default function ReceiptForm() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
 
+      setMesesPendientes(data.mesesPendientes || []);
+
       if (!data.conceptos || data.conceptos.length === 0) {
-        alert(`No hay deudas o pagos pendientes para este socio en el mes de ${mes}. (O ya fueron procesados previamente)`);
+        let msg = `No hay deudas o pagos pendientes para este socio en el mes de ${mes}. (O ya fueron procesados previamente).`;
+        if (data.mesesPendientes && data.mesesPendientes.length > 0) {
+          msg += `\n\n¡ATENCIÓN! Este socio tiene deuda pendiente en otros meses:\n${data.mesesPendientes.join(', ')}`;
+        }
+        alert(msg);
         setConceptos([]);
         return;
       }
@@ -317,15 +324,31 @@ export default function ReceiptForm() {
 
           {/* Fila 2: Datos del Socio */}
           {socioSeleccionado && (
-            <div className="bg-blue-50 border border-blue-100 rounded-lg p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <p className="text-xs text-blue-600 font-bold uppercase">Nombre y Apellido</p>
-                <p className="font-semibold text-gray-800 text-lg">{socioSeleccionado.nombre}</p>
+            <div className="space-y-4">
+              <div className="bg-blue-50 border border-blue-100 rounded-lg p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <p className="text-xs text-blue-600 font-bold uppercase">Nombre y Apellido</p>
+                  <p className="font-semibold text-gray-800 text-lg">{socioSeleccionado.nombre}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-blue-600 font-bold uppercase">Cédula</p>
+                  <p className="font-semibold text-gray-800 text-lg">{socioSeleccionado.cedula}</p>
+                </div>
               </div>
-              <div>
-                <p className="text-xs text-blue-600 font-bold uppercase">Cédula</p>
-                <p className="font-semibold text-gray-800 text-lg">{socioSeleccionado.cedula}</p>
-              </div>
+
+              {mesesPendientes.length > 0 && (
+                <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg p-4 flex items-center">
+                  <div className="mr-3">
+                    <svg className="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                    </svg>
+                  </div>
+                  <div>
+                    <p className="font-bold">¡ATENCIÓN! Este socio tiene otras deudas pendientes:</p>
+                    <p className="text-sm">Meses atrasados: <span className="font-semibold">{mesesPendientes.join(', ')}</span></p>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 

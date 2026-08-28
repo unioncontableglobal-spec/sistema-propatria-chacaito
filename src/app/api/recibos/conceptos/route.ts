@@ -20,7 +20,18 @@ export async function GET(req: NextRequest) {
           estado: 'PENDIENTE'
         }
       });
-      return NextResponse.json({ conceptos: deudas });
+
+      const todasDeudas = await prisma.cuentaPorCobrar.findMany({
+        where: {
+          socioId: parseInt(socioId, 10),
+          estado: 'PENDIENTE',
+          mes: { not: mes }
+        },
+        select: { mes: true }
+      });
+      const mesesPendientes = Array.from(new Set(todasDeudas.map(d => d.mes))).sort();
+
+      return NextResponse.json({ conceptos: deudas, mesesPendientes });
     } else if (tipo === 'EGRESO_CXP') {
       const beneficios = await prisma.cuentaPorPagar.findMany({
         where: {
