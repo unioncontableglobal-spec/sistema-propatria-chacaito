@@ -38,7 +38,7 @@ interface PrintableViewProps {
 
 export default function PrintableView({ data }: PrintableViewProps) {
   const options: Intl.DateTimeFormatOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-  const formattedDate = data.fecha.toLocaleDateString('es-ES', options);
+  const formattedDate = new Date(data.fecha).toLocaleDateString('es-ES', options);
 
   const ReceiptBlock = ({ isCopy }: { isCopy: boolean }) => (
     <div className={`w-1/2 h-full p-4 flex flex-col relative overflow-hidden box-border ${!isCopy ? 'border-l border-dashed border-gray-400' : ''}`} style={{ pageBreakInside: 'avoid' }}>
