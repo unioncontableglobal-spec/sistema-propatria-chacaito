@@ -13,8 +13,25 @@ export default function ReceiptForm() {
   const [fecha, setFecha] = useState<string>(new Date().toISOString().split('T')[0]);
   const [numeroRecibo, setNumeroRecibo] = useState<string>('');
   const [fichaBusqueda, setFichaBusqueda] = useState('');
-  
   const [socioSeleccionado, setSocioSeleccionado] = useState<{ id: number, ficha: string, nombre: string, cedula: string } | null>(null);
+
+  const INGRESOS_CATEGORIAS = [
+    'ABONOS', 'COMISION PUNTO', 'PRESTAMO', 'INVENTARIO', 
+    'INGRESO POR REINTEGROS', 'INGRESO POR DEPOSITO', 'IMPUESTO CHACAO', 
+    'INGRESO ESTACIONAMIENTO', 'LOCALES ESTACIONAMIENTO', 'INGRESO A CAJA', 
+    'GRUA', 'TRANSFERENCIA MISMO TITULAR', 'OTROS INGRESOS'
+  ];
+
+  const EGRESOS_CATEGORIAS = [
+    'REINTEGROS', 'SUMINISTROS', 'NOMINA', 'MANTENIMIENTO SEDE', 
+    'MATERIAL DE OFICINA', 'GASTOS DE REPRESENTACION', 'GASTOS ASISTENCIA SOCIAL', 
+    'GASTOS COMISION ELECTORAL', 'GASTOS TRANSITO Y RECLAMOS', 'GASTOS DE ADMINISTRACION', 
+    'SERVICIOS BASICOS', 'GASTOS GRUA', 'HONORARIOS ABOGADO', 'DONACIONES Y COLABORACIONES', 
+    'PAGO DE AYUDAS', 'MANTENIMIENTO EQUIPOS DE OFICINA', 'PRESTAMOS', 
+    'GASTOS ESTACIONAMIENTO', 'OTROS EGRESOS'
+  ];
+
+  const [clasificacionCustom, setClasificacionCustom] = useState<string>('');
   
   const [mesesPendientes, setMesesPendientes] = useState<string[]>([]);
   const [conceptos, setConceptos] = useState<Concepto[]>([]);
@@ -164,6 +181,10 @@ export default function ReceiptForm() {
       alert('Debe seleccionar un socio para este tipo de recibo.');
       return;
     }
+    if ((tipo === 'INGRESO_VARIOS' || tipo === 'EGRESO_ADMIN') && !clasificacionCustom) {
+      alert('Debe seleccionar una Categoría del Movimiento antes de guardar.');
+      return;
+    }
     if (conceptos.length === 0) {
       alert('Debe agregar al menos un concepto');
       return;
@@ -175,7 +196,7 @@ export default function ReceiptForm() {
     try {
       const payload = {
         tipo: tipo.startsWith('EGRESO') ? 'EGRESO' : 'INGRESO',
-        clasificacion: tipo, // 'INGRESO_CXP' | 'INGRESO_VARIOS' | 'EGRESO_CXP' | 'EGRESO_ADMIN'
+        clasificacion: (tipo === 'INGRESO_VARIOS' || tipo === 'EGRESO_ADMIN') ? (clasificacionCustom || tipo) : tipo,
         recibo: numeroRecibo,
         socioId: socioSeleccionado ? socioSeleccionado.id : null,
         conceptos,
@@ -349,6 +370,26 @@ export default function ReceiptForm() {
                   </div>
                 </div>
               )}
+            </div>
+          )}
+
+          {/* Fila Extra: Clasificación (solo para Varios/Admin) */}
+          {(tipo === 'INGRESO_VARIOS' || tipo === 'EGRESO_ADMIN') && (
+            <div className="bg-purple-50 border border-purple-100 rounded-lg p-4">
+              <label className="block text-sm font-semibold text-purple-800 mb-2">Categoría del Movimiento</label>
+              <select
+                value={clasificacionCustom}
+                onChange={e => setClasificacionCustom(e.target.value)}
+                className="w-full p-2.5 border border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-500 bg-white"
+              >
+                <option value="">-- Selecciona una categoría --</option>
+                {tipo === 'INGRESO_VARIOS' && INGRESOS_CATEGORIAS.map(cat => (
+                  <option key={cat} value={cat}>{cat}</option>
+                ))}
+                {tipo === 'EGRESO_ADMIN' && EGRESOS_CATEGORIAS.map(cat => (
+                  <option key={cat} value={cat}>{cat}</option>
+                ))}
+              </select>
             </div>
           )}
 
