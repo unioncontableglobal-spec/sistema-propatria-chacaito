@@ -14,6 +14,7 @@ CREATE TABLE IF NOT EXISTS "Socio" (
     "placa" TEXT,
     "direccion" TEXT
 );
+CREATE TABLE sqlite_sequence(name,seq);
 CREATE TABLE IF NOT EXISTS "FormaPago" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     "transaccionId" INTEGER NOT NULL,

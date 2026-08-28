@@ -28,7 +28,7 @@ export async function GET() {
 
     const cxpRaw = cxpList.map(p => ({
       mes: p.mes || 'ENERO',
-      montoUsd: p.monto
+      montoUsd: p.total || p.monto
     }));
 
     const sociosActivosRaw = socios
@@ -36,7 +36,15 @@ export async function GET() {
       .map(s => {
         let tipo = 'SA';
         if (s.codigo?.startsWith('SB') || s.ficha?.startsWith('SB')) tipo = 'SB';
-        return { mes: 'HISTÓRICO TRIMESTRAL', tipo }; // Socios don't have month in db, just use dummy month for global filter
+        
+        let mes = 'ENERO'; // default if no date
+        if (s.f_afiliacion) {
+          const month = s.f_afiliacion.toLocaleString('es-ES', { month: 'long', timeZone: 'UTC' });
+          mes = month.charAt(0).toUpperCase() + month.slice(1);
+        } else {
+          mes = 'HISTÓRICO TRIMESTRAL';
+        }
+        return { mes, tipo };
       });
 
     // Nuevos ingresos: parse f_afiliacion from socios

@@ -49,8 +49,8 @@ export default function DistributionPieChart({ data, type }: Props) {
   };
 
   return (
-    <div style={{ width: '100%', height: 320 }}>
-      <ResponsiveContainer>
+    <div style={{ width: '100%', height: '100%', minHeight: 320 }}>
+      <ResponsiveContainer width="100%" height="100%">
         <PieChart>
           <Pie
             data={data}

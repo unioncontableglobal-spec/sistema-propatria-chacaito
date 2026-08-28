@@ -12,6 +12,12 @@ import { useSearchParams, useRouter } from 'next/navigation';
 
 const TASA_CAMBIO = 35.00;
 
+const monthOrder: Record<string, number> = { 
+  'ENERO': 1, 'FEBRERO': 2, 'MARZO': 3, 'ABRIL': 4, 
+  'MAYO': 5, 'JUNIO': 6, 'JULIO': 7, 'AGOSTO': 8, 
+  'SEPTIEMBRE': 9, 'OCTUBRE': 10, 'NOVIEMBRE': 11, 'DICIEMBRE': 12 
+};
+
 function groupTopCategories(map: Map<string, number>, maxCategories: number = 6) {
   const entries = Array.from(map.entries());
   entries.sort((a, b) => b[1] - a[1]);
@@ -22,7 +28,7 @@ function groupTopCategories(map: Map<string, number>, maxCategories: number = 6)
   const othersTotal = others.reduce((acc, curr) => acc + curr[1], 0);
   
   const result = top.map(([name, value]) => ({ name, value }));
-  result.push({ name: 'OTROS', value: othersTotal });
+  if (othersTotal > 0) result.push({ name: 'OTROS', value: othersTotal });
   return result;
 }
 
@@ -49,6 +55,7 @@ export default function Home() {
     const cxcCompositionMap = new Map<string, any>();
 
     const filterMonthUpper = mesFiltro !== 'HISTÓRICO TRIMESTRAL' && mesFiltro !== 'HISTORICO TRIMESTRAL' ? mesFiltro.toUpperCase() : null;
+    const filterMonthIdx = filterMonthUpper ? (monthOrder[filterMonthUpper] || 99) : 99;
 
     // Ingresos
     rawData.ingresosRaw.forEach(row => {
@@ -81,10 +88,15 @@ export default function Home() {
       const rowUsd = row.fianzas + row.vidrios + row.montepio + row.grua;
       cxcUsd += rowUsd;
 
-      cxcCompositionMap.set(mes, {
-        name: mes,
-        fianzas: row.fianzas, ayudasBs: row.ayudasBs, vidrios: row.vidrios, montepio: row.montepio, grua: row.grua
-      });
+      if (!cxcCompositionMap.has(mes)) {
+        cxcCompositionMap.set(mes, { name: mes, fianzas: 0, ayudasBs: 0, vidrios: 0, montepio: 0, grua: 0 });
+      }
+      const c = cxcCompositionMap.get(mes);
+      c.fianzas += row.fianzas;
+      c.ayudasBs += row.ayudasBs;
+      c.vidrios += row.vidrios;
+      c.montepio += row.montepio;
+      c.grua += row.grua;
     });
     cxcBs += cxcUsd * TASA_CAMBIO;
 
@@ -95,18 +107,22 @@ export default function Home() {
       cxpUsd += row.montoUsd;
     });
 
-    // Socios Activos
+    // Socios Activos (Histórico hasta el mes seleccionado)
     rawData.sociosActivosRaw.forEach(row => {
       const mes = row.mes.toUpperCase();
-      if (filterMonthUpper && mes !== filterMonthUpper) return;
+      const rowMonthIdx = monthOrder[mes] || 1; // Si no tiene fecha, asumimos que es antiguo
+      
+      if (filterMonthUpper && rowMonthIdx > filterMonthIdx) return; // Excluir afiliados futuros al mes filtrado
+      
       if (row.tipo === 'SA') totalSociosActivosSA++;
       else if (row.tipo === 'SB') totalSociosActivosSB++;
     });
 
-    // Nuevos Ingresos
+    // Nuevos Ingresos (Solo los del mes filtrado, o todos si es histórico total)
     rawData.nuevosIngresosRaw.forEach(row => {
       const mes = row.mes.toUpperCase();
       if (filterMonthUpper && !mes.includes(filterMonthUpper)) return;
+      
       if (row.ficha.startsWith('SA')) nuevosIngresosMesSA++;
       else if (row.ficha.startsWith('SB')) nuevosIngresosMesSB++;
     });
@@ -131,7 +147,7 @@ export default function Home() {
     };
   }, [rawData, mesFiltro]);
 
-  if (!data) return null; // Loaded in layout, so this shouldn't happen for long
+  if (!data) return null;
 
   const totalSocios = data.totalSociosActivosSA + data.totalSociosActivosSB;
   const pctSA = totalSocios > 0 ? Math.round((data.totalSociosActivosSA / totalSocios) * 100) : 0;
@@ -143,6 +159,7 @@ export default function Home() {
   const margenCaja = data.totalIngresosBs > 0 ? ((data.flujoCajaBs / data.totalIngresosBs) * 100).toFixed(1) : 0;
   const pesoDeudaCxC = (data.flujoCajaBs + data.cxcBs) > 0 ? ((data.cxcBs / (data.flujoCajaBs + data.cxcBs)) * 100).toFixed(1) : 0;
   const pesoPasivosCxP = data.totalEgresosBs > 0 ? ((data.cxpBs / data.totalEgresosBs) * 100).toFixed(1) : 0;
+  
   return (
     <div className="pb-8">
       <header className="mb-6 bg-transparent shadow-none p-0 flex flex-col md:flex-row md:justify-between md:items-end gap-4">
@@ -151,9 +168,10 @@ export default function Home() {
           <p className="text-text-muted text-sm mt-1">Periodo Fiscal: <strong>{mesFiltro}</strong></p>
         </div>
       </header>
+      
       {/* KPIs Superiores */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-[#16A34A] p-4 flex flex-col gap-1 hover:shadow-md transition-shadow">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
+        <div className="bg-gradient-to-br from-white to-gray-50 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-[#16A34A] p-4 flex flex-col gap-1 hover:shadow-md transition-all hover:-translate-y-1">
           <h4 className="text-text-muted text-xs uppercase tracking-wider font-semibold leading-tight">Flujo de Caja</h4>
           <div className="flex items-center gap-2 mt-1">
             <p className="text-2xl font-bold text-[#16A34A] truncate" title={formatBs(data.flujoCajaBs)}>{formatBs(data.flujoCajaBs)}</p>
@@ -162,7 +180,7 @@ export default function Home() {
           <p className="text-xs text-text-muted">{formatUsd(data.flujoCajaUsd)} USD</p>
         </div>
         
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-[#16A34A] p-4 flex flex-col gap-1 hover:shadow-md transition-shadow">
+        <div className="bg-gradient-to-br from-white to-gray-50 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-[#16A34A] p-4 flex flex-col gap-1 hover:shadow-md transition-all hover:-translate-y-1">
           <h4 className="text-text-muted text-xs uppercase tracking-wider font-semibold leading-tight">Cuentas por Cobrar</h4>
           <div className="flex items-center gap-2 mt-1">
             <p className="text-2xl font-bold text-[#16A34A] truncate" title={formatBs(data.cxcBs)}>{formatBs(data.cxcBs)}</p>
@@ -171,7 +189,7 @@ export default function Home() {
           <p className="text-xs text-text-muted">{formatUsd(data.cxcUsd)} USD</p>
         </div>
         
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-[#DC2626] p-4 flex flex-col gap-1 hover:shadow-md transition-shadow">
+        <div className="bg-gradient-to-br from-white to-gray-50 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-[#DC2626] p-4 flex flex-col gap-1 hover:shadow-md transition-all hover:-translate-y-1">
           <h4 className="text-text-muted text-xs uppercase tracking-wider font-semibold leading-tight">Cuentas por Pagar</h4>
           <div className="flex items-center gap-2 mt-1">
             <p className="text-2xl font-bold text-[#DC2626] truncate" title={formatBs(data.cxpBs)}>{formatBs(data.cxpBs)}</p>
@@ -180,7 +198,7 @@ export default function Home() {
           <p className="text-xs text-text-muted">{formatUsd(data.cxpUsd)} USD</p>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-primary p-4 flex justify-between items-start relative hover:shadow-md transition-shadow">
+        <div className="bg-gradient-to-br from-white to-gray-50 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-primary p-4 flex justify-between items-start relative hover:shadow-md transition-all hover:-translate-y-1">
           <div className="flex flex-col justify-center w-full">
             <h4 className="text-text-muted text-xs uppercase tracking-wider font-semibold">Socios Activos</h4>
             <div className="flex justify-between items-center mt-1">
@@ -194,7 +212,7 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-[#3B82F6] p-4 flex justify-between items-start relative hover:shadow-md transition-shadow">
+        <div className="bg-gradient-to-br from-white to-gray-50 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-[#3B82F6] p-4 flex justify-between items-start relative hover:shadow-md transition-all hover:-translate-y-1">
           <div className="flex flex-col justify-center w-full">
             <h4 className="text-text-muted text-xs uppercase tracking-wider font-semibold">Nuevos Ingresos</h4>
             <div className="flex justify-between items-center mt-1">
@@ -208,29 +226,39 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Grid de Gráficos Principales */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 lg:col-span-2 hover:shadow-md transition-shadow">
+      {/* Gráfico Principal (Ancho Completo) */}
+      <div className="w-full mb-6">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 hover:shadow-md transition-shadow">
           <h3 className="text-lg font-semibold mb-4 text-primary">Tendencia Mensual (Ingresos vs Egresos)</h3>
-          <MonthlyTrendChart data={data.monthlyTrend} />
-        </div>
-
-        <div className="flex flex-col gap-6 lg:col-span-1">
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 flex-1 hover:shadow-md transition-shadow">
-            <h3 className="text-base font-semibold mb-2 text-primary">Distribución de Ingresos</h3>
-            <DistributionPieChart data={data.incomeDistribution} type="income" />
-          </div>
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 flex-1 hover:shadow-md transition-shadow">
-            <h3 className="text-base font-semibold mb-2 text-primary">Distribución de Egresos</h3>
-            <DistributionPieChart data={data.expenseDistribution} type="expense" />
+          <div className="h-80 w-full">
+            <MonthlyTrendChart data={data.monthlyTrend} />
           </div>
         </div>
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 hover:shadow-md transition-shadow">
-        <h3 className="text-lg font-semibold mb-2 text-primary">Composición de Cuentas por Cobrar (CxC)</h3>
-        <p className="text-text-muted text-sm mb-6">Detalle de deuda apilado por conceptos de cobro a socios.</p>
-        <CxCStackedBarChart data={data.cxcComposition} />
+      {/* Grid Secundario de Gráficos */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 hover:shadow-md transition-shadow flex flex-col">
+          <h3 className="text-base font-semibold mb-4 text-primary">Distribución de Ingresos</h3>
+          <div className="flex-1 min-h-[250px]">
+            <DistributionPieChart data={data.incomeDistribution} type="income" />
+          </div>
+        </div>
+        
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 hover:shadow-md transition-shadow flex flex-col">
+          <h3 className="text-base font-semibold mb-4 text-primary">Distribución de Egresos</h3>
+          <div className="flex-1 min-h-[250px]">
+            <DistributionPieChart data={data.expenseDistribution} type="expense" />
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 hover:shadow-md transition-shadow flex flex-col">
+          <h3 className="text-base font-semibold mb-2 text-primary">Composición CxC</h3>
+          <p className="text-text-muted text-xs mb-4">Deuda agrupada por concepto.</p>
+          <div className="flex-1 min-h-[250px]">
+            <CxCStackedBarChart data={data.cxcComposition} />
+          </div>
+        </div>
       </div>
     </div>
   );
