@@ -57,6 +57,10 @@ export default function Home() {
     const filterMonthUpper = mesFiltro !== 'HISTÓRICO TRIMESTRAL' && mesFiltro !== 'HISTORICO TRIMESTRAL' ? mesFiltro.toUpperCase() : null;
     const filterMonthIdx = filterMonthUpper ? (monthOrder[filterMonthUpper] || 99) : 99;
 
+    let otrosIngresosBs = 0;
+    let otrosEgresosBs = 0;
+    let prestamosBs = 0;
+
     // Ingresos
     rawData.ingresosRaw.forEach(row => {
       const mes = row.mes.toUpperCase();
@@ -66,6 +70,8 @@ export default function Home() {
       if (!monthlyTrendMap.has(mes)) monthlyTrendMap.set(mes, { ingresos: 0, egresos: 0 });
       monthlyTrendMap.get(mes)!.ingresos += row.montoBs;
       incomeDistributionMap.set(row.clasificacion, (incomeDistributionMap.get(row.clasificacion) || 0) + row.montoBs);
+
+      if (row.clasificacion.toUpperCase().includes('OTRO')) otrosIngresosBs += row.montoBs;
     });
 
     // Egresos
@@ -77,6 +83,9 @@ export default function Home() {
       if (!monthlyTrendMap.has(mes)) monthlyTrendMap.set(mes, { ingresos: 0, egresos: 0 });
       monthlyTrendMap.get(mes)!.egresos += row.montoBs;
       expenseDistributionMap.set(row.clasificacion, (expenseDistributionMap.get(row.clasificacion) || 0) + row.montoBs);
+
+      if (row.clasificacion.toUpperCase().includes('OTRO')) otrosEgresosBs += row.montoBs;
+      if (row.clasificacion.toUpperCase().includes('PRESTAMO') || row.clasificacion.toUpperCase().includes('PRÉSTAMO')) prestamosBs += row.montoBs;
     });
 
     // CxC
@@ -110,9 +119,9 @@ export default function Home() {
     // Socios Activos (Histórico hasta el mes seleccionado)
     rawData.sociosActivosRaw.forEach(row => {
       const mes = row.mes.toUpperCase();
-      const rowMonthIdx = monthOrder[mes] || 1; // Si no tiene fecha, asumimos que es antiguo
+      const rowMonthIdx = monthOrder[mes] || 1; 
       
-      if (filterMonthUpper && rowMonthIdx > filterMonthIdx) return; // Excluir afiliados futuros al mes filtrado
+      if (filterMonthUpper && rowMonthIdx > filterMonthIdx) return; 
       
       if (row.tipo === 'SA') totalSociosActivosSA++;
       else if (row.tipo === 'SB') totalSociosActivosSB++;
@@ -138,6 +147,9 @@ export default function Home() {
       totalSociosActivosSB,
       nuevosIngresosMesSA,
       nuevosIngresosMesSB,
+      otrosIngresosBs,
+      otrosEgresosBs,
+      prestamosBs,
       monthlyTrend: Array.from(monthlyTrendMap.entries()).map(([name, data]) => ({ name, ...data })),
       incomeDistribution: groupTopCategories(incomeDistributionMap),
       expenseDistribution: groupTopCategories(expenseDistributionMap),
@@ -170,7 +182,7 @@ export default function Home() {
       </header>
       
       {/* KPIs Superiores */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-4">
         <div className="bg-gradient-to-br from-white to-gray-50 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-[#16A34A] p-4 flex flex-col gap-1 hover:shadow-md transition-all hover:-translate-y-1">
           <h4 className="text-text-muted text-xs uppercase tracking-wider font-semibold leading-tight">Flujo de Caja</h4>
           <div className="flex items-center gap-2 mt-1">
@@ -181,7 +193,7 @@ export default function Home() {
         </div>
         
         <div className="bg-gradient-to-br from-white to-gray-50 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-[#16A34A] p-4 flex flex-col gap-1 hover:shadow-md transition-all hover:-translate-y-1">
-          <h4 className="text-text-muted text-xs uppercase tracking-wider font-semibold leading-tight">Cuentas por Cobrar</h4>
+          <h4 className="text-text-muted text-xs uppercase tracking-wider font-semibold leading-tight">CxC por Publicaciones</h4>
           <div className="flex items-center gap-2 mt-1">
             <p className="text-2xl font-bold text-[#16A34A] truncate" title={formatBs(data.cxcBs)}>{formatBs(data.cxcBs)}</p>
             <span className="bg-[#DBEAFE] text-[#1E3A8A] text-[0.65rem] font-bold px-1.5 py-0.5 rounded whitespace-nowrap">{pesoDeudaCxC}%</span>
@@ -190,7 +202,7 @@ export default function Home() {
         </div>
         
         <div className="bg-gradient-to-br from-white to-gray-50 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-[#DC2626] p-4 flex flex-col gap-1 hover:shadow-md transition-all hover:-translate-y-1">
-          <h4 className="text-text-muted text-xs uppercase tracking-wider font-semibold leading-tight">Cuentas por Pagar</h4>
+          <h4 className="text-text-muted text-xs uppercase tracking-wider font-semibold leading-tight">CxP por Publicaciones</h4>
           <div className="flex items-center gap-2 mt-1">
             <p className="text-2xl font-bold text-[#DC2626] truncate" title={formatBs(data.cxpBs)}>{formatBs(data.cxpBs)}</p>
             <span className="bg-[#FEE2E2] text-[#DC2626] text-[0.65rem] font-bold px-1.5 py-0.5 rounded whitespace-nowrap">{pesoPasivosCxP}%</span>
@@ -226,6 +238,31 @@ export default function Home() {
         </div>
       </div>
 
+      {/* Fila secundaria de KPIs (Otros) */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 flex items-center justify-between">
+          <div>
+            <p className="text-xs text-text-muted uppercase font-semibold">Otros Ingresos</p>
+            <p className="text-lg font-bold text-[#16A34A]">{formatBs(data.otrosIngresosBs)}</p>
+          </div>
+          <div className="bg-[#DCFCE7] text-[#16A34A] px-2 py-1 rounded text-xs font-bold">~ {formatUsd(data.otrosIngresosBs / TASA_CAMBIO)} USD</div>
+        </div>
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 flex items-center justify-between">
+          <div>
+            <p className="text-xs text-text-muted uppercase font-semibold">Otros Egresos</p>
+            <p className="text-lg font-bold text-[#DC2626]">{formatBs(data.otrosEgresosBs)}</p>
+          </div>
+          <div className="bg-[#FEE2E2] text-[#DC2626] px-2 py-1 rounded text-xs font-bold">~ {formatUsd(data.otrosEgresosBs / TASA_CAMBIO)} USD</div>
+        </div>
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 flex items-center justify-between">
+          <div>
+            <p className="text-xs text-text-muted uppercase font-semibold">Préstamos a Socios (Emitidos)</p>
+            <p className="text-lg font-bold text-[#D97706]">{formatBs(data.prestamosBs)}</p>
+          </div>
+          <div className="bg-[#FEF3C7] text-[#D97706] px-2 py-1 rounded text-xs font-bold">~ {formatUsd(data.prestamosBs / TASA_CAMBIO)} USD</div>
+        </div>
+      </div>
+
       {/* Gráfico Principal (Ancho Completo) */}
       <div className="w-full mb-6">
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 hover:shadow-md transition-shadow">
@@ -253,7 +290,7 @@ export default function Home() {
         </div>
 
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 hover:shadow-md transition-shadow flex flex-col">
-          <h3 className="text-base font-semibold mb-2 text-primary">Composición CxC</h3>
+          <h3 className="text-base font-semibold mb-2 text-primary">Composición CxC por Publicaciones</h3>
           <p className="text-text-muted text-xs mb-4">Deuda agrupada por concepto.</p>
           <div className="flex-1 min-h-[250px]">
             <CxCStackedBarChart data={data.cxcComposition} />

@@ -40,11 +40,11 @@ export default function CxCStackedBarChart({ data }: Props) {
           <YAxis axisLine={false} tickLine={false} tickFormatter={(value) => `$${value}`} />
           <Tooltip content={<CustomTooltip />} />
           <Legend />
-          <Bar dataKey="fianzas" name="Fianzas ($)" stackId="a" fill="#0A1128" />
-          <Bar dataKey="vidrios" name="Vidrios ($)" stackId="a" fill="#1E3A8A" />
-          <Bar dataKey="montepio" name="Montepio ($)" stackId="a" fill="#3B82F6" />
-          <Bar dataKey="grua" name="Grua ($)" stackId="a" fill="#93C5FD" />
-          <Bar dataKey="ayudasBs" name="Ayudas (Bs)" stackId="a" fill="#FB923C" />
+          <Bar dataKey="fianzas" name="Fianzas ($)" stackId="a" fill="#064E3B" />
+          <Bar dataKey="vidrios" name="Vidrios ($)" stackId="a" fill="#15803D" />
+          <Bar dataKey="montepio" name="Montepio ($)" stackId="a" fill="#22C55E" />
+          <Bar dataKey="grua" name="Grua ($)" stackId="a" fill="#4ADE80" />
+          <Bar dataKey="ayudasBs" name="Ayudas (Bs)" stackId="a" fill="#86EFAC" />
         </BarChart>
       </ResponsiveContainer>
     </div>
