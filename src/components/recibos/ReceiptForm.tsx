@@ -35,6 +35,27 @@ export default function ReceiptForm() {
     'GASTOS ESTACIONAMIENTO', 'OTROS EGRESOS'
   ];
 
+  const CODIGOS_INGRESOS: Record<string, string> = {
+    "VIDRIOS": "1197", "MONTEPIO": "1237", "FINANZAS": "1264", "CxC 2025": "1292",
+    "ABONOS": "1285", "COMISION PUNTO": "1172", "PRESTAMO": "1295", "INVENTARIO": "1158",
+    "INGRESO POR REINTEGROS": "1297", "INGRESO POR DEPOSITO": "1132", "IMPUESTO CHACAO": "1310",
+    "INGRESO ESTACIONAMIENTO": "600", "LOCALES ESTACIONAMIENTO": "1262", "ESTACIONAMIENTO": "1134",
+    "INGRESO A CAJA": "114", "GRUA": "1276", "INGRESO A CAJA $": "1305", "TRANSFERENCIA MISMO TITULAR": "116"
+  };
+
+  const CODIGOS_EGRESOS: Record<string, string> = {
+    "REINTEGROS": "1297", "SUMINISTROS": "1101", "NOMINA": "1303", "MANTENIMIENTO SEDE": "114",
+    "MATERIAL DE OFICINA": "24", "REMANENTE": "27", "GASTOS DE REPRESENTACION": "1094",
+    "GASTOS ASISTENCIA SOCIAL": "303", "GASTOS COMISION ELECTORAL": "133", "GASTOS TRANSITO Y RECLAMOS": "596",
+    "GASTOS DE ADMINISTRACION": "28", "PAGO VIDRIOS": "39", "COMPRA $": "1305", "SERVICIOS BASICOS": "98",
+    "GASTOS GRUA": "1276", "SEC. DEPORTE": "62", "PRESTAMOS": "7", "HONORARIOS ABOGADO": "22",
+    "DONACIONES Y COLABORACIONES": "80", "TRANSFERENCIA ENTRE CUENTAS": "116", "PAGO DE AYUDAS": "112",
+    "GASTOS DE ORGANIZACIÓN": "1102", "INVENTARIO": "10000", "PAGO MONTEPIO": "1237", "BONIFICACIONES": "294",
+    "COMPRA CUPO": "1312", "GASTOS ESTACIONAMIENTO": "1262", "MANTENIMIENTO EQUIPOS DE OFICINA": "78"
+  };
+
+  const [tipoEntidad, setTipoEntidad] = useState<'SOCIO' | 'TERCERO'>('SOCIO');
+
   const [clasificacionCustom, setClasificacionCustom] = useState<string>('');
   
   const [mesesPendientes, setMesesPendientes] = useState<string[]>([]);
@@ -113,7 +134,7 @@ export default function ReceiptForm() {
       if (currentTipo === 'INGRESO_CXP') {
         data.conceptos.forEach((cxc: any, idx: number) => {
           newConceptos.push({
-            codigo: `10${idx}`,
+            codigo: CODIGOS_INGRESOS[cxc.tipo_publicacion] || `10${idx}`,
             descripcion: `${cxc.tipo_publicacion} ${mes}`,
             subtotal: cxc.monto_a_cobrar,
             cantidad: 1,
@@ -123,8 +144,14 @@ export default function ReceiptForm() {
         setConceptos(newConceptos);
       } else if (currentTipo === 'EGRESO_CXP') {
         data.conceptos.forEach((cxp: any, idx: number) => {
+          let code = `EV-${idx+1}`;
+          if (cxp.tipo_publicacion === 'VIDRIOS') code = CODIGOS_EGRESOS['PAGO VIDRIOS'] || code;
+          if (cxp.tipo_publicacion === 'MONTEPIO') code = CODIGOS_EGRESOS['PAGO MONTEPIO'] || code;
+          if (cxp.tipo_publicacion === 'AYUDAS') code = CODIGOS_EGRESOS['PAGO DE AYUDAS'] || code;
+          if (cxp.tipo_publicacion === 'REMANENTE') code = CODIGOS_EGRESOS['REMANENTE'] || code;
+
           newConceptos.push({
-            codigo: `EV-${idx+1}`,
+            codigo: code,
             descripcion: `Beneficio ${cxp.tipo_publicacion} - ${cxp.parentesco || ''} (${mes})`,
             subtotal: cxp.monto,
             cantidad: 1,
@@ -164,7 +191,24 @@ export default function ReceiptForm() {
   };
 
   const addConcepto = () => {
-    setConceptos([...conceptos, { codigo: '', descripcion: '', subtotal: 0, cantidad: 1, total: 0 }]);
+    let defaultCode = '';
+    let defaultDesc = '';
+    if (tipo === 'INGRESO_VARIOS') {
+      defaultCode = CODIGOS_INGRESOS[clasificacionCustom] || '';
+      defaultDesc = clasificacionCustom || '';
+    }
+    if (tipo === 'EGRESO_ADMIN') {
+      defaultCode = CODIGOS_EGRESOS[clasificacionCustom] || '';
+      defaultDesc = clasificacionCustom || '';
+    }
+
+    setConceptos([...conceptos, {
+      codigo: defaultCode,
+      descripcion: defaultDesc,
+      subtotal: 0,
+      cantidad: 1,
+      total: 0
+    }]);
   };
 
   const removeConcepto = (index: number) => {
@@ -228,9 +272,15 @@ export default function ReceiptForm() {
       alert('Debe seleccionar un socio para este tipo de recibo.');
       return;
     }
-    if ((tipo === 'INGRESO_VARIOS' || tipo === 'EGRESO_ADMIN') && !terceroSeleccionado) {
-      alert('Debe seleccionar o registrar un tercero para este tipo de recibo.');
-      return;
+    if ((tipo === 'INGRESO_VARIOS' || tipo === 'EGRESO_ADMIN')) {
+      if (tipoEntidad === 'SOCIO' && !socioSeleccionado) {
+        alert('Debe seleccionar un socio.');
+        return;
+      }
+      if (tipoEntidad === 'TERCERO' && !terceroSeleccionado) {
+        alert('Debe seleccionar o registrar un tercero.');
+        return;
+      }
     }
     if ((tipo === 'INGRESO_VARIOS' || tipo === 'EGRESO_ADMIN') && !clasificacionCustom) {
       alert('Debe seleccionar una Categoría del Movimiento antes de guardar.');
@@ -321,25 +371,25 @@ export default function ReceiptForm() {
           <h2 className="text-xl font-bold">Emisión de Recibos</h2>
           <div className="flex bg-[#1E293B] rounded-lg p-1 gap-1">
             <button
-              onClick={() => { setTipo('INGRESO_CXP'); setConceptos([]); }}
+              onClick={() => { setTipo('INGRESO_CXP'); setConceptos([]); setTipoEntidad('SOCIO'); }}
               className={`px-4 py-2 rounded-md font-semibold transition-colors ${tipo === 'INGRESO_CXP' ? 'bg-[#2563EB] text-white' : 'text-gray-400 hover:text-white'}`}
             >
               Ingreso (Pubs)
             </button>
             <button
-              onClick={() => { setTipo('INGRESO_VARIOS'); setConceptos([]); }}
+              onClick={() => { setTipo('INGRESO_VARIOS'); setConceptos([]); setTipoEntidad('TERCERO'); }}
               className={`px-4 py-2 rounded-md font-semibold transition-colors ${tipo === 'INGRESO_VARIOS' ? 'bg-[#2563EB] text-white' : 'text-gray-400 hover:text-white'}`}
             >
               Ingreso (Varios)
             </button>
             <button
-              onClick={() => { setTipo('EGRESO_CXP'); setConceptos([]); }}
+              onClick={() => { setTipo('EGRESO_CXP'); setConceptos([]); setTipoEntidad('SOCIO'); }}
               className={`px-4 py-2 rounded-md font-semibold transition-colors ${tipo === 'EGRESO_CXP' ? 'bg-[#2563EB] text-white' : 'text-gray-400 hover:text-white'}`}
             >
               Egreso (Pubs)
             </button>
             <button
-              onClick={() => { setTipo('EGRESO_ADMIN'); setConceptos([]); }}
+              onClick={() => { setTipo('EGRESO_ADMIN'); setConceptos([]); setTipoEntidad('TERCERO'); }}
               className={`px-4 py-2 rounded-md font-semibold transition-colors ${tipo === 'EGRESO_ADMIN' ? 'bg-[#2563EB] text-white' : 'text-gray-400 hover:text-white'}`}
             >
               Egreso (Admin)
@@ -386,9 +436,16 @@ export default function ReceiptForm() {
                 </select>
               </div>
             )}
-            {(tipo === 'INGRESO_CXP' || tipo === 'EGRESO_CXP') ? (
+            {(tipo === 'INGRESO_CXP' || tipo === 'EGRESO_CXP' || tipoEntidad === 'SOCIO') ? (
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">Buscar Asociado (Cupo)</label>
+                <div className="flex justify-between items-center mb-1">
+                  <label className="block text-sm font-semibold text-gray-700">Buscar Asociado (Cupo)</label>
+                  {(tipo === 'INGRESO_VARIOS' || tipo === 'EGRESO_ADMIN') && (
+                    <button onClick={() => { setTipoEntidad('TERCERO'); setSocioSeleccionado(null); }} className="text-xs text-blue-600 font-bold hover:underline">
+                      ¿Es a un Tercero? Cambiar
+                    </button>
+                  )}
+                </div>
                 <div className="flex gap-2">
                   <input 
                     type="text" 
@@ -408,7 +465,12 @@ export default function ReceiptForm() {
               </div>
             ) : (
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">Buscar Tercero (Nombre o RIF)</label>
+                <div className="flex justify-between items-center mb-1">
+                  <label className="block text-sm font-semibold text-gray-700">Buscar Tercero (Nombre o RIF)</label>
+                  <button onClick={() => { setTipoEntidad('SOCIO'); setTerceroSeleccionado(null); }} className="text-xs text-blue-600 font-bold hover:underline">
+                    ¿Es a un Socio? Cambiar
+                  </button>
+                </div>
                 <div className="flex gap-2">
                   <input 
                     type="text" 
@@ -436,7 +498,7 @@ export default function ReceiptForm() {
           </div>
 
           {/* Fila 2: Datos de la Entidad */}
-          {socioSeleccionado && (tipo === 'INGRESO_CXP' || tipo === 'EGRESO_CXP') && (
+          {socioSeleccionado && (tipo === 'INGRESO_CXP' || tipo === 'EGRESO_CXP' || tipoEntidad === 'SOCIO') && (
             <div className="space-y-4">
               <div className="bg-blue-50 border border-blue-100 rounded-lg p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
@@ -465,7 +527,7 @@ export default function ReceiptForm() {
             </div>
           )}
 
-          {terceroSeleccionado && (tipo === 'INGRESO_VARIOS' || tipo === 'EGRESO_ADMIN') && (
+          {terceroSeleccionado && (tipo === 'INGRESO_VARIOS' || tipo === 'EGRESO_ADMIN') && tipoEntidad === 'TERCERO' && (
             <div className="bg-green-50 border border-green-100 rounded-lg p-4 grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <p className="text-xs text-green-600 font-bold uppercase">Nombre / Razón Social</p>
