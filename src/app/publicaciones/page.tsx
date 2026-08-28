@@ -86,13 +86,13 @@ export default function PublicacionesPage() {
 
   const handleBuscarSocio = () => {
     if (!nuevaFicha || nuevaFicha.trim() === '') {
-      alert('Por favor ingrese una ficha');
+      alert('Por favor ingrese un Cupo');
       return;
     }
     const cleanSearch = nuevaFicha.trim().toUpperCase().replace(/[-\s]/g, '');
     const socio = sociosDirectorio.find((s: any) => {
-      const sficha = s.ficha ? s.ficha.trim().toUpperCase().replace(/[-\s]/g, '') : '';
-      return sficha === cleanSearch;
+      const scupo = s.codigo ? s.codigo.trim().toUpperCase().replace(/[-\s]/g, '') : '';
+      return scupo === cleanSearch;
     });
     
     if (socio) {
@@ -188,6 +188,8 @@ export default function PublicacionesPage() {
     }
   };
 
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+
   const getReglasParaImprimir = (): ReglasMensuales => {
     // Agrupar eventos por tipo para el cartel
     const eventosAgrupados = eventos.reduce((acc, ev) => {
@@ -240,14 +242,69 @@ export default function PublicacionesPage() {
 
   const handlePrint = (mode: 'CXC' | 'CXP') => {
     setPrintMode(mode);
-    setTimeout(() => {
-      window.print();
-      setPrintMode('NONE'); // Restaurar después de imprimir
-    }, 500);
+    setIsPreviewOpen(true);
+  };
+
+  const triggerPrint = () => {
+    window.print();
   };
 
   return (
     <div className="p-6">
+      {/* Preview Modal */}
+      {isPreviewOpen && printMode !== 'NONE' && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 no-print">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in duration-200">
+            {/* Header del Modal */}
+            <div className="flex justify-between items-center p-4 border-b bg-gray-50">
+              <h2 className="font-bold text-lg text-gray-800 flex items-center gap-2">
+                <Printer className="text-gray-500" />
+                Vista Previa de Impresión - {printMode === 'CXC' ? 'Cartel de Publicación (CxC)' : 'Listado de Egresos (CxP)'}
+              </h2>
+              <div className="flex gap-2">
+                <button 
+                  onClick={() => setIsPreviewOpen(false)}
+                  className="px-4 py-2 text-gray-500 hover:text-gray-800 transition"
+                >
+                  Cerrar
+                </button>
+                <button 
+                  onClick={triggerPrint}
+                  className="bg-[#2563EB] text-white px-6 py-2 rounded-lg font-bold flex items-center gap-2 hover:bg-blue-700 transition shadow-sm"
+                >
+                  <Printer size={18} />
+                  Imprimir Ahora
+                </button>
+              </div>
+            </div>
+            
+            {/* Contenedor del Preview Falso (referencial) */}
+            <div className="p-6 overflow-y-auto flex-1 bg-gray-100 flex items-start justify-center">
+              <div className="bg-white shadow-sm border border-gray-200 transform scale-75 origin-top relative overflow-visible" style={{ width: '8.5in', minHeight: '5.5in' }}>
+                <div className="pointer-events-none">
+                  {printMode === 'CXC' && (
+                    <PrintCartelCxC reglas={getReglasParaImprimir()} />
+                  )}
+                  {printMode === 'CXP' && (
+                    <PrintListadoCxP mes={mes} eventos={eventos} sociosActivosCount={sociosActivosCount} />
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Capa de Impresión Real (Oculta en pantalla, visible al imprimir) */}
+      <div className="hidden print:block absolute top-0 left-0 w-full bg-white z-[9999]">
+        {printMode === 'CXC' && (
+          <PrintCartelCxC reglas={getReglasParaImprimir()} />
+        )}
+        {printMode === 'CXP' && (
+          <PrintListadoCxP mes={mes} eventos={eventos} sociosActivosCount={sociosActivosCount} />
+        )}
+      </div>
+
       <div className="mb-6 no-print">
         <h1 className="text-2xl font-bold text-[#0A1128]">Módulo de Publicaciones</h1>
         <p className="text-gray-500">Motor de instrucciones de facturación y generación masiva de deudas mensuales.</p>
@@ -357,7 +414,7 @@ export default function PublicacionesPage() {
                     </select>
                   </div>
                   <div className="col-span-2">
-                    <label className="block text-xs font-bold text-gray-600 uppercase mb-1">Beneficiario (Ficha)</label>
+                    <label className="block text-xs font-semibold text-gray-700 uppercase mb-1">Buscar Beneficiario (Cupo)</label>
                     <div className="flex gap-2">
                       <input type="text" value={nuevaFicha} onChange={e => setNuevaFicha(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleBuscarSocio()} placeholder="SA082" className="w-full p-2 border rounded uppercase" />
                       <button onClick={handleBuscarSocio} className="bg-gray-800 text-white px-3 rounded text-sm font-bold">Buscar</button>
@@ -780,14 +837,6 @@ export default function PublicacionesPage() {
             )}
           </div>
 
-      {/* Zonas de Impresión (Controladas por estado para evitar conflictos) */}
-      {printMode === 'CXC' && (
-        <PrintCartelCxC reglas={getReglasParaImprimir()} />
-      )}
-      
-      {printMode === 'CXP' && (
-        <PrintListadoCxP mes={mes} eventos={eventos} sociosActivosCount={sociosActivosCount} />
-      )}
     </div>
   );
 }

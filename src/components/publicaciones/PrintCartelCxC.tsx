@@ -15,7 +15,14 @@ export type ReglasMensuales = {
 export default function PrintCartelCxC({ reglas }: { reglas: ReglasMensuales }) {
   if (!reglas) return null;
 
-  const totalPorSocio = reglas.finanzas + reglas.eventos.reduce((acc, ev) => acc + ev.costoPorSocio, 0);
+  const otrosEventos = reglas.eventos.filter(ev => !ev.tipo.toUpperCase().includes('GRUA'));
+  const gruaEvento = reglas.eventos.find(ev => ev.tipo.toUpperCase().includes('GRUA'));
+
+  const totalOtros = reglas.finanzas + otrosEventos.reduce((acc, ev) => acc + ev.costoPorSocio, 0);
+  const totalGrua = gruaEvento ? gruaEvento.costoPorSocio : 0;
+  
+  const totalSociosA = totalOtros + totalGrua;
+  const totalSociosB = totalOtros; // SB no pagan grúa
 
   return (
     <div className="print-only text-black" style={{ width: '8.5in', margin: '0 auto', padding: '0.5in', boxSizing: 'border-box', fontFamily: 'Arial, sans-serif' }}>
@@ -44,7 +51,7 @@ export default function PrintCartelCxC({ reglas }: { reglas: ReglasMensuales }) 
             <td className="py-2 border-b-2 border-black text-right">${reglas.finanzas.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
           </tr>
           
-          {reglas.eventos.map((ev, i) => (
+          {otrosEventos.map((ev, i) => (
             <tr key={i}>
               <td className="py-2 border-b-2 border-black uppercase">{ev.tipo}</td>
               <td className="py-2 border-b-2 border-black font-normal text-base">(Ref. BCV)</td>
@@ -54,20 +61,20 @@ export default function PrintCartelCxC({ reglas }: { reglas: ReglasMensuales }) 
             </tr>
           ))}
 
-          {/* Grúa placeholder */}
+          {/* Grúa */}
           <tr>
             <td className="py-2 border-b-2 border-black">Grúa</td>
             <td className="py-2 border-b-2 border-black"></td>
             <td className="py-2 border-b-2 border-black text-sm uppercase underline text-center">Socios "A"</td>
             <td className="py-2 border-b-2 border-black text-right"></td>
-            <td className="py-2 border-b-2 border-black text-right">$0,00</td>
+            <td className="py-2 border-b-2 border-black text-right">${totalGrua.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
           </tr>
         </tbody>
       </table>
 
       <div className="text-center font-bold text-2xl my-4">
-        <p>TOTAL SOCIOS "A": ${totalPorSocio.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} + 0,00</p>
-        <p>TOTAL SOCIOS "B": ${totalPorSocio.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} + 0,00</p>
+        <p>TOTAL SOCIOS "A": ${totalSociosA.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+        <p>TOTAL SOCIOS "B": ${totalSociosB.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
       </div>
 
       <div className="text-center text-red-600 font-bold text-sm mb-4 border-t-2 border-black pt-2">
