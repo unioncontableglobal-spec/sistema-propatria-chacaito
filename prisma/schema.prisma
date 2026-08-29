@@ -31,6 +31,7 @@ model Socio {
   transacciones   Transaccion[]
   cxc             CuentaPorCobrar[]
   cxp             CuentaPorPagar[]
+  movimientos     MovimientoSocio[]
 }
 
 model Transaccion {
@@ -149,6 +150,20 @@ model DetalleAsiento {
   
   asiento     AsientoContable @relation(fields: [asientoId], references: [id])
   cuenta      CuentaContable  @relation(fields: [cuentaId], references: [id])
+}
+
+model MovimientoSocio {
+  id              Int      @id @default(autoincrement())
+  tipo            String   // "Inscripciones", "Cambios", "Retiros"
+  ficha           String?  // Ficha que tenía en el momento
+  cupo            String?  // Cupo involucrado
+  nombre_apellido String?  // Nombre que tenía
+  f_afiliacion    DateTime?// Fecha de afiliación original
+  fecha           DateTime @default(now()) // Cuándo se registró el movimiento
+  detalle         String?  // Ej. Era SA088 y pasa a ser SB010...
+  socioId         Int?
+  
+  socio           Socio?   @relation(fields: [socioId], references: [id])
 }
 
 model CategoriaMovimiento {
