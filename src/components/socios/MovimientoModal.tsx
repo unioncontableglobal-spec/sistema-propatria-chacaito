@@ -12,6 +12,14 @@ export default function MovimientoModal({ isOpen, onClose, onSuccess }: Props) {
   const [tipo, setTipo] = useState('Inscripciones');
   const [prefijo, setPrefijo] = useState<'SA' | 'SB'>('SA');
   const [socioId, setSocioId] = useState('');
+  
+  // Datos para nuevo socio en Inscripción
+  const [nuevoSocio, setNuevoSocio] = useState({
+    nombre_apellido: '',
+    cedula: '',
+    ficha: ''
+  });
+
   const [nuevoCupo, setNuevoCupo] = useState('');
   const [detalle, setDetalle] = useState('');
 
@@ -55,7 +63,12 @@ export default function MovimientoModal({ isOpen, onClose, onSuccess }: Props) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!socioId) return alert("Debe seleccionar un socio");
+    if (tipo === 'Inscripciones') {
+      if (!nuevoSocio.nombre_apellido) return alert("Debe ingresar el nombre y apellido del nuevo socio");
+    } else {
+      if (!socioId) return alert("Debe seleccionar un socio");
+    }
+    
     if ((tipo === 'Inscripciones' || tipo === 'Cambios') && !nuevoCupo) return alert("Debe seleccionar un nuevo cupo");
 
     let autoDetalle = detalle;
@@ -78,9 +91,10 @@ export default function MovimientoModal({ isOpen, onClose, onSuccess }: Props) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           tipo,
-          socioId: parseInt(socioId),
+          socioId: tipo === 'Inscripciones' ? null : parseInt(socioId),
           nuevoCupo: tipo === 'Retiros' ? null : nuevoCupo,
-          detalle: autoDetalle
+          detalle: autoDetalle,
+          nuevoSocio: tipo === 'Inscripciones' ? nuevoSocio : null
         })
       });
       const data = await res.json();
@@ -89,6 +103,7 @@ export default function MovimientoModal({ isOpen, onClose, onSuccess }: Props) {
         setSocioId('');
         setNuevoCupo('');
         setDetalle('');
+        setNuevoSocio({ nombre_apellido: '', cedula: '', ficha: '' });
         onSuccess();
       } else {
         alert("Error: " + data.error);
@@ -129,22 +144,60 @@ export default function MovimientoModal({ isOpen, onClose, onSuccess }: Props) {
             </select>
           </div>
 
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1">Socio</label>
-            <select
-              value={socioId}
-              onChange={(e) => setSocioId(e.target.value)}
-              className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 font-medium text-gray-800"
-              required
-            >
-              <option value="">-- Seleccionar Socio --</option>
-              {sociosFiltrados.map(s => (
-                <option key={s.id} value={s.id}>
-                  {s.ficha ? `[${s.ficha}]` : ''} {s.nombre_apellido} {s.codigo ? `(Cupo: ${s.codigo})` : ''}
-                </option>
-              ))}
-            </select>
-          </div>
+          {tipo === 'Inscripciones' ? (
+            <div className="space-y-4 bg-blue-50/50 p-4 rounded-xl border border-blue-100">
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">Nombre y Apellido</label>
+                <input
+                  type="text"
+                  value={nuevoSocio.nombre_apellido}
+                  onChange={e => setNuevoSocio({...nuevoSocio, nombre_apellido: e.target.value})}
+                  className="w-full px-4 py-2 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 font-medium text-gray-800 uppercase"
+                  placeholder="Ej: JUAN PEREZ"
+                  required
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">Cédula</label>
+                  <input
+                    type="text"
+                    value={nuevoSocio.cedula}
+                    onChange={e => setNuevoSocio({...nuevoSocio, cedula: e.target.value})}
+                    className="w-full px-4 py-2 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 font-medium text-gray-800"
+                    placeholder="Ej: V-12345678"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">Ficha (Opcional)</label>
+                  <input
+                    type="text"
+                    value={nuevoSocio.ficha}
+                    onChange={e => setNuevoSocio({...nuevoSocio, ficha: e.target.value})}
+                    className="w-full px-4 py-2 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 font-medium text-gray-800"
+                    placeholder="Ej: SA40123"
+                  />
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-1">Socio</label>
+              <select
+                value={socioId}
+                onChange={(e) => setSocioId(e.target.value)}
+                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 font-medium text-gray-800"
+                required
+              >
+                <option value="">-- Seleccionar Socio --</option>
+                {sociosFiltrados.map(s => (
+                  <option key={s.id} value={s.id}>
+                    {s.ficha ? `[${s.ficha}]` : ''} {s.nombre_apellido} {s.codigo ? `(Cupo: ${s.codigo})` : ''}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
 
           {(tipo === 'Inscripciones' || tipo === 'Cambios') && (
             <>

@@ -23,14 +23,33 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { tipo, socioId, nuevoCupo, detalle } = body;
+    const { tipo, socioId, nuevoCupo, detalle, nuevoSocio } = body;
 
-    // Obtener información actual del socio
-    const socio = await prisma.socio.findUnique({ where: { id: socioId } });
-    if (!socio) return NextResponse.json({ error: 'Socio no encontrado' }, { status: 404 });
+    let socio;
+    let fichaActual;
+    let cupoActual;
 
-    const fichaActual = socio.ficha;
-    const cupoActual = socio.codigo;
+    if (tipo === 'Inscripciones' && nuevoSocio) {
+      // Crear nuevo socio
+      socio = await prisma.socio.create({
+        data: {
+          nombre_apellido: nuevoSocio.nombre_apellido,
+          cedula: nuevoSocio.cedula || null,
+          ficha: nuevoSocio.ficha || null,
+          codigo: nuevoCupo,
+          status: 'ACTIVO',
+          f_afiliacion: new Date()
+        }
+      });
+      fichaActual = socio.ficha;
+      cupoActual = socio.codigo;
+    } else {
+      // Obtener información actual del socio
+      socio = await prisma.socio.findUnique({ where: { id: socioId } });
+      if (!socio) return NextResponse.json({ error: 'Socio no encontrado' }, { status: 404 });
+      fichaActual = socio.ficha;
+      cupoActual = socio.codigo;
+    }
 
     // Crear el registro del movimiento
     const movimiento = await prisma.movimientoSocio.create({
@@ -41,7 +60,7 @@ export async function POST(req: NextRequest) {
         nombre_apellido: socio.nombre_apellido,
         f_afiliacion: socio.f_afiliacion,
         detalle,
-        socioId
+        socioId: socio.id
       }
     });
 
@@ -56,13 +75,17 @@ export async function POST(req: NextRequest) {
       });
     } else if (tipo === 'Inscripciones' || tipo === 'Cambios') {
       if (!nuevoCupo) return NextResponse.json({ error: 'Se requiere un cupo' }, { status: 400 });
-      await prisma.socio.update({
-        where: { id: socioId },
-        data: { 
-          codigo: nuevoCupo,
-          status: 'ACTIVO' // Asegurar que quede activo
-        }
-      });
+      // Si fue una inscripción y se creó el socio arriba, no necesitamos actualizarlo de nuevo,
+      // pero si es un cambio (o inscripción de un socio existente inactivo), lo actualizamos.
+      if (!nuevoSocio) {
+        await prisma.socio.update({
+          where: { id: socio.id },
+          data: { 
+            codigo: nuevoCupo,
+            status: 'ACTIVO' // Asegurar que quede activo
+          }
+        });
+      }
     }
 
     return NextResponse.json({ success: true, data: movimiento });
