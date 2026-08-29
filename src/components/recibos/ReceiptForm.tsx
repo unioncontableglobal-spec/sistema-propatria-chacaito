@@ -156,7 +156,7 @@ export default function ReceiptForm() {
     if (socio) {
       setSocioSeleccionado({
         id: socio.id,
-        ficha: socio.ficha,
+        ficha: socio.codigo,
         nombre: socio.nombre_apellido,
         cedula: socio.cedula || 'N/A'
       });

@@ -34,6 +34,10 @@ export default function DirectorioTable() {
   useEffect(() => {
     // Filtrado local
     const filtered = storeSocios.filter(s => {
+      // Filtrar para mostrar exclusivamente los Cupos válidos (SA o SB)
+      const isCupo = s.codigo && (s.codigo.toUpperCase().startsWith('SA') || s.codigo.toUpperCase().startsWith('SB'));
+      if (!isCupo) return false;
+
       const matchStatus = statusFilter === 'TODOS' || s.status === statusFilter;
       const term = search.toLowerCase();
       const matchSearch = term === '' || 
@@ -87,7 +91,6 @@ export default function DirectorioTable() {
               <th scope="col" className="px-6 py-3 text-left text-xs font-bold text-white uppercase tracking-wider">Tipo de Socio</th>
               <th scope="col" className="px-6 py-3 text-left text-xs font-bold text-white uppercase tracking-wider">Cupo</th>
               <th scope="col" className="px-6 py-3 text-left text-xs font-bold text-white uppercase tracking-wider">Ficha</th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-bold text-white uppercase tracking-wider">Escalafón</th>
               <th scope="col" className="px-6 py-3 text-left text-xs font-bold text-white uppercase tracking-wider">Nombre y Apellido</th>
               <th scope="col" className="px-6 py-3 text-left text-xs font-bold text-white uppercase tracking-wider">C.I.</th>
               <th scope="col" className="px-6 py-3 text-right text-xs font-bold text-white uppercase tracking-wider">Acción</th>
@@ -96,15 +99,15 @@ export default function DirectorioTable() {
           <tbody className="bg-white divide-y divide-gray-200">
             {loading ? (
               <tr>
-                <td colSpan={7} className="px-6 py-12 text-center text-sm text-gray-500">Cargando directorio...</td>
+                <td colSpan={6} className="px-6 py-12 text-center text-sm text-gray-500">Cargando directorio...</td>
               </tr>
             ) : socios.length === 0 ? (
               <tr>
-                <td colSpan={7} className="px-6 py-12 text-center text-sm text-gray-500">No se encontraron asociados</td>
+                <td colSpan={6} className="px-6 py-12 text-center text-sm text-gray-500">No se encontraron asociados</td>
               </tr>
             ) : (
               socios.map((socio) => {
-                const tipoSocio = socio.ficha ? (socio.ficha.startsWith('SA') ? 'SA' : socio.ficha.startsWith('SB') ? 'SB' : 'OTRO') : 'N/A';
+                const tipoSocio = socio.codigo ? (socio.codigo.startsWith('SA') ? 'SA' : socio.codigo.startsWith('SB') ? 'SB' : 'OTRO') : 'N/A';
                 return (
                   <tr key={socio.id} className="hover:bg-gray-50 transition-colors">
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -113,20 +116,11 @@ export default function DirectorioTable() {
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-primary">
-                      {socio.ficha || 'S/Cupo'}
+                      {socio.codigo || 'S/Cupo'}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-700">
-                      {socio.numero_ficha || '-'}
+                      {socio.ficha || '-'}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {socio.escalafon && socio.escalafon.trim() !== '' ? (
-                      <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border border-gray-300 text-gray-600 bg-gray-50">
-                        {socio.escalafon}
-                      </span>
-                    ) : (
-                      <span className="text-gray-400 text-xs italic">-</span>
-                    )}
-                  </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm font-bold text-[#0A1128]">{socio.nombre_apellido}</div>
                     <div className="text-xs text-[#16A34A] font-semibold mt-0.5 uppercase">{socio.status}</div>

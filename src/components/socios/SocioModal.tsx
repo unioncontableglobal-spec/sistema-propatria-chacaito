@@ -31,29 +31,29 @@ export default function SocioModal({ socio, onClose, onUpdate }: Props) {
     direccion: socio.direccion || '',
     placa: socio.placa || '',
     rif: socio.rif || '',
-    numero_ficha: socio.numero_ficha || '',
+    ficha: socio.ficha || '',
     status: socio.status || 'ACTIVO',
   });
   const [saving, setSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState('');
   
-  const [transacciones, setTransacciones] = useState<any[]>([]);
+  const [historialData, setHistorialData] = useState<{ transacciones: any[], cxc: any[], cxp: any[] } | null>(null);
   const [loadingTx, setLoadingTx] = useState(false);
   const [activeTab, setActiveTab] = useState<'DATOS' | 'HISTORIAL'>('DATOS');
 
   useEffect(() => {
-    if (!socio.ficha) return;
+    if (!socio.id) return;
     setLoadingTx(true);
-    fetch(`/api/recibos/historial?busqueda=${socio.ficha}`)
+    fetch(`/api/socios/${socio.id}/historial`)
       .then(res => res.json())
       .then(data => {
         if (data.success) {
-          const userTxs = data.data.filter((tx: any) => tx.socio && tx.socio.ficha === socio.ficha);
-          setTransacciones(userTxs);
+          setHistorialData(data.data);
         }
       })
+      .catch(err => console.error('Error fetching historial:', err))
       .finally(() => setLoadingTx(false));
-  }, [socio.ficha]);
+  }, [socio.id]);
 
   const initial = socio.nombre_apellido.charAt(0).toUpperCase();
 
@@ -152,9 +152,9 @@ export default function SocioModal({ socio, onClose, onUpdate }: Props) {
                   <div>
                     <h3 className="text-xl font-bold text-[#0A1128] leading-tight mb-2">{socio.nombre_apellido}</h3>
                     <div className="text-sm text-gray-500 font-medium space-x-2">
-                      <span>CUPO: <strong className="text-[#1E3A8A]">{socio.ficha || 'S/N'}</strong></span>
+                      <span>CUPO: <strong className="text-[#1E3A8A]">{socio.codigo || 'S/N'}</strong></span>
                       <span className="text-gray-300">|</span>
-                      <span>FICHA: <strong className="text-[#1E3A8A]">{socio.numero_ficha || 'S/N'}</strong></span>
+                      <span>FICHA: <strong className="text-[#1E3A8A]">{socio.ficha || 'S/N'}</strong></span>
                       <span className="text-gray-300">|</span>
                       <span>C.I.: {socio.cedula || 'S/N'}</span>
                     </div>
@@ -162,9 +162,6 @@ export default function SocioModal({ socio, onClose, onUpdate }: Props) {
                   <div className="flex flex-col gap-2 items-end">
                     <span className={`px-3 py-1 rounded text-xs font-bold ${socio.status === 'ACTIVO' ? 'bg-[#DCFCE7] text-[#16A34A]' : 'bg-red-100 text-red-600'}`}>
                       {socio.status}
-                    </span>
-                    <span className="px-3 py-1 bg-gray-100 border border-gray-200 rounded text-xs font-bold text-gray-600 uppercase">
-                      TIPO: {socio.escalafon || 'S/N'}
                     </span>
                   </div>
                 </div>
@@ -214,7 +211,7 @@ export default function SocioModal({ socio, onClose, onUpdate }: Props) {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">N° de Ficha Personal</label>
-                    <input type="text" name="numero_ficha" value={formData.numero_ficha} onChange={handleChange} className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary font-mono uppercase" placeholder="Ej. F001" />
+                    <input type="text" name="ficha" value={formData.ficha} onChange={handleChange} className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary font-mono uppercase" placeholder="Ej. F001" />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Estatus del Socio</label>
@@ -266,38 +263,131 @@ export default function SocioModal({ socio, onClose, onUpdate }: Props) {
           )}
 
           {activeTab === 'HISTORIAL' && (
-            <div className="bg-white border border-gray-200 rounded-b-xl shadow-sm w-full max-w-2xl p-6 no-print border-t-0">
+            <div className="bg-white border border-gray-200 rounded-b-xl shadow-sm w-full max-w-2xl p-6 no-print border-t-0 space-y-8">
               {loadingTx ? (
-                <div className="text-center text-gray-500 py-8">Cargando historial...</div>
-              ) : transacciones.length === 0 ? (
-                <div className="text-center text-gray-500 py-8">No hay recibos registrados para este socio.</div>
+                <div className="text-center text-gray-500 py-8">Cargando historial detallado...</div>
+              ) : !historialData ? (
+                <div className="text-center text-gray-500 py-8">Error cargando historial.</div>
               ) : (
-                <div className="overflow-x-auto">
-                  <table className="w-full text-sm text-left">
-                    <thead>
-                      <tr className="border-b border-gray-200 text-gray-600 bg-gray-50">
-                        <th className="p-3 font-bold">Fecha</th>
-                        <th className="p-3 font-bold">N° Recibo</th>
-                        <th className="p-3 font-bold">Tipo</th>
-                        <th className="p-3 font-bold">Concepto</th>
-                        <th className="p-3 font-bold text-right">Monto Bs</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {transacciones.map(tx => (
-                        <tr key={tx.id} className="border-b border-gray-100 hover:bg-gray-50">
-                          <td className="p-3">{new Date(tx.fecha).toLocaleDateString('es-VE')}</td>
-                          <td className="p-3 font-mono font-bold text-blue-600">{tx.recibo || '-'}</td>
-                          <td className="p-3 font-bold">
-                            <span className={tx.tipo === 'INGRESO' ? 'text-green-600' : 'text-red-600'}>{tx.tipo}</span>
-                          </td>
-                          <td className="p-3 text-xs">{tx.clasificacion}</td>
-                          <td className="p-3 text-right font-mono font-bold">{tx.monto_bs?.toLocaleString('es-VE', { minimumFractionDigits: 2 })}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                <>
+                  {/* RESUMEN DE SALDO */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="bg-blue-50 p-4 rounded-lg border border-blue-100">
+                      <div className="text-xs font-bold text-blue-800 mb-1 uppercase tracking-wider">Recibos Emitidos</div>
+                      <div className="text-2xl font-black text-blue-600">{historialData.transacciones.length}</div>
+                    </div>
+                    <div className="bg-red-50 p-4 rounded-lg border border-red-100">
+                      <div className="text-xs font-bold text-red-800 mb-1 uppercase tracking-wider">Deuda por Cobrar</div>
+                      <div className="text-xl font-black text-red-600 font-mono">
+                        Bs. {historialData.cxc.reduce((a, b) => a + b.monto_a_cobrar, 0).toLocaleString('es-VE', {minimumFractionDigits: 2})}
+                      </div>
+                    </div>
+                    <div className="bg-green-50 p-4 rounded-lg border border-green-100">
+                      <div className="text-xs font-bold text-green-800 mb-1 uppercase tracking-wider">A favor del Socio</div>
+                      <div className="text-xl font-black text-green-600 font-mono">
+                        Bs. {historialData.cxp.reduce((a, b) => a + (b.total || b.monto), 0).toLocaleString('es-VE', {minimumFractionDigits: 2})}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* CxC PENDIENTES */}
+                  {historialData.cxc.length > 0 && (
+                    <div>
+                      <h4 className="text-sm font-bold text-red-700 border-b border-red-100 pb-2 mb-3 flex items-center gap-2">
+                        <svg className="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2v20"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                        Pendiente por Cobrar (CxC)
+                      </h4>
+                      <div className="overflow-x-auto bg-white rounded border border-gray-100 shadow-sm">
+                        <table className="w-full text-xs text-left">
+                          <thead className="bg-gray-50 text-gray-600">
+                            <tr>
+                              <th className="p-2 font-bold">Mes</th>
+                              <th className="p-2 font-bold">Concepto</th>
+                              <th className="p-2 font-bold text-right">Monto Bs</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {historialData.cxc.map(c => (
+                              <tr key={c.id} className="border-t border-gray-100">
+                                <td className="p-2 font-medium">{c.mes || '-'}</td>
+                                <td className="p-2">{c.tipo_publicacion || '-'}</td>
+                                <td className="p-2 text-right font-mono font-bold text-red-600">{c.monto_a_cobrar.toLocaleString('es-VE', {minimumFractionDigits: 2})}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* CxP PENDIENTES */}
+                  {historialData.cxp.length > 0 && (
+                    <div>
+                      <h4 className="text-sm font-bold text-green-700 border-b border-green-100 pb-2 mb-3 flex items-center gap-2">
+                        <svg className="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>
+                        Pendiente por Pagar (CxP)
+                      </h4>
+                      <div className="overflow-x-auto bg-white rounded border border-gray-100 shadow-sm">
+                        <table className="w-full text-xs text-left">
+                          <thead className="bg-gray-50 text-gray-600">
+                            <tr>
+                              <th className="p-2 font-bold">Mes</th>
+                              <th className="p-2 font-bold">Concepto</th>
+                              <th className="p-2 font-bold text-right">Total Bs</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {historialData.cxp.map(c => (
+                              <tr key={c.id} className="border-t border-gray-100">
+                                <td className="p-2 font-medium">{c.mes || '-'}</td>
+                                <td className="p-2">{c.tipo_publicacion || '-'}</td>
+                                <td className="p-2 text-right font-mono font-bold text-green-600">{(c.total || c.monto).toLocaleString('es-VE', {minimumFractionDigits: 2})}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* HISTORIAL TRANSACCIONES */}
+                  <div>
+                    <h4 className="text-sm font-bold text-[#1E3A8A] border-b border-gray-200 pb-2 mb-3 flex items-center gap-2">
+                      <svg className="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                      Recibos Procesados
+                    </h4>
+                    {historialData.transacciones.length === 0 ? (
+                      <div className="text-sm text-gray-500 italic">No hay recibos procesados para este socio.</div>
+                    ) : (
+                      <div className="overflow-x-auto border border-gray-200 rounded">
+                        <table className="w-full text-xs text-left">
+                          <thead className="bg-gray-50 text-gray-600">
+                            <tr>
+                              <th className="p-2 font-bold">Fecha</th>
+                              <th className="p-2 font-bold">N° Recibo</th>
+                              <th className="p-2 font-bold">Tipo</th>
+                              <th className="p-2 font-bold">Concepto</th>
+                              <th className="p-2 font-bold text-right">Monto Bs</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {historialData.transacciones.map(tx => (
+                              <tr key={tx.id} className="border-t border-gray-100 hover:bg-gray-50">
+                                <td className="p-2 whitespace-nowrap">{new Date(tx.fecha).toLocaleDateString('es-VE')}</td>
+                                <td className="p-2 font-mono font-bold text-blue-600 whitespace-nowrap">{tx.recibo || '-'}</td>
+                                <td className="p-2 font-bold">
+                                  <span className={tx.tipo === 'INGRESO' ? 'text-green-600' : 'text-red-600'}>{tx.tipo}</span>
+                                </td>
+                                <td className="p-2">{tx.clasificacion}</td>
+                                <td className="p-2 text-right font-mono font-bold whitespace-nowrap">{tx.monto_bs?.toLocaleString('es-VE', { minimumFractionDigits: 2 })}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+                  </div>
+                </>
               )}
             </div>
           )}
