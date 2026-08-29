@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useAppStore } from '@/store/useAppStore';
 
 type Props = {
   isOpen: boolean;
@@ -22,6 +23,9 @@ export default function MovimientoModal({ isOpen, onClose, onSuccess }: Props) {
 
   const [nuevoCupo, setNuevoCupo] = useState('');
   const [detalle, setDetalle] = useState('');
+  const [filtroTexto, setFiltroTexto] = useState('');
+  
+  const refreshData = useAppStore(state => state.refreshData);
 
   const [socios, setSocios] = useState<any[]>([]);
   const [cupos, setCupos] = useState<string[]>([]);
@@ -53,10 +57,15 @@ export default function MovimientoModal({ isOpen, onClose, onSuccess }: Props) {
 
   // Filtrar socios dependiendo del tipo
   const sociosFiltrados = socios.filter(s => {
-    if (tipo === 'Inscripciones') return true; // Puede ser nuevo (sin cupo) o inactivo
-    if (tipo === 'Cambios') return s.status === 'ACTIVO' && s.codigo;
-    if (tipo === 'Retiros') return s.status === 'ACTIVO' && s.codigo;
-    return true;
+    const isAvailable = s.codigo !== null;
+    if (tipo === 'Cambios') return isAvailable && s.status === 'ACTIVO';
+    if (tipo === 'Retiros') return isAvailable && s.status === 'ACTIVO';
+    return false; // Inscripciones ya no usa esta lista
+  }).filter(s => {
+    if (!filtroTexto) return true;
+    const term = filtroTexto.toLowerCase();
+    const searchStr = `${s.ficha || ''} ${s.nombre_apellido} ${s.codigo || ''} ${s.cedula || ''}`.toLowerCase();
+    return searchStr.includes(term);
   });
 
   const socioSeleccionado = socios.find(s => s.id.toString() === socioId);
@@ -104,6 +113,9 @@ export default function MovimientoModal({ isOpen, onClose, onSuccess }: Props) {
         setNuevoCupo('');
         setDetalle('');
         setNuevoSocio({ nombre_apellido: '', cedula: '', ficha: '' });
+        setFiltroTexto('');
+        // Refrescar el estado global (Directorio, Dashboard, etc)
+        await refreshData();
         onSuccess();
       } else {
         alert("Error: " + data.error);
@@ -181,21 +193,30 @@ export default function MovimientoModal({ isOpen, onClose, onSuccess }: Props) {
               </div>
             </div>
           ) : (
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1">Socio</label>
+            <div className="space-y-3">
+              <label className="block text-sm font-semibold text-gray-700">Seleccionar Socio</label>
+              <input
+                type="text"
+                placeholder="🔍 Buscar por nombre, cupo, ficha..."
+                value={filtroTexto}
+                onChange={(e) => setFiltroTexto(e.target.value)}
+                className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 font-medium text-gray-800"
+              />
               <select
+                size={5}
                 value={socioId}
                 onChange={(e) => setSocioId(e.target.value)}
                 className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 font-medium text-gray-800"
                 required
               >
-                <option value="">-- Seleccionar Socio --</option>
+                {sociosFiltrados.length === 0 && <option value="" disabled>No se encontraron socios</option>}
                 {sociosFiltrados.map(s => (
-                  <option key={s.id} value={s.id}>
+                  <option key={s.id} value={s.id} className="py-2 border-b border-gray-100 last:border-0 hover:bg-blue-50">
                     {s.ficha ? `[${s.ficha}]` : ''} {s.nombre_apellido} {s.codigo ? `(Cupo: ${s.codigo})` : ''}
                   </option>
                 ))}
               </select>
+              <p className="text-xs text-gray-500">Seleccione un socio de la lista (puede usar el buscador de arriba)</p>
             </div>
           )}
 

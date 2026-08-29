@@ -40,6 +40,7 @@ export default function SocioModal({ socio, onClose, onUpdate }: Props) {
   const [historialData, setHistorialData] = useState<{ transacciones: any[], cxc: any[], cxp: any[] } | null>(null);
   const [loadingTx, setLoadingTx] = useState(false);
   const [activeTab, setActiveTab] = useState<'DATOS' | 'HISTORIAL'>('DATOS');
+  const [printMode, setPrintMode] = useState<'CARNET' | 'HISTORIAL' | null>(null);
 
   useEffect(() => {
     if (!socio.id) return;
@@ -56,6 +57,14 @@ export default function SocioModal({ socio, onClose, onUpdate }: Props) {
   }, [socio.id]);
 
   const initial = socio.nombre_apellido.charAt(0).toUpperCase();
+
+  const handlePrint = (mode: 'CARNET' | 'HISTORIAL') => {
+    setPrintMode(mode);
+    setTimeout(() => {
+      window.print();
+      setPrintMode(null);
+    }, 100);
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -95,39 +104,30 @@ export default function SocioModal({ socio, onClose, onUpdate }: Props) {
         {/* Estilos para Impresión */}
         <style>{`
           @media print {
-            body * {
-              visibility: hidden;
+            body * { visibility: hidden; }
+            .print-container, .print-container * { visibility: visible; }
+            .print-container {
+              position: absolute;
+              left: 0;
+              top: 0;
+              width: 100%;
+              margin: 0;
+              padding: 0;
             }
-            .printable-carnet, .printable-carnet * {
-              visibility: visible;
-            }
-            .printable-carnet {
-              position: fixed;
-              left: 50%;
-              top: 50%;
-              transform: translate(-50%, -50%);
-              width: 90% !important;
-              max-width: 600px !important;
-              border: 1px solid #e5e7eb !important;
-              box-shadow: none !important;
-              margin: 0 !important;
-              padding: 0 !important;
-            }
-            .no-print {
-              display: none !important;
-            }
+            .no-print { display: none !important; }
+            @page { margin: 1cm; }
           }
         `}</style>
 
         {/* Header */}
         <div className="flex justify-between items-center p-6 bg-white border-b border-gray-200 no-print">
-          <h2 className="text-xl font-bold text-[#1E3A8A]">Visualizador de Carnet</h2>
+          <h2 className="text-xl font-bold text-[#1E3A8A]">Perfil del Socio</h2>
           <div className="flex gap-2">
             <button onClick={onClose} className="px-4 py-2 bg-white border border-gray-300 rounded text-sm font-medium text-gray-700 hover:bg-gray-50 flex items-center gap-2">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
               Volver
             </button>
-            <button onClick={() => window.print()} className="px-4 py-2 bg-[#0A1128] text-white rounded text-sm font-medium hover:bg-opacity-90 flex items-center gap-2 shadow-sm">
+            <button onClick={() => handlePrint('CARNET')} className="px-4 py-2 bg-[#0A1128] text-white rounded text-sm font-medium hover:bg-opacity-90 flex items-center gap-2 shadow-sm">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 9V3a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v6"/><rect width="12" height="8" x="6" y="14"/></svg>
               Imprimir Carnet
             </button>
@@ -137,55 +137,50 @@ export default function SocioModal({ socio, onClose, onUpdate }: Props) {
         <div className="p-8 flex flex-col items-center">
           
           {/* Carnet Card */}
-          <div className="printable-carnet bg-white border border-gray-200 rounded-xl shadow-sm w-full max-w-2xl relative overflow-hidden flex flex-col">
-            <div className={`absolute right-0 top-0 bottom-0 w-2 ${socio.status === 'ACTIVO' ? 'bg-[#16A34A]' : 'bg-red-500'}`}></div>
+          <div className={`bg-white border border-gray-300 rounded-xl shadow-md w-full max-w-sm relative overflow-hidden flex flex-col items-center ${printMode === 'CARNET' ? 'print-container' : 'print:hidden'}`} style={{ width: '320px', minHeight: '480px' }}>
+            {/* Header del Carnet con Logo */}
+            <div className="w-full bg-[#1E3A8A] text-white p-4 flex flex-col items-center justify-center text-center">
+              <img src="/logo.png" alt="Logo Propatria Chacaito" className="h-16 w-auto mb-2 bg-white p-1 rounded object-contain" />
+              <h2 className="text-xs font-bold uppercase tracking-wider">A.C. Conductores</h2>
+              <h1 className="text-sm font-black uppercase">Propatria - Chacaito - El Cafetal</h1>
+            </div>
             
-            <div className="p-8 flex flex-col sm:flex-row gap-6 items-center sm:items-start relative">
-              {/* Avatar */}
-              <div className="w-24 h-24 rounded-full border-2 border-gray-200 flex items-center justify-center text-4xl font-bold text-[#1E3A8A] bg-white flex-shrink-0 shadow-sm">
+            <div className={`w-full h-1 ${socio.status === 'ACTIVO' ? 'bg-[#16A34A]' : 'bg-red-500'}`}></div>
+            
+            <div className="p-6 w-full flex flex-col items-center flex-1">
+              {/* Avatar Redondo */}
+              <div className="w-28 h-28 rounded-full border-4 border-gray-100 flex items-center justify-center text-5xl font-bold text-[#1E3A8A] bg-gray-50 shadow-inner mb-4 overflow-hidden">
                 {initial}
               </div>
 
-              {/* Info */}
-              <div className="flex-1 text-center sm:text-left">
-                <div className="flex flex-col sm:flex-row justify-between items-center sm:items-start gap-4">
-                  <div>
-                    <h3 className="text-xl font-bold text-[#0A1128] leading-tight mb-2">{socio.nombre_apellido}</h3>
-                    <div className="text-sm text-gray-500 font-medium space-x-2">
-                      <span>CUPO: <strong className="text-[#1E3A8A]">{socio.codigo || 'S/N'}</strong></span>
-                      <span className="text-gray-300">|</span>
-                      <span>FICHA: <strong className="text-[#1E3A8A]">{socio.ficha || 'S/N'}</strong></span>
-                      <span className="text-gray-300">|</span>
-                      <span>C.I.: {socio.cedula || 'S/N'}</span>
-                    </div>
-                  </div>
-                  <div className="flex flex-col gap-2 items-end">
-                    <span className={`px-3 py-1 rounded text-xs font-bold ${socio.status === 'ACTIVO' ? 'bg-[#DCFCE7] text-[#16A34A]' : 'bg-red-100 text-red-600'}`}>
-                      {socio.status}
-                    </span>
-                  </div>
-                </div>
+              {/* Nombre y Cargo */}
+              <h3 className="text-lg font-black text-[#0A1128] text-center leading-tight mb-1 uppercase w-full truncate">{socio.nombre_apellido}</h3>
+              <p className="text-sm font-bold text-gray-500 tracking-widest uppercase mb-4">ASOCIADO</p>
 
-                {/* Contact Data inside Carnet */}
-                <div className="mt-6 pt-6 border-t border-gray-100 grid grid-cols-1 sm:grid-cols-2 gap-y-3 gap-x-4">
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
-                    <svg className="w-4 h-4 text-gray-400 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-                    <span className="font-semibold text-gray-700">Teléfono:</span> <span className="truncate">{socio.telefono || 'S/N'}</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
-                    <svg className="w-4 h-4 text-gray-400 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
-                    <span className="font-semibold text-gray-700">Correo:</span> <span className="truncate">{socio.correo || 'S/N'}</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-gray-600 sm:col-span-2">
-                    <svg className="w-4 h-4 text-red-500 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
-                    <span className="font-semibold text-gray-700">Dirección:</span> <span className="truncate">{socio.direccion || 'S/N'}</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
-                    <svg className="w-4 h-4 text-red-500 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 16H9m10 0h3v-3.15a1 1 0 0 0-.84-.99L16 11l-2.7-3.6a2 2 0 0 0-1.6-.8H5.3a2 2 0 0 0-1.6.8L1 11l-.16.84A1 1 0 0 0 2 12.85V16h3"/><circle cx="7" cy="16" r="2"/><circle cx="17" cy="16" r="2"/></svg>
-                    <span className="font-semibold text-gray-700">Placa:</span> <span className="truncate">{socio.placa || 'S/N'}</span>
-                  </div>
+              {/* Grid de Datos Relevantes */}
+              <div className="w-full grid grid-cols-2 gap-y-3 gap-x-2 text-center text-sm border-t border-gray-200 pt-4">
+                <div className="flex flex-col">
+                  <span className="text-[10px] text-gray-400 font-bold uppercase">Cédula</span>
+                  <span className="font-bold text-gray-800">{socio.cedula || 'N/A'}</span>
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-[10px] text-gray-400 font-bold uppercase">Ficha</span>
+                  <span className="font-bold text-gray-800">{socio.ficha || 'N/A'}</span>
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-[10px] text-gray-400 font-bold uppercase">Cupo</span>
+                  <span className="font-black text-[#1E3A8A] text-base leading-none mt-1">{socio.codigo || 'N/A'}</span>
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-[10px] text-gray-400 font-bold uppercase">Estatus</span>
+                  <span className={`font-bold ${socio.status === 'ACTIVO' ? 'text-[#16A34A]' : 'text-red-600'}`}>{socio.status}</span>
                 </div>
               </div>
+            </div>
+            
+            {/* Footer del Carnet */}
+            <div className="w-full bg-gray-100 p-2 text-center border-t border-gray-200">
+              <p className="text-[9px] text-gray-500 uppercase font-bold">Documento Intransferible</p>
             </div>
           </div>
           
@@ -263,7 +258,31 @@ export default function SocioModal({ socio, onClose, onUpdate }: Props) {
           )}
 
           {activeTab === 'HISTORIAL' && (
-            <div className="bg-white border border-gray-200 rounded-b-xl shadow-sm w-full max-w-2xl p-6 no-print border-t-0 space-y-8">
+            <div className={`bg-white border border-gray-200 rounded-b-xl shadow-sm w-full max-w-2xl p-6 border-t-0 space-y-8 ${printMode === 'HISTORIAL' ? 'print-container p-10 max-w-full shadow-none border-none' : 'print:hidden'}`}>
+              
+              {/* Cabecera solo visible en impresión */}
+              <div className="hidden print:flex items-center gap-6 border-b-2 border-[#1E3A8A] pb-6 mb-8">
+                <img src="/logo.png" alt="Logo" className="h-20" />
+                <div>
+                  <h1 className="text-2xl font-black uppercase tracking-wider text-[#1E3A8A]">ESTADO DE CUENTA DE SOCIO</h1>
+                  <p className="text-gray-600">A.C. Conductores Propatria - Chacaito - El Cafetal</p>
+                  <div className="flex gap-4 mt-2">
+                    <p><strong>Socio:</strong> {socio.nombre_apellido}</p>
+                    <p><strong>Cupo:</strong> {socio.codigo || 'N/A'}</p>
+                    <p><strong>C.I:</strong> {socio.cedula || 'N/A'}</p>
+                  </div>
+                  <p className="text-sm text-gray-500 mt-1">Fecha de Emisión: {new Date().toLocaleDateString('es-VE')} {new Date().toLocaleTimeString('es-VE')}</p>
+                </div>
+              </div>
+
+              {/* Botón de imprimir (no visible al imprimir) */}
+              <div className="flex justify-end no-print">
+                <button onClick={() => handlePrint('HISTORIAL')} className="px-4 py-2 bg-gray-100 text-gray-700 border border-gray-300 rounded font-medium hover:bg-gray-200 flex items-center gap-2">
+                  <svg className="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect width="12" height="8" x="6" y="14"></rect></svg>
+                  Imprimir Estado de Cuenta
+                </button>
+              </div>
+
               {loadingTx ? (
                 <div className="text-center text-gray-500 py-8">Cargando historial detallado...</div>
               ) : !historialData ? (
@@ -271,18 +290,18 @@ export default function SocioModal({ socio, onClose, onUpdate }: Props) {
               ) : (
                 <>
                   {/* RESUMEN DE SALDO */}
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="bg-blue-50 p-4 rounded-lg border border-blue-100">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 print:grid-cols-3">
+                    <div className="bg-blue-50 p-4 rounded-lg border border-blue-100 print:bg-white print:border-gray-200">
                       <div className="text-xs font-bold text-blue-800 mb-1 uppercase tracking-wider">Recibos Emitidos</div>
                       <div className="text-2xl font-black text-blue-600">{historialData.transacciones.length}</div>
                     </div>
-                    <div className="bg-red-50 p-4 rounded-lg border border-red-100">
+                    <div className="bg-red-50 p-4 rounded-lg border border-red-100 print:bg-white print:border-gray-200">
                       <div className="text-xs font-bold text-red-800 mb-1 uppercase tracking-wider">Deuda por Cobrar</div>
                       <div className="text-xl font-black text-red-600 font-mono">
                         Bs. {historialData.cxc.reduce((a, b) => a + b.monto_a_cobrar, 0).toLocaleString('es-VE', {minimumFractionDigits: 2})}
                       </div>
                     </div>
-                    <div className="bg-green-50 p-4 rounded-lg border border-green-100">
+                    <div className="bg-green-50 p-4 rounded-lg border border-green-100 print:bg-white print:border-gray-200">
                       <div className="text-xs font-bold text-green-800 mb-1 uppercase tracking-wider">A favor del Socio</div>
                       <div className="text-xl font-black text-green-600 font-mono">
                         Bs. {historialData.cxp.reduce((a, b) => a + (b.total || b.monto), 0).toLocaleString('es-VE', {minimumFractionDigits: 2})}
