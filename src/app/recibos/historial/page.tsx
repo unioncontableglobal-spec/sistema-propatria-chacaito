@@ -109,13 +109,13 @@ export default function HistorialRecibosPage() {
             </select>
           </div>
           <div className="md:col-span-2">
-            <label className="block text-xs font-bold text-gray-600 uppercase mb-1">Buscar (Ficha, Nombre, N° Recibo)</label>
+            <label className="block text-xs font-bold text-gray-600 uppercase mb-1">Buscar (Ficha, Nombre, N° Recibo, Código)</label>
             <div className="flex gap-2">
               <input 
                 type="text" 
                 value={busqueda}
                 onChange={e => setBusqueda(e.target.value)}
-                placeholder="Ej. SA082 o Juan Perez"
+                placeholder="Ej. SA082, Juan Perez, 1101, E2026..."
                 className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-[#2563EB] uppercase" 
               />
               <button type="submit" className="bg-[#0A1128] text-white px-4 rounded-lg flex items-center justify-center font-bold hover:bg-gray-800 transition">
@@ -137,7 +137,8 @@ export default function HistorialRecibosPage() {
                   <th className="p-4 font-bold text-gray-700">Fecha</th>
                   <th className="p-4 font-bold text-gray-700">N° Recibo</th>
                   <th className="p-4 font-bold text-gray-700">Tipo</th>
-                  <th className="p-4 font-bold text-gray-700">Socio</th>
+                  <th className="p-4 font-bold text-gray-700">Categoría / Ítems</th>
+                  <th className="p-4 font-bold text-gray-700">Entidad (Socio / Tercero)</th>
                   <th className="p-4 font-bold text-gray-700 text-right">Monto Bs</th>
                   <th className="p-4 font-bold text-gray-700 text-center">Acción</th>
                 </tr>
@@ -151,22 +152,35 @@ export default function HistorialRecibosPage() {
                     <td className="p-4 font-bold font-mono text-[#2563EB]">
                       {tx.recibo || '-'}
                     </td>
+                    <td className="p-4 font-medium text-gray-800">
+                      {tx.tipo === 'INGRESO' ? (
+                        <span className="text-green-600 flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-green-500"></div> INGRESO</span>
+                      ) : (
+                        <span className="text-red-600 flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-red-500"></div> EGRESO</span>
+                      )}
+                    </td>
                     <td className="p-4">
-                      <span className={`px-2 py-1 rounded-full text-xs font-bold ${tx.tipo === 'INGRESO' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                        {tx.tipo}
-                      </span>
+                      <div className="font-bold text-gray-800 text-xs">{tx.clasificacion}</div>
+                      {tx.codigo_concepto && (
+                        <div className="text-xs font-mono text-gray-500 mt-0.5">Cod: {tx.codigo_concepto}</div>
+                      )}
                     </td>
                     <td className="p-4">
                       {tx.socio ? (
                         <div>
-                          <span className="font-bold mr-2">{tx.socio.ficha}</span>
-                          <span className="text-gray-600 truncate max-w-[200px] inline-block align-bottom">{tx.socio.nombre_apellido}</span>
+                          <span className="font-bold text-blue-700 mr-2">{tx.socio.ficha}</span>
+                          <span className="text-gray-700">{tx.socio.nombre_apellido}</span>
+                        </div>
+                      ) : tx.tercero ? (
+                        <div>
+                          <span className="font-bold text-green-700 mr-2">TERCERO</span>
+                          <span className="text-gray-700">{tx.tercero.nombre}</span>
                         </div>
                       ) : (
-                        <span className="text-gray-400 italic">No asociado</span>
+                        <span className="text-gray-400 italic">Sin Asignar</span>
                       )}
                     </td>
-                    <td className="p-4 text-right font-bold text-gray-800">
+                    <td className="p-4 text-right font-mono font-bold text-gray-800">
                       Bs {tx.monto_bs ? tx.monto_bs.toLocaleString('es-VE', { minimumFractionDigits: 2 }) : '0,00'}
                     </td>
                     <td className="p-4 text-center">

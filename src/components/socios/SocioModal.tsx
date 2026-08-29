@@ -1,11 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 type Socio = {
   id: number;
   codigo: string | null;
   ficha: string | null;
+  numero_ficha: string | null;
   escalafon: string | null;
   nombre_apellido: string;
   cedula: string | null;
@@ -30,9 +31,29 @@ export default function SocioModal({ socio, onClose, onUpdate }: Props) {
     direccion: socio.direccion || '',
     placa: socio.placa || '',
     rif: socio.rif || '',
+    numero_ficha: socio.numero_ficha || '',
+    status: socio.status || 'ACTIVO',
   });
   const [saving, setSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState('');
+  
+  const [transacciones, setTransacciones] = useState<any[]>([]);
+  const [loadingTx, setLoadingTx] = useState(false);
+  const [activeTab, setActiveTab] = useState<'DATOS' | 'HISTORIAL'>('DATOS');
+
+  useEffect(() => {
+    if (!socio.ficha) return;
+    setLoadingTx(true);
+    fetch(`/api/recibos/historial?busqueda=${socio.ficha}`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          const userTxs = data.data.filter((tx: any) => tx.socio && tx.socio.ficha === socio.ficha);
+          setTransacciones(userTxs);
+        }
+      })
+      .finally(() => setLoadingTx(false));
+  }, [socio.ficha]);
 
   const initial = socio.nombre_apellido.charAt(0).toUpperCase();
 
@@ -131,11 +152,11 @@ export default function SocioModal({ socio, onClose, onUpdate }: Props) {
                   <div>
                     <h3 className="text-xl font-bold text-[#0A1128] leading-tight mb-2">{socio.nombre_apellido}</h3>
                     <div className="text-sm text-gray-500 font-medium space-x-2">
-                      <span>CÓDIGO: {socio.codigo || 'S/N'}</span>
+                      <span>CUPO: <strong className="text-[#1E3A8A]">{socio.ficha || 'S/N'}</strong></span>
+                      <span className="text-gray-300">|</span>
+                      <span>FICHA: <strong className="text-[#1E3A8A]">{socio.numero_ficha || 'S/N'}</strong></span>
                       <span className="text-gray-300">|</span>
                       <span>C.I.: {socio.cedula || 'S/N'}</span>
-                      <span className="text-gray-300">|</span>
-                      <span>FICHA: {socio.ficha || 'S/N'}</span>
                     </div>
                   </div>
                   <div className="flex flex-col gap-2 items-end">
@@ -171,15 +192,38 @@ export default function SocioModal({ socio, onClose, onUpdate }: Props) {
             </div>
           </div>
           
-          {/* Edit Form */}
-          <div className="bg-white border border-gray-200 rounded-xl shadow-sm w-full max-w-2xl mt-6 p-8 no-print">
-            <h3 className="text-md font-bold text-[#1E3A8A] flex items-center gap-2 mb-6 border-b border-gray-100 pb-2">
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
-              Modificar Datos de Contacto
-            </h3>
-            
-            <form onSubmit={handleSubmit}>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Tabs Navigation (No visible en impresión) */}
+          <div className="flex border-b border-gray-200 mt-8 w-full max-w-2xl no-print gap-4">
+            <button 
+              onClick={() => setActiveTab('DATOS')}
+              className={`pb-3 text-sm font-bold transition-colors border-b-2 ${activeTab === 'DATOS' ? 'border-[#1E3A8A] text-[#1E3A8A]' : 'border-transparent text-gray-500 hover:text-gray-700'}`}
+            >
+              Modificar Datos
+            </button>
+            <button 
+              onClick={() => setActiveTab('HISTORIAL')}
+              className={`pb-3 text-sm font-bold transition-colors border-b-2 ${activeTab === 'HISTORIAL' ? 'border-[#1E3A8A] text-[#1E3A8A]' : 'border-transparent text-gray-500 hover:text-gray-700'}`}
+            >
+              Historial de Recibos
+            </button>
+          </div>
+
+          {activeTab === 'DATOS' && (
+            <div className="bg-white border border-gray-200 rounded-b-xl shadow-sm w-full max-w-2xl p-8 no-print border-t-0">
+              <form onSubmit={handleSubmit}>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">N° de Ficha Personal</label>
+                    <input type="text" name="numero_ficha" value={formData.numero_ficha} onChange={handleChange} className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary font-mono uppercase" placeholder="Ej. F001" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Estatus del Socio</label>
+                    <select name="status" value={formData.status} onChange={(e) => setFormData(prev => ({ ...prev, status: e.target.value }))} className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary font-bold">
+                      <option value="ACTIVO">ACTIVO</option>
+                      <option value="INACTIVO">INACTIVO</option>
+                    </select>
+                  </div>
+                  <div className="col-span-1 md:col-span-2 border-t border-gray-100 my-2"></div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Teléfono</label>
                   <input type="text" name="telefono" value={formData.telefono} onChange={handleChange} className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary" />
@@ -212,13 +256,51 @@ export default function SocioModal({ socio, onClose, onUpdate }: Props) {
                   {saving ? 'Guardando...' : (
                     <>
                       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-                      Guardar y Actualizar Directorio
+                      Guardar y Actualizar
                     </>
                   )}
                 </button>
               </div>
             </form>
           </div>
+          )}
+
+          {activeTab === 'HISTORIAL' && (
+            <div className="bg-white border border-gray-200 rounded-b-xl shadow-sm w-full max-w-2xl p-6 no-print border-t-0">
+              {loadingTx ? (
+                <div className="text-center text-gray-500 py-8">Cargando historial...</div>
+              ) : transacciones.length === 0 ? (
+                <div className="text-center text-gray-500 py-8">No hay recibos registrados para este socio.</div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm text-left">
+                    <thead>
+                      <tr className="border-b border-gray-200 text-gray-600 bg-gray-50">
+                        <th className="p-3 font-bold">Fecha</th>
+                        <th className="p-3 font-bold">N° Recibo</th>
+                        <th className="p-3 font-bold">Tipo</th>
+                        <th className="p-3 font-bold">Concepto</th>
+                        <th className="p-3 font-bold text-right">Monto Bs</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {transacciones.map(tx => (
+                        <tr key={tx.id} className="border-b border-gray-100 hover:bg-gray-50">
+                          <td className="p-3">{new Date(tx.fecha).toLocaleDateString('es-VE')}</td>
+                          <td className="p-3 font-mono font-bold text-blue-600">{tx.recibo || '-'}</td>
+                          <td className="p-3 font-bold">
+                            <span className={tx.tipo === 'INGRESO' ? 'text-green-600' : 'text-red-600'}>{tx.tipo}</span>
+                          </td>
+                          <td className="p-3 text-xs">{tx.clasificacion}</td>
+                          <td className="p-3 text-right font-mono font-bold">{tx.monto_bs?.toLocaleString('es-VE', { minimumFractionDigits: 2 })}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          )}
           
         </div>
       </div>

@@ -41,11 +41,21 @@ export async function GET(req: NextRequest) {
       const search = busqueda.toUpperCase();
       whereClause.OR = [
         { recibo: { contains: search } },
+        { clasificacion: { contains: search } },
+        { codigo_concepto: { contains: search } },
         {
           socio: {
             OR: [
               { ficha: { contains: search } },
               { nombre_apellido: { contains: search } }
+            ]
+          }
+        },
+        {
+          tercero: {
+            OR: [
+              { nombre: { contains: search } },
+              { identificacion: { contains: search } }
             ]
           }
         }
@@ -60,6 +70,13 @@ export async function GET(req: NextRequest) {
             ficha: true,
             nombre_apellido: true,
             cedula: true
+          }
+        },
+        tercero: {
+          select: {
+            nombre: true,
+            identificacion: true,
+            tipo: true
           }
         },
         formas_pago: true

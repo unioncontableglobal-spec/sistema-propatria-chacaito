@@ -14,7 +14,8 @@ datasource db {
 model Socio {
   id              Int      @id @default(autoincrement())
   codigo          String?
-  ficha           String?
+  ficha           String?  // Guarda el CUPO (ej. SA216)
+  numero_ficha    String?  // Guarda la FICHA real
   escalafon       String?
   nombre_apellido String
   cedula          String?

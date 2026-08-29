@@ -6,7 +6,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     const id = parseInt((await params).id);
     const body = await request.json();
 
-    const { telefono, correo, direccion, placa, rif, status } = body;
+    const { telefono, correo, direccion, placa, rif, numero_ficha, status } = body;
 
     const socio = await prisma.socio.update({
       where: { id },
@@ -16,6 +16,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
         direccion,
         placa,
         rif,
+        numero_ficha,
         status,
       }
     });

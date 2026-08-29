@@ -9,6 +9,7 @@ type Socio = {
   id: number;
   codigo: string | null;
   ficha: string | null;
+  numero_ficha: string | null;
   escalafon: string | null;
   nombre_apellido: string;
   cedula: string | null;
@@ -39,6 +40,7 @@ export default function DirectorioTable() {
         (s.nombre_apellido && s.nombre_apellido.toLowerCase().includes(term)) ||
         (s.cedula && s.cedula.toLowerCase().includes(term)) ||
         (s.ficha && s.ficha.toLowerCase().includes(term)) ||
+        (s.numero_ficha && s.numero_ficha.toLowerCase().includes(term)) ||
         (s.codigo && s.codigo.toLowerCase().includes(term));
       return matchStatus && matchSearch;
     });
@@ -83,6 +85,7 @@ export default function DirectorioTable() {
           <thead className="bg-[#0A1128]">
             <tr>
               <th scope="col" className="px-6 py-3 text-left text-xs font-bold text-white uppercase tracking-wider">Tipo de Socio</th>
+              <th scope="col" className="px-6 py-3 text-left text-xs font-bold text-white uppercase tracking-wider">Cupo</th>
               <th scope="col" className="px-6 py-3 text-left text-xs font-bold text-white uppercase tracking-wider">Ficha</th>
               <th scope="col" className="px-6 py-3 text-left text-xs font-bold text-white uppercase tracking-wider">Escalafón</th>
               <th scope="col" className="px-6 py-3 text-left text-xs font-bold text-white uppercase tracking-wider">Nombre y Apellido</th>
@@ -93,11 +96,11 @@ export default function DirectorioTable() {
           <tbody className="bg-white divide-y divide-gray-200">
             {loading ? (
               <tr>
-                <td colSpan={6} className="px-6 py-12 text-center text-sm text-gray-500">Cargando directorio...</td>
+                <td colSpan={7} className="px-6 py-12 text-center text-sm text-gray-500">Cargando directorio...</td>
               </tr>
             ) : socios.length === 0 ? (
               <tr>
-                <td colSpan={6} className="px-6 py-12 text-center text-sm text-gray-500">No se encontraron asociados</td>
+                <td colSpan={7} className="px-6 py-12 text-center text-sm text-gray-500">No se encontraron asociados</td>
               </tr>
             ) : (
               socios.map((socio) => {
@@ -110,7 +113,10 @@ export default function DirectorioTable() {
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-primary">
-                      {socio.ficha || 'S/Ficha'}
+                      {socio.ficha || 'S/Cupo'}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-700">
+                      {socio.numero_ficha || '-'}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {socio.escalafon && socio.escalafon.trim() !== '' ? (
