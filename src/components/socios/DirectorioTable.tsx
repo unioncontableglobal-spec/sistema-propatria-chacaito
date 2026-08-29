@@ -26,6 +26,7 @@ export default function DirectorioTable() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('TODOS');
+  const [retiringSocio, setRetiringSocio] = useState<Socio | null>(null);
   
   const [selectedSocio, setSelectedSocio] = useState<Socio | null>(null);
 
@@ -55,6 +56,46 @@ export default function DirectorioTable() {
   const handleUpdate = (updatedSocio: Socio) => {
     setSocios(prev => prev.map(s => s.id === updatedSocio.id ? updatedSocio : s));
   };
+
+  const handleRetiro = async () => {
+    if (!retiringSocio) return;
+    const confirm = window.confirm(`¿Estás seguro de que deseas retirar a ${retiringSocio.nombre_apellido} y liberar el cupo ${retiringSocio.codigo}?`);
+    if (!confirm) {
+      setRetiringSocio(null);
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/movimientos-socios', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          tipo: 'Retiros',
+          socioId: retiringSocio.id,
+          nuevoCupo: null,
+          detalle: `Retiro desde el Directorio de Asociados`
+        })
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert('Socio retirado exitosamente.');
+        // Update local state to reflect it is INACTIVO and no cupo
+        handleUpdate({ ...retiringSocio, status: 'INACTIVO', codigo: null });
+      } else {
+        alert('Error: ' + data.error);
+      }
+    } catch (err) {
+      alert('Error de red al procesar el retiro.');
+    } finally {
+      setRetiringSocio(null);
+    }
+  };
+
+  useEffect(() => {
+    if (retiringSocio) {
+      handleRetiro();
+    }
+  }, [retiringSocio]);
 
   return (
     <div>
@@ -127,13 +168,24 @@ export default function DirectorioTable() {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{socio.cedula || 'S/N'}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <button
-                      onClick={() => setSelectedSocio(socio)}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#0A1128] text-white rounded text-xs font-medium hover:bg-opacity-90 transition-colors"
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-contact-2"><path d="M16 18a4 4 0 0 0-8 0"/><circle cx="12" cy="11" r="3"/><rect width="18" height="18" x="3" y="4" rx="2"/><line x1="8" x2="8" y1="2" y2="4"/><line x1="16" x2="16" y1="2" y2="4"/></svg>
-                      Ver Carnet
-                    </button>
+                    <div className="flex items-center justify-end gap-2">
+                      <button
+                        onClick={() => setSelectedSocio(socio)}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#0A1128] text-white rounded text-xs font-medium hover:bg-opacity-90 transition-colors"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-contact-2"><path d="M16 18a4 4 0 0 0-8 0"/><circle cx="12" cy="11" r="3"/><rect width="18" height="18" x="3" y="4" rx="2"/><line x1="8" x2="8" y1="2" y2="4"/><line x1="16" x2="16" y1="2" y2="4"/></svg>
+                        Ver Carnet
+                      </button>
+                      {socio.status === 'ACTIVO' && socio.codigo && (
+                        <button
+                          onClick={() => setRetiringSocio(socio)}
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-red-100 text-red-700 rounded text-xs font-medium hover:bg-red-200 transition-colors"
+                        >
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>
+                          Retirar
+                        </button>
+                      )}
+                    </div>
                   </td>
                 </tr>
                 );

@@ -10,6 +10,7 @@ type Props = {
 
 export default function MovimientoModal({ isOpen, onClose, onSuccess }: Props) {
   const [tipo, setTipo] = useState('Inscripciones');
+  const [prefijo, setPrefijo] = useState<'SA' | 'SB'>('SA');
   const [socioId, setSocioId] = useState('');
   const [nuevoCupo, setNuevoCupo] = useState('');
   const [detalle, setDetalle] = useState('');
@@ -146,20 +147,36 @@ export default function MovimientoModal({ isOpen, onClose, onSuccess }: Props) {
           </div>
 
           {(tipo === 'Inscripciones' || tipo === 'Cambios') && (
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1">Asignar Cupo (Disponibles)</label>
-              <select
-                value={nuevoCupo}
-                onChange={(e) => setNuevoCupo(e.target.value)}
-                className="w-full px-4 py-3 bg-green-50 border border-green-200 rounded-lg focus:ring-2 focus:ring-green-500 font-mono font-bold text-green-800"
-                required
-              >
-                <option value="">-- Seleccionar Cupo Libre --</option>
-                {cupos.map(c => (
-                  <option key={c} value={c}>{c}</option>
-                ))}
-              </select>
-            </div>
+            <>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Prefijo de Cupo a Asignar</label>
+                <div className="flex gap-4">
+                  <label className={`flex-1 py-3 px-4 border rounded-lg cursor-pointer transition-all flex items-center gap-3 ${prefijo === 'SA' ? 'bg-blue-50 border-blue-500 ring-1 ring-blue-500' : 'bg-white border-gray-200 hover:bg-gray-50'}`}>
+                    <input type="radio" name="prefijo" value="SA" checked={prefijo === 'SA'} onChange={() => { setPrefijo('SA'); setNuevoCupo(''); }} className="w-4 h-4 text-blue-600 focus:ring-blue-500" />
+                    <span className="font-bold text-gray-800">Cupos SA</span>
+                  </label>
+                  <label className={`flex-1 py-3 px-4 border rounded-lg cursor-pointer transition-all flex items-center gap-3 ${prefijo === 'SB' ? 'bg-purple-50 border-purple-500 ring-1 ring-purple-500' : 'bg-white border-gray-200 hover:bg-gray-50'}`}>
+                    <input type="radio" name="prefijo" value="SB" checked={prefijo === 'SB'} onChange={() => { setPrefijo('SB'); setNuevoCupo(''); }} className="w-4 h-4 text-purple-600 focus:ring-purple-500" />
+                    <span className="font-bold text-gray-800">Cupos SB</span>
+                  </label>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">Cupos Libres ({prefijo})</label>
+                <select
+                  value={nuevoCupo}
+                  onChange={(e) => setNuevoCupo(e.target.value)}
+                  className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 font-mono font-bold text-gray-800 shadow-sm"
+                  required
+                >
+                  <option value="">-- Seleccionar Cupo Libre --</option>
+                  {cupos.filter(c => c.startsWith(prefijo)).map(c => (
+                    <option key={c} value={c}>{c}</option>
+                  ))}
+                </select>
+              </div>
+            </>
           )}
 
           <div>
