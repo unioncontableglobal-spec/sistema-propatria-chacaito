@@ -37,7 +37,9 @@ export default function MovimientoModal({ isOpen, onClose, onSuccess }: Props) {
       fetch('/api/socios')
         .then(res => res.json())
         .then(data => {
-          if (data.success) {
+          if (Array.isArray(data)) {
+            setSocios(data);
+          } else if (data && data.success) {
             setSocios(data.data);
           }
         });
