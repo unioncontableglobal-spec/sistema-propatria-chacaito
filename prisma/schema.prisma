@@ -156,7 +156,8 @@ model MovimientoSocio {
   id              Int      @id @default(autoincrement())
   tipo            String   // "Inscripciones", "Cambios", "Retiros"
   ficha           String?  // Ficha que tenía en el momento
-  cupo            String?  // Cupo involucrado
+  cupo            String?  // Cupo involucrado (Nuevo cupo)
+  cupo_anterior   String?  // Cupo que tenía antes del movimiento (solo útil para Cambios)
   nombre_apellido String?  // Nombre que tenía
   f_afiliacion    DateTime?// Fecha de afiliación original
   fecha           DateTime @default(now()) // Cuándo se registró el movimiento

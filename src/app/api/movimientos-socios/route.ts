@@ -57,6 +57,7 @@ export async function POST(req: NextRequest) {
         tipo,
         ficha: fichaActual,
         cupo: tipo === 'Inscripciones' || tipo === 'Cambios' ? nuevoCupo : cupoActual,
+        cupo_anterior: cupoActual,
         nombre_apellido: socio.nombre_apellido,
         f_afiliacion: socio.f_afiliacion,
         detalle,
