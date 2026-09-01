@@ -42,13 +42,13 @@ export default function RegistroIngresoModal({ onClose, onSuccess }: { onClose: 
 
   return (
     <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden">
-        <div className="flex justify-between items-center p-5 border-b border-gray-100">
+      <div className="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden flex flex-col max-h-[90vh]">
+        <div className="flex justify-between items-center p-5 border-b border-gray-100 shrink-0">
           <h3 className="font-bold text-lg">Registrar Nuevo Ingreso</h3>
-          <button onClick={onClose}><X size={20} /></button>
+          <button type="button" onClick={onClose}><X size={20} /></button>
         </div>
         
-        <form onSubmit={handleSubmit} className="p-5 space-y-4">
+        <form onSubmit={handleSubmit} className="p-5 space-y-4 overflow-y-auto">
           {error && <div className="text-red-500 text-sm mb-4">{error}</div>}
           
           <div className="grid grid-cols-2 gap-4">

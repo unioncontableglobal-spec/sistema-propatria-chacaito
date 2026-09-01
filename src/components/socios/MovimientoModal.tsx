@@ -132,15 +132,15 @@ export default function MovimientoModal({ isOpen, onClose, onSuccess }: Props) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm">
-      <div className="bg-white rounded-xl shadow-2xl w-full max-w-lg flex flex-col overflow-hidden">
-        <div className="p-6 border-b border-gray-100 bg-gray-50 flex justify-between items-center">
+      <div className="bg-white rounded-xl shadow-2xl w-full max-w-lg flex flex-col overflow-hidden max-h-[90vh]">
+        <div className="p-6 border-b border-gray-100 bg-gray-50 flex justify-between items-center shrink-0">
           <h2 className="text-xl font-bold text-[#1E3A8A]">Registrar Movimiento</h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-700">
+          <button type="button" onClick={onClose} className="text-gray-400 hover:text-gray-700">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-5">
+        <form onSubmit={handleSubmit} className="p-6 space-y-5 overflow-y-auto">
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-1">Tipo de Movimiento</label>
             <select
