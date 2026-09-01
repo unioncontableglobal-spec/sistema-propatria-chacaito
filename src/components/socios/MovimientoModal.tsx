@@ -70,6 +70,15 @@ export default function MovimientoModal({ isOpen, onClose, onSuccess }: Props) {
     return searchStr.includes(term);
   });
 
+  // Auto-seleccionar si solo hay 1 socio en la lista filtrada
+  useEffect(() => {
+    if (sociosFiltrados.length === 1 && (!socioId || sociosFiltrados[0].id.toString() !== socioId)) {
+      setSocioId(sociosFiltrados[0].id.toString());
+    } else if (sociosFiltrados.length === 0) {
+      setSocioId('');
+    }
+  }, [sociosFiltrados.length, filtroTexto]);
+
   const socioSeleccionado = socios.find(s => s.id.toString() === socioId);
 
   const handleSubmit = async (e: React.FormEvent) => {
