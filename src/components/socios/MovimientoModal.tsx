@@ -55,8 +55,6 @@ export default function MovimientoModal({ isOpen, onClose, onSuccess }: Props) {
     }
   }, [isOpen]);
 
-  if (!isOpen) return null;
-
   // Filtrar socios dependiendo del tipo
   const sociosFiltrados = socios.filter(s => {
     const isAvailable = s.codigo !== null;
@@ -139,8 +137,10 @@ export default function MovimientoModal({ isOpen, onClose, onSuccess }: Props) {
     }
   };
 
+  if (!isOpen) return null;
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm overflow-y-auto">
       <div className="bg-white rounded-xl shadow-2xl w-full max-w-lg flex flex-col overflow-hidden max-h-[90vh]">
         <div className="p-6 border-b border-gray-100 bg-gray-50 flex justify-between items-center shrink-0">
           <h2 className="text-xl font-bold text-[#1E3A8A]">Registrar Movimiento</h2>
