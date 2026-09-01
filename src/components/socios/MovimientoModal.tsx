@@ -72,12 +72,12 @@ export default function MovimientoModal({ isOpen, onClose, onSuccess }: Props) {
 
   // Auto-seleccionar si solo hay 1 socio en la lista filtrada
   useEffect(() => {
-    if (sociosFiltrados.length === 1 && (!socioId || sociosFiltrados[0].id.toString() !== socioId)) {
+    if (sociosFiltrados.length === 1 && sociosFiltrados[0].id.toString() !== socioId) {
       setSocioId(sociosFiltrados[0].id.toString());
-    } else if (sociosFiltrados.length === 0) {
+    } else if (sociosFiltrados.length === 0 && socioId !== '') {
       setSocioId('');
     }
-  }, [sociosFiltrados.length, filtroTexto]);
+  }, [sociosFiltrados.length, filtroTexto, socioId]);
 
   const socioSeleccionado = socios.find(s => s.id.toString() === socioId);
 
@@ -222,7 +222,7 @@ export default function MovimientoModal({ isOpen, onClose, onSuccess }: Props) {
               >
                 {sociosFiltrados.length === 0 && <option value="" disabled>No se encontraron socios</option>}
                 {sociosFiltrados.map(s => (
-                  <option key={s.id} value={s.id} className="py-2 border-b border-gray-100 last:border-0 hover:bg-blue-50">
+                  <option key={s.id} value={s.id.toString()} className="py-2 border-b border-gray-100 last:border-0 hover:bg-blue-50">
                     {s.ficha ? `[${s.ficha}]` : ''} {s.nombre_apellido} {s.codigo ? `(Cupo: ${s.codigo})` : ''}
                   </option>
                 ))}
