@@ -1,293 +1,286 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useAppStore } from '@/store/useAppStore';
 import { formatUsd } from '@/lib/formatters';
+import { Search, FileText } from 'lucide-react';
 
 export default function CxpPage() {
-  const { sociosDirectorio, filtroMesGlobal, data: rawData } = useAppStore();
+  const { publicaciones, filtroMesGlobal } = useAppStore();
+  const [transacciones, setTransacciones] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const periodoLabel = filtroMesGlobal === 'HISTÓRICO TOTAL' ? 'Histórico General Acumulado' : filtroMesGlobal;
-  const isHistoric = filtroMesGlobal === 'HISTÓRICO TOTAL';
-  const scale = isHistoric ? 3 : 1;
+  // Filtros
+  const [filtroMes, setFiltroMes] = useState(filtroMesGlobal === 'HISTÓRICO TOTAL' ? '' : filtroMesGlobal);
+  const [filtroCupo, setFiltroCupo] = useState('Todos');
+  const [filtroCategoria, setFiltroCategoria] = useState('Todas');
+  const [filtroFormaPago, setFiltroFormaPago] = useState('Todas');
+  const [busqueda, setBusqueda] = useState('');
 
-  let rawCxpUsd = 0;
-  if (rawData) {
-    rawData.cxpRaw.forEach(r => {
-      const mesStr = r.mes ? r.mes.toUpperCase().trim() : '';
-      if (isHistoric || mesStr.includes(filtroMesGlobal)) {
-        rawCxpUsd += r.montoUsd;
+  const mesesAprobados = publicaciones
+    .filter(p => p.estado === 'APROBADO')
+    .map(p => p.mes);
+
+  // Fetch de egresos
+  const fetchEgresos = async () => {
+    setIsLoading(true);
+    try {
+      const res = await fetch(`/api/recibos/historial?tipo=EGRESO`);
+      const data = await res.json();
+      if (data.success) {
+        setTransacciones(data.data);
       }
+    } catch (error) {
+      console.error('Error fetching egresos:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchEgresos();
+  }, []);
+
+  // Filtrado Frontend
+  const filteredData = useMemo(() => {
+    return transacciones.filter(tx => {
+      // 1. Mes
+      if (filtroMes && tx.mes !== filtroMes) return false;
+      
+      // 2. Cupo (SA vs SB)
+      if (filtroCupo !== 'Todos') {
+        const ficha = tx.socio?.ficha || '';
+        if (filtroCupo === 'SA' && !ficha.startsWith('SA')) return false;
+        if (filtroCupo === 'SB' && !ficha.startsWith('SB')) return false;
+      }
+
+      // 3. Categoría (Ayudas, Vidrios, Montepío, Remanentes, etc.)
+      if (filtroCategoria !== 'Todas') {
+        if (filtroCategoria === 'Egresos CxP (Asociados)' && !['EGRESO_CXP', 'PAGO DE AYUDAS', 'PAGO VIDRIOS', 'PAGO MONTEPIO'].includes(tx.clasificacion)) return false;
+        if (filtroCategoria === 'Otros Egresos' && ['EGRESO_CXP', 'PAGO DE AYUDAS', 'PAGO VIDRIOS', 'PAGO MONTEPIO'].includes(tx.clasificacion)) return false;
+        if (filtroCategoria !== 'Egresos CxP (Asociados)' && filtroCategoria !== 'Otros Egresos' && tx.clasificacion !== filtroCategoria) return false;
+      }
+
+      // 4. Forma de Pago
+      if (filtroFormaPago !== 'Todas') {
+        const formas = tx.formas_pago || [];
+        const tieneForma = formas.some((fp: any) => 
+          (filtroFormaPago === 'Efectivo' && fp.tipo_pago.toLowerCase().includes('efectivo')) ||
+          (filtroFormaPago === 'Transferencia' && (fp.tipo_pago.toLowerCase().includes('transf') || fp.tipo_pago.toLowerCase().includes('pago movil')))
+        );
+        if (!tieneForma && formas.length > 0) return false;
+        if (formas.length === 0 && filtroFormaPago !== 'Efectivo') return false; 
+      }
+
+      // 5. Búsqueda texto
+      if (busqueda) {
+        const term = busqueda.toLowerCase();
+        const searchStr = `${tx.recibo || ''} ${tx.socio?.ficha || ''} ${tx.socio?.nombre_apellido || ''} ${tx.tercero?.nombre || ''} ${tx.clasificacion || ''} ${tx.codigo_concepto || ''}`.toLowerCase();
+        if (!searchStr.includes(term)) return false;
+      }
+
+      return true;
     });
-  }
+  }, [transacciones, filtroMes, filtroCupo, filtroCategoria, filtroFormaPago, busqueda]);
 
-  // Hardcoded values from the screenshot to match the analytical behavior perfectly, scaled by month.
-  const deudaArrastre = 0;
-  const ayudasAprobadas = rawCxpUsd > 0 ? rawCxpUsd : (3241.73 * scale);
-  const pagosEjecutados = 0;
-  const deudaTotalAcumulada = deudaArrastre + ayudasAprobadas - pagosEjecutados;
-  
-  const metaPago = ayudasAprobadas;
-  const efectividad = (pagosEjecutados / metaPago) * 100 || 0;
+  // KPIs
+  const kpis = useMemo(() => {
+    let totalUsd = 0;
+    let totalBs = 0;
+    let efectivoUsd = 0;
+    let bancoUsd = 0;
+    
+    // Desglose
+    let ayudas = 0;
+    let vidrios = 0;
+    let montepios = 0;
+    let remanentes = 0; // Si hay egresos clasificados como remanentes
 
-  // Acreedores calculation
-  const acreedores = useMemo(() => {
-    // Generate the morosos/acreedores list based on sociosDirectorio, filtering for specific screenshots
-    const acreedoresList = sociosDirectorio
-      .filter(s => s.status === 'ACTIVO')
-      .map((s, index) => {
-        let ayudaNueva = index % 3 === 0 ? 1000 : index % 2 === 0 ? 500 : 241.73;
-        
-        return {
-          id: s.id,
-          ficha: s.ficha || 'S/N',
-          tipo: s.escalafon || 'SA',
-          nombre: s.nombre_apellido,
-          deudaArrastre: 0,
-          ayudaNueva: ayudaNueva,
-          pagosEjecutados: 0,
-          deudaAsoc: ayudaNueva
-        };
-      });
+    filteredData.forEach(tx => {
+      totalUsd += (tx.monto_usd || 0);
+      totalBs += (tx.monto_bs || 0);
 
-    // Specific names from the screenshot
-    const forcedNames = [
-      { id: -1, ficha: 'SA020', tipo: 'SA', nombre: 'ALFREDO COROMOTO FREITEZ GUEDEZ', deudaArrastre: 0, ayudaNueva: 1000, pagosEjecutados: 0, deudaAsoc: 1000 },
-      { id: -2, ficha: 'SB099', tipo: 'SB', nombre: 'JEAN CARLOS ROMERO JAIMES', deudaArrastre: 0, ayudaNueva: 1000, pagosEjecutados: 0, deudaAsoc: 1000 },
-      { id: -3, ficha: 'SA103', tipo: 'SA', nombre: 'CARMEN ALICIA PEREZ RODRIGUEZ', deudaArrastre: 0, ayudaNueva: 1000, pagosEjecutados: 0, deudaAsoc: 1000 },
-      { id: -4, ficha: 'SB015', tipo: 'SB', nombre: 'JOSE ANTONIO GUTIERREZ SILVA', deudaArrastre: 0, ayudaNueva: 241.73, pagosEjecutados: 0, deudaAsoc: 241.73 },
-    ];
+      // Distribuir formas de pago
+      let isEfectivo = false;
+      if (tx.formas_pago && tx.formas_pago.length > 0) {
+        tx.formas_pago.forEach((fp: any) => {
+          if (fp.tipo_pago.toLowerCase().includes('efectivo')) {
+            efectivoUsd += (fp.monto_usd || 0);
+            isEfectivo = true;
+          } else {
+            bancoUsd += (fp.monto_usd || 0);
+          }
+        });
+      } else {
+        efectivoUsd += (tx.monto_usd || 0);
+      }
 
-    return [...forcedNames, ...acreedoresList.slice(0, 15)];
-  }, [sociosDirectorio]);
+      // Categorías
+      if (tx.clasificacion?.includes('AYUDA')) ayudas += (tx.monto_usd || 0);
+      if (tx.clasificacion?.includes('VIDRIO')) vidrios += (tx.monto_usd || 0);
+      if (tx.clasificacion?.includes('MONTEPIO')) montepios += (tx.monto_usd || 0);
+      if (tx.clasificacion?.includes('REMANENTE')) remanentes += (tx.monto_usd || 0);
+    });
+
+    return { totalUsd, totalBs, efectivoUsd, bancoUsd, ayudas, vidrios, montepios, remanentes };
+  }, [filteredData]);
 
   return (
     <div className="p-6 bg-[#F8FAFC] min-h-screen">
-      
-      {/* HEADER */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-        <h1 className="text-2xl font-black text-[#0A1128]">Auditoría CxP a Socios</h1>
+      <div className="flex justify-between items-center mb-6">
+        <div>
+          <h1 className="text-2xl font-black text-[#0A1128]">Auditoría CxP y Recibos</h1>
+          <p className="text-sm text-gray-500 font-medium">Revisión detallada de pagos emitidos (Ayudas, Proveedores, Remanentes).</p>
+        </div>
+        <button onClick={() => window.print()} className="px-4 py-2 bg-[#1E293B] text-white rounded text-sm font-bold shadow hover:bg-gray-800 flex gap-2 items-center">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+          Imprimir Reporte
+        </button>
       </div>
 
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden p-6 md:p-8">
-        
-        {/* PRINT BUTTON */}
-        <div className="flex justify-end mb-4 no-print">
-          <button 
-            onClick={() => window.print()} 
-            className="flex items-center gap-2 px-4 py-2 bg-[#1E293B] text-white rounded text-xs font-bold hover:bg-opacity-90 transition-colors shadow-sm"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 9V3a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v6"/><rect width="12" height="8" x="6" y="14"/></svg>
-            Imprimir Estado Analítico CxP
-          </button>
+      {/* FILTROS */}
+      <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm mb-6 flex flex-wrap gap-4 items-end">
+        <div className="flex-1 min-w-[150px]">
+          <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Mes</label>
+          <select value={filtroMes} onChange={e => setFiltroMes(e.target.value)} className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 bg-gray-50">
+            <option value="">Histórico Total</option>
+            {mesesAprobados.map(m => <option key={m} value={m}>{m}</option>)}
+          </select>
         </div>
-
-        {/* TITLE SECTION */}
-        <div className="text-center mb-8 border-b border-gray-800 pb-6">
-          <h2 className="text-xl font-black text-black">ESTADO DE CUENTAS POR PAGAR A SOCIOS (AYUDAS)</h2>
-          <p className="text-sm font-bold text-gray-700 mt-1">Unión Contable Global - Asoc. Civil Propatria Chacaito</p>
-          <p className="text-xs font-semibold text-gray-500 mt-1">Periodo Analizado: <span className="text-gray-700">{periodoLabel}</span></p>
+        <div className="flex-1 min-w-[150px]">
+          <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Cupo</label>
+          <select value={filtroCupo} onChange={e => setFiltroCupo(e.target.value)} className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 bg-gray-50">
+            <option value="Todos">Todos (SA y SB)</option>
+            <option value="SA">Solo Socios SA</option>
+            <option value="SB">Solo Socios SB</option>
+          </select>
         </div>
-
-        {/* EQUATION ROW */}
-        <div className="flex flex-col xl:flex-row items-center justify-between bg-white border border-gray-200 shadow-sm rounded-lg p-6 mb-8 gap-4 xl:gap-0">
-          
-          <div className="flex flex-col items-center xl:items-start text-center xl:text-left">
-            <span className="text-[10px] font-bold text-gray-500 tracking-wider uppercase mb-1">Deuda de Arrastre al Socio</span>
-            <span className="text-3xl font-black text-gray-700">{formatUsd(deudaArrastre)}</span>
-          </div>
-          
-          <div className="text-2xl font-light text-gray-400">+</div>
-          
-          <div className="flex flex-col items-center xl:items-center text-center">
-            <span className="text-[10px] font-bold text-gray-500 tracking-wider uppercase mb-1">Nuevas Ayudas Aprobadas</span>
-            <span className="text-3xl font-black text-blue-500">{formatUsd(ayudasAprobadas)}</span>
-          </div>
-
-          <div className="text-2xl font-light text-gray-400">-</div>
-          
-          <div className="flex flex-col items-center xl:items-center text-center">
-            <span className="text-[10px] font-bold text-gray-500 tracking-wider uppercase mb-1">Pagos Ejecutados (Abonos)</span>
-            <span className="text-3xl font-black text-[#16A34A]">{formatUsd(pagosEjecutados)}</span>
-          </div>
-
-          <div className="text-2xl font-black text-gray-800">=</div>
-          
-          <div className="flex flex-col items-center xl:items-end text-center xl:text-right">
-            <span className="text-[10px] font-bold text-red-500 tracking-wider uppercase mb-1">Deuda Total Acumulada</span>
-            <span className="text-4xl font-black text-red-500">{formatUsd(deudaTotalAcumulada)}</span>
-          </div>
-
+        <div className="flex-1 min-w-[150px]">
+          <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Categoría</label>
+          <select value={filtroCategoria} onChange={e => setFiltroCategoria(e.target.value)} className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 bg-gray-50">
+            <option value="Todas">Todas</option>
+            <option value="Egresos CxP (Asociados)">Solo Egresos Asociados</option>
+            <option value="PAGO DE AYUDAS">Solo Ayudas</option>
+            <option value="PAGO MONTEPIO">Solo Montepíos</option>
+            <option value="PAGO VIDRIOS">Solo Vidrios</option>
+            <option value="Otros Egresos">Otros Egresos / Proveedores</option>
+          </select>
         </div>
-
-        {/* KPI ROW */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-          <div className="border border-indigo-900 bg-white shadow-sm rounded-lg p-5 flex flex-col justify-center">
-            <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1">Meta de Pago (Mes)</span>
-            <span className="text-2xl font-black text-[#0A1128]">{formatUsd(metaPago)}</span>
-          </div>
-          <div className="border border-[#16A34A] bg-[#F0FDF4] shadow-sm rounded-lg p-5 flex flex-col justify-center">
-            <span className="text-[10px] font-bold text-[#16A34A] uppercase tracking-wider mb-1">Pagos Ejecutados (Mes)</span>
-            <span className="text-2xl font-black text-[#16A34A]">{formatUsd(pagosEjecutados)}</span>
-          </div>
-          <div className="border border-red-200 bg-[#FEF2F2] shadow-sm rounded-lg p-5 flex flex-col justify-center">
-            <span className="text-[10px] font-bold text-red-600 uppercase tracking-wider mb-1">Deuda Acumulada Asoc.</span>
-            <span className="text-2xl font-black text-red-600">{formatUsd(deudaTotalAcumulada)}</span>
-          </div>
-          <div className="bg-[#0f172a] shadow-sm rounded-lg p-5 flex flex-col justify-center">
-            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Efectividad de Liquidación</span>
-            <span className="text-3xl font-black text-white">{efectividad.toFixed(1)}%</span>
-          </div>
+        <div className="flex-1 min-w-[150px]">
+          <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Forma de Pago</label>
+          <select value={filtroFormaPago} onChange={e => setFiltroFormaPago(e.target.value)} className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 bg-gray-50">
+            <option value="Todas">Todas</option>
+            <option value="Transferencia">Transferencia / Pago Móvil</option>
+            <option value="Efectivo">Efectivo</option>
+          </select>
         </div>
+        <div className="flex-[2] min-w-[200px] relative">
+          <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Buscar Recibo / Socio</label>
+          <Search className="absolute left-3 top-[26px] text-gray-400" size={16} />
+          <input 
+            type="text" 
+            value={busqueda} 
+            onChange={e => setBusqueda(e.target.value)} 
+            placeholder="Nro recibo, nombre, ficha..." 
+            className="w-full pl-9 p-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+      </div>
 
-        {/* EXTRACONTABLE BANNER */}
-        <div className="mb-10 bg-[#FAF5FF] border border-[#D8B4FE] rounded-lg p-4">
+      {/* KPIs */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <div className="bg-white border-l-4 border-red-500 rounded-lg p-5 shadow-sm">
+          <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1">Pagos Filtrados</p>
+          <p className="text-3xl font-black text-[#0A1128]">{formatUsd(kpis.totalUsd)}</p>
+          <p className="text-xs text-gray-400 font-medium mt-1">~ Bs. {kpis.totalBs.toLocaleString('es-VE', {minimumFractionDigits: 2})}</p>
+        </div>
+        <div className="bg-white border-l-4 border-orange-400 rounded-lg p-5 shadow-sm">
+          <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1">Egresado Vía Banco</p>
+          <p className="text-2xl font-black text-orange-600">{formatUsd(kpis.bancoUsd)}</p>
+          <p className="text-xs text-gray-400 font-medium mt-1">Transf. y Pago Móvil</p>
+        </div>
+        <div className="bg-white border-l-4 border-orange-400 rounded-lg p-5 shadow-sm">
+          <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1">Egresado Vía Efectivo</p>
+          <p className="text-2xl font-black text-orange-600">{formatUsd(kpis.efectivoUsd)}</p>
+          <p className="text-xs text-gray-400 font-medium mt-1">Divisas en físico</p>
+        </div>
+        <div className="bg-[#0f172a] rounded-lg p-5 shadow-sm text-white flex flex-col justify-center">
+          <p className="text-[10px] font-bold text-blue-300 uppercase tracking-wider mb-2">Desglose a Socios</p>
+          <div className="flex justify-between text-xs mb-1"><span>Ayudas:</span> <span className="font-bold">{formatUsd(kpis.ayudas)}</span></div>
+          <div className="flex justify-between text-xs mb-1"><span>Montepíos:</span> <span className="font-bold">{formatUsd(kpis.montepios)}</span></div>
+          <div className="flex justify-between text-xs"><span>Vidrios:</span> <span className="font-bold">{formatUsd(kpis.vidrios)}</span></div>
+        </div>
+      </div>
+
+      {/* EXTRACONTABLE BANNER */}
+      {kpis.remanentes > 0 && (
+        <div className="mb-6 bg-[#FAF5FF] border border-[#D8B4FE] rounded-lg p-4 shadow-sm">
           <div className="flex items-center gap-2 mb-1">
             <span className="text-blue-500">💎</span>
             <span className="text-[11px] font-black text-indigo-700 uppercase tracking-wider">Registro Extracontable: Distribución de Remanentes</span>
           </div>
           <p className="text-[11px] font-medium text-indigo-600 mb-2">Los Remanentes no constituyen cuentas por pagar (pasivos), son distribuciones de capital entregadas a los socios en el mes. Se aíslan a título informativo.</p>
-          <span className="text-lg font-bold text-indigo-700">{formatUsd(0)} USD Liquidados a Socios este periodo.</span>
+          <span className="text-lg font-bold text-indigo-700">{formatUsd(kpis.remanentes)} USD Liquidados a Socios este periodo.</span>
         </div>
+      )}
 
-        {/* CATEGORY EXECUTION TABLE */}
-        <div className="mb-10">
-          <h3 className="text-[13px] font-black text-[#0A1128] uppercase tracking-wide mb-3 flex items-center gap-2">
-            📊 Resumen de Ejecución por Categoría de Ayuda
+      {/* TABLA DE AUDITORÍA */}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <div className="p-4 bg-gray-50 border-b border-gray-200 flex justify-between items-center">
+          <h3 className="font-bold text-gray-700 flex items-center gap-2">
+            <FileText size={18} /> Detalle de Recibos de Egreso ({filteredData.length})
           </h3>
-          <div className="overflow-x-auto rounded border border-gray-200">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-[#000080]">
-                <tr>
-                  <th scope="col" className="px-6 py-4 text-left text-[11px] font-bold text-white uppercase tracking-wider w-1/3">Categoría Beneficio</th>
-                  <th scope="col" className="px-6 py-4 text-center text-[11px] font-bold text-white uppercase tracking-wider">Monto Aprobado (Meta)</th>
-                  <th scope="col" className="px-6 py-4 text-center text-[11px] font-bold text-white uppercase tracking-wider">Monto Liquidado (Pagado)</th>
-                  <th scope="col" className="px-6 py-4 text-center text-[11px] font-bold text-white uppercase tracking-wider">Cumplimiento (%)</th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-100">
-                <tr className="hover:bg-gray-50/50">
-                  <td className="px-6 py-4 whitespace-nowrap text-xs font-black text-[#0A1128]">MONTEPÍOS</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 text-center">{formatUsd(3000 * scale)}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-[#16A34A] text-center">{formatUsd(0)}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-center">
-                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-gray-200 text-gray-800">0.0%</span>
-                  </td>
-                </tr>
-                <tr className="hover:bg-gray-50/50">
-                  <td className="px-6 py-4 whitespace-nowrap text-xs font-black text-[#0A1128]">GRÚAS</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 text-center">{formatUsd(0)}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-[#16A34A] text-center">{formatUsd(0)}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-center">
-                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-gray-200 text-gray-800">0%</span>
-                  </td>
-                </tr>
-                <tr className="hover:bg-gray-50/50">
-                  <td className="px-6 py-4 whitespace-nowrap text-xs font-black text-[#0A1128]">VIDRIOS / OTRAS AYUDAS</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 text-center">{formatUsd(241.73 * scale)}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-[#16A34A] text-center">{formatUsd(0)}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-center">
-                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-gray-200 text-gray-800">0.0%</span>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
         </div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm text-left">
+            <thead className="text-xs text-gray-500 uppercase bg-gray-100 font-bold">
+              <tr>
+                <th className="px-4 py-3">Fecha</th>
+                <th className="px-4 py-3">N° Recibo</th>
+                <th className="px-4 py-3">Destinatario / Ficha</th>
+                <th className="px-4 py-3">Concepto</th>
+                <th className="px-4 py-3">Pagado Vía</th>
+                <th className="px-4 py-3 text-right">Monto USD</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100">
+              {isLoading ? (
+                <tr><td colSpan={6} className="text-center py-10 text-gray-500">Cargando datos...</td></tr>
+              ) : filteredData.length === 0 ? (
+                <tr><td colSpan={6} className="text-center py-10 text-gray-400">No hay recibos que coincidan con los filtros.</td></tr>
+              ) : (
+                filteredData.map(tx => {
+                  const formas = tx.formas_pago || [];
+                  const metodos = formas.length > 0 ? formas.map((f: any) => f.tipo_pago).join(', ') : 'Efectivo';
+                  const nombre = tx.socio?.nombre_apellido || tx.tercero?.nombre || 'S/N';
+                  const extra = tx.socio ? `Ficha: ${tx.socio.ficha || '-'}` : (tx.tercero ? `Tercero` : '');
 
-        {/* PAGOS EJECUTADOS TABLE */}
-        <div className="mb-10">
-          <h3 className="text-[15px] font-bold text-[#16A34A] mb-1 flex items-center gap-2">
-            ✅ Desglose Histórico de Pagos Ejecutados (Deuda Actual + Arrastrada)
-          </h3>
-          <p className="text-xs font-medium text-gray-500 mb-4">Detalle exacto de cada obligación liquidada y el concepto justificado (Identificando si se pagó deuda de arrastre de meses anteriores).</p>
-          
-          <div className="overflow-x-auto rounded border border-green-100">
-            <table className="min-w-full divide-y divide-green-100">
-              <thead className="bg-[#F0FDF4]">
-                <tr>
-                  <th scope="col" className="px-4 py-3 text-left text-[11px] font-bold text-green-700 uppercase tracking-wider">Nº Egreso</th>
-                  <th scope="col" className="px-4 py-3 text-left text-[11px] font-bold text-green-700 uppercase tracking-wider">Fecha</th>
-                  <th scope="col" className="px-4 py-3 text-left text-[11px] font-bold text-green-700 uppercase tracking-wider">Socio Beneficiado</th>
-                  <th scope="col" className="px-4 py-3 text-left text-[11px] font-bold text-green-700 uppercase tracking-wider">Tipo</th>
-                  <th scope="col" className="px-4 py-3 text-left text-[11px] font-bold text-green-700 uppercase tracking-wider">Concepto Justificado</th>
-                  <th scope="col" className="px-4 py-3 text-right text-[11px] font-bold text-green-700 uppercase tracking-wider">Monto (USD)</th>
-                </tr>
-              </thead>
-              <tbody className="bg-white">
-                <tr>
-                  <td colSpan={6} className="px-4 py-8 text-center text-sm font-medium text-gray-500">
-                    No se emitieron comprobantes de pago a socios en este periodo.
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+                  return (
+                    <tr key={tx.id} className="hover:bg-red-50/30">
+                      <td className="px-4 py-3 text-gray-600">{new Date(tx.fecha).toLocaleDateString('es-VE')}</td>
+                      <td className="px-4 py-3 font-mono font-bold text-gray-800">{tx.recibo || '-'}</td>
+                      <td className="px-4 py-3">
+                        <div className="font-bold text-red-900">{nombre}</div>
+                        <div className="text-[10px] text-gray-500 font-medium">{extra}</div>
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="font-semibold text-gray-700">{tx.clasificacion || 'N/A'}</div>
+                        {tx.codigo_concepto && <div className="text-[10px] text-gray-500">{tx.codigo_concepto}</div>}
+                      </td>
+                      <td className="px-4 py-3 text-xs text-gray-600">
+                        {metodos}
+                      </td>
+                      <td className="px-4 py-3 text-right font-black text-red-600">
+                        {formatUsd(tx.monto_usd || 0)}
+                      </td>
+                    </tr>
+                  )
+                })
+              )}
+            </tbody>
+          </table>
         </div>
-
-        {/* ACREEDORES ACTIVOS TABLE */}
-        <div className="border-t border-[#000080] pt-6">
-          <h3 className="text-lg font-black text-[#0A1128] mb-6 flex items-center gap-2">
-            📋 Socios en Espera de Liquidación (Acreedores Activos)
-          </h3>
-          
-          <div className="overflow-x-auto rounded border border-gray-200">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-[#F8FAFC]">
-                <tr>
-                  <th scope="col" className="px-4 py-3 text-left text-[11px] font-bold text-[#0A1128] uppercase tracking-wider w-24">Cód. / Tipo</th>
-                  <th scope="col" className="px-4 py-3 text-left text-[11px] font-bold text-[#0A1128] uppercase tracking-wider">Socio Titular</th>
-                  <th scope="col" className="px-4 py-3 text-right text-[11px] font-bold text-[#0A1128] uppercase tracking-wider">Deuda Arrastro</th>
-                  <th scope="col" className="px-4 py-3 text-right text-[11px] font-bold text-[#0A1128] uppercase tracking-wider">Ayuda Nueva</th>
-                  <th scope="col" className="px-4 py-3 text-right text-[11px] font-bold text-[#0A1128] uppercase tracking-wider">Pagos Ejecutados</th>
-                  <th scope="col" className="px-4 py-3 text-right text-[11px] font-bold text-[#0A1128] uppercase tracking-wider">Deuda de la Asoc. (USD)</th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-100">
-                {acreedores.map((m, idx) => (
-                  <tr key={idx} className="hover:bg-blue-50/30 transition-colors">
-                    <td className="px-4 py-3 whitespace-nowrap">
-                      <div className="text-sm font-bold text-gray-900">{m.ficha}</div>
-                      <div className="text-[10px] text-gray-500 font-medium">{m.tipo}</div>
-                    </td>
-                    <td className="px-4 py-3 whitespace-nowrap text-xs font-black text-[#0A1128]">{m.nombre}</td>
-                    <td className="px-4 py-3 whitespace-nowrap text-xs text-gray-500 text-right">{formatUsd(m.deudaArrastre).replace('$', '')}</td>
-                    <td className="px-4 py-3 whitespace-nowrap text-xs text-gray-700 text-right">{formatUsd(m.ayudaNueva).replace('$', '')}</td>
-                    <td className="px-4 py-3 whitespace-nowrap text-xs font-medium text-[#16A34A] text-right">{formatUsd(m.pagosEjecutados).replace('$', '')}</td>
-                    <td className="px-4 py-3 whitespace-nowrap text-sm font-bold text-[#0A1128] text-right">{formatUsd(m.deudaAsoc)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
       </div>
-
-      <style>{`
-        @media print {
-          body * {
-            visibility: hidden;
-          }
-          .p-6.bg-\\[\\#F8FAFC\\], .p-6.bg-\\[\\#F8FAFC\\] * {
-            visibility: visible;
-          }
-          .p-6.bg-\\[\\#F8FAFC\\] {
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 100%;
-            background: white !important;
-            padding: 0 !important;
-          }
-          .no-print {
-            display: none !important;
-          }
-          .overflow-x-auto {
-            overflow: visible !important;
-          }
-        }
-      `}</style>
     </div>
   );
 }
