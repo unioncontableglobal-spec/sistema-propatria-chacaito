@@ -8,7 +8,6 @@ import DistributionPieChart from '@/components/charts/DistributionPieChart';
 import CxCStackedBarChart from '@/components/charts/CxCStackedBarChart';
 import { 
   Users, 
-  UserPlus, 
   TrendingUp, 
   TrendingDown, 
   Activity, 
@@ -36,6 +35,7 @@ const orderToMonth: Record<number, string> = Object.fromEntries(
   Object.entries(monthOrder).map(([k, v]) => [v, k])
 );
 
+// Group specific categories
 function groupTopCategories(map: Map<string, number>, maxCategories: number = 5) {
   const entries = Array.from(map.entries());
   entries.sort((a, b) => b[1] - a[1]);
@@ -71,7 +71,6 @@ export default function Home() {
     let prevCxcBs = 0;
     
     let cxpUsd = 0;
-    let prevCxpUsd = 0;
 
     let totalSociosActivosSA = 0;
     let totalSociosActivosSB = 0;
@@ -84,8 +83,8 @@ export default function Home() {
     const expenseDistributionMap = new Map<string, number>();
     const cxcCompositionMap = new Map<string, any>();
 
-    let otrosIngresosBs = 0;
-    let otrosEgresosBs = 0;
+    let ingresosAtipicosBs = 0;
+    let egresosAtipicosBs = 0;
     let prestamosBs = 0;
 
     // Ingresos
@@ -97,7 +96,13 @@ export default function Home() {
 
       if (!filterMonthUpper || mes === filterMonthUpper) {
         totalIngresosBs += row.montoBs;
-        incomeDistributionMap.set(row.clasificacion, (incomeDistributionMap.get(row.clasificacion) || 0) + row.montoBs);
+        const clase = row.clasificacion?.toUpperCase() || 'OTROS';
+        incomeDistributionMap.set(clase, (incomeDistributionMap.get(clase) || 0) + row.montoBs);
+
+        // Lógica de Ingresos Atípicos: Todo lo que no sea la cuota base
+        if (!clase.includes('MENSUALIDAD') && !clase.includes('AFILIACION') && !clase.includes('INSCRIPCION')) {
+          ingresosAtipicosBs += row.montoBs;
+        }
       }
       if (prevMonthUpper && mes === prevMonthUpper) {
         prevIngresosBs += row.montoBs;
@@ -113,8 +118,15 @@ export default function Home() {
 
       if (!filterMonthUpper || mes === filterMonthUpper) {
         totalEgresosBs += row.montoBs;
-        expenseDistributionMap.set(row.clasificacion, (expenseDistributionMap.get(row.clasificacion) || 0) + row.montoBs);
-        if (row.clasificacion.toUpperCase() === 'PRESTAMOS' || row.clasificacion.toUpperCase() === 'PRESTAMO') prestamosBs += row.montoBs;
+        const clase = row.clasificacion?.toUpperCase() || 'OTROS';
+        expenseDistributionMap.set(clase, (expenseDistributionMap.get(clase) || 0) + row.montoBs);
+        
+        if (clase === 'PRESTAMOS' || clase === 'PRESTAMO' || clase.includes('PRESTAMO')) {
+          prestamosBs += row.montoBs;
+        } else if (!clase.includes('NOMINA') && !clase.includes('HONORARIOS') && !clase.includes('PROVEEDORES')) {
+          // Lógica de Egresos Atípicos: lo que sale de los gastos recurrentes principales
+          egresosAtipicosBs += row.montoBs;
+        }
       }
       if (prevMonthUpper && mes === prevMonthUpper) {
         prevEgresosBs += row.montoBs;
@@ -151,7 +163,6 @@ export default function Home() {
     rawData.cxpRaw.forEach(row => {
       const mes = row.mes.toUpperCase();
       if (!filterMonthUpper || mes === filterMonthUpper) cxpUsd += row.montoUsd;
-      if (prevMonthUpper && mes === prevMonthUpper) prevCxpUsd += row.montoUsd;
     });
 
     // Socios
@@ -175,11 +186,8 @@ export default function Home() {
       }
     });
 
-    const incomeDistribution = groupTopCategories(incomeDistributionMap);
-    const expenseDistribution = groupTopCategories(expenseDistributionMap);
-
-    otrosIngresosBs = incomeDistribution.find(d => d.name === 'OTROS')?.value || 0;
-    otrosEgresosBs = expenseDistribution.find(d => d.name === 'OTROS')?.value || 0;
+    const incomeDistribution = groupTopCategories(incomeDistributionMap, 6);
+    const expenseDistribution = groupTopCategories(expenseDistributionMap, 6);
 
     const flujoCajaBs = totalIngresosBs - totalEgresosBs;
     const prevFlujoCajaBs = prevIngresosBs - prevEgresosBs;
@@ -211,8 +219,8 @@ export default function Home() {
       nuevosIngresosMesSA,
       nuevosIngresosMesSB,
       prevNuevosIngresos,
-      otrosIngresosBs,
-      otrosEgresosBs,
+      ingresosAtipicosBs,
+      egresosAtipicosBs,
       prestamosBs,
       eficienciaCobro,
       indiceSolvencia,
@@ -242,17 +250,17 @@ export default function Home() {
   };
 
   return (
-    <div className="pb-12 max-w-[1400px] mx-auto space-y-8 font-sans">
+    <div className="pb-12 max-w-[1400px] mx-auto space-y-6 font-sans">
       
       {/* 👑 HEADER PREMIUM */}
-      <header className="flex flex-col md:flex-row md:justify-between md:items-end gap-4 border-b border-slate-100 pb-5">
+      <header className="flex flex-col md:flex-row md:justify-between md:items-end gap-4 border-b border-slate-100 pb-4">
         <div className="space-y-1">
           <div className="flex items-center gap-3">
-            <h2 className="text-2xl font-light tracking-tight text-slate-800">
+            <h2 className="text-3xl font-light tracking-tight text-slate-800">
               Resumen <span className="font-semibold">Ejecutivo</span>
             </h2>
             {filtroMesGlobal !== 'HISTÓRICO TOTAL' && (
-              <span className="px-2.5 py-0.5 bg-slate-800 text-white rounded-full text-[10px] font-semibold uppercase tracking-widest shadow-sm">
+              <span className="px-3 py-1 bg-slate-800 text-white rounded-md text-[10px] font-bold uppercase tracking-widest shadow-sm">
                 {filtroMesGlobal} 2026
               </span>
             )}
@@ -269,16 +277,52 @@ export default function Home() {
         </div>
       </header>
       
-      {/* 🚀 METRICS SUPERIORES (Estilo Delicado y Limpio) */}
+      {/* 💡 MINI KPIS DESTACADOS (MOVIDOS ARRIBA COMO SOLICITADO) */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-2">
+        <div className="bg-white border border-slate-200/60 p-4 rounded-2xl flex items-center gap-4 hover:shadow-md transition-all shadow-sm">
+          <div className="p-3 bg-emerald-50 rounded-xl text-emerald-500"><DollarSign size={20} strokeWidth={1.5} /></div>
+          <div>
+            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Ingresos Atípicos</p>
+            <p className="text-lg font-bold text-slate-700 tracking-tight">{formatBs(data.ingresosAtipicosBs)}</p>
+          </div>
+        </div>
+        
+        <div className="bg-white border border-slate-200/60 p-4 rounded-2xl flex items-center gap-4 hover:shadow-md transition-all shadow-sm">
+          <div className="p-3 bg-rose-50 rounded-xl text-rose-500"><CreditCard size={20} strokeWidth={1.5} /></div>
+          <div>
+            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Egresos Atípicos</p>
+            <p className="text-lg font-bold text-slate-700 tracking-tight">{formatBs(data.egresosAtipicosBs)}</p>
+          </div>
+        </div>
+        
+        <div className="bg-white border border-slate-200/60 p-4 rounded-2xl flex items-center gap-4 hover:shadow-md transition-all shadow-sm">
+          <div className="p-3 bg-amber-50 rounded-xl text-amber-500"><FileSpreadsheet size={20} strokeWidth={1.5} /></div>
+          <div>
+            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Préstamos Emitidos</p>
+            <p className="text-lg font-bold text-slate-700 tracking-tight">{formatBs(data.prestamosBs)}</p>
+          </div>
+        </div>
+        
+        <div className="bg-white border border-slate-200/60 p-4 rounded-2xl flex items-center gap-4 hover:shadow-md transition-all shadow-sm relative overflow-hidden">
+          <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-rose-500"></div>
+          <div className="p-3 bg-rose-50 rounded-xl text-rose-600 ml-2"><AlertTriangle size={20} strokeWidth={1.5} /></div>
+          <div>
+            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Pasivos (CxP)</p>
+            <p className="text-lg font-bold text-slate-700 tracking-tight">{formatBs(data.cxpBs)}</p>
+          </div>
+        </div>
+      </div>
+
+      {/* 🚀 MACRO METRICAS (Core Financials) */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5">
         
         {/* FLUJO DE CAJA (Hero Metric) */}
-        <div className="bg-slate-900 rounded-2xl p-6 shadow-xl shadow-slate-900/10 border border-slate-800 relative overflow-hidden group">
+        <div className="bg-slate-900 rounded-3xl p-7 shadow-xl shadow-slate-900/10 border border-slate-800 relative overflow-hidden group">
           <div className="absolute -right-6 -top-6 w-32 h-32 bg-white/5 rounded-full blur-2xl group-hover:bg-blue-500/10 transition-colors duration-500"></div>
           <div className="relative z-10 flex flex-col h-full justify-between">
             <div>
               <div className="flex justify-between items-start mb-4">
-                <div className="p-2 bg-white/10 rounded-xl text-blue-300 backdrop-blur-md">
+                <div className="p-2.5 bg-white/10 rounded-xl text-blue-300 backdrop-blur-md">
                   <Wallet size={20} strokeWidth={1.5} />
                 </div>
                 {filterMonthUpper && (
@@ -303,10 +347,10 @@ export default function Home() {
         </div>
 
         {/* INGRESOS */}
-        <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 hover:shadow-md transition-shadow flex flex-col justify-between">
+        <div className="bg-white rounded-3xl p-7 shadow-sm border border-slate-100 hover:shadow-md transition-shadow flex flex-col justify-between">
           <div>
             <div className="flex justify-between items-start mb-4">
-              <div className="p-2 bg-emerald-50 rounded-xl text-emerald-600">
+              <div className="p-2.5 bg-emerald-50 rounded-xl text-emerald-600">
                 <TrendingUp size={20} strokeWidth={1.5} />
               </div>
               {filterMonthUpper && <TrendBadge value={data.varIngresos} />}
@@ -323,10 +367,10 @@ export default function Home() {
         </div>
 
         {/* EGRESOS */}
-        <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 hover:shadow-md transition-shadow flex flex-col justify-between">
+        <div className="bg-white rounded-3xl p-7 shadow-sm border border-slate-100 hover:shadow-md transition-shadow flex flex-col justify-between">
           <div>
             <div className="flex justify-between items-start mb-4">
-              <div className="p-2 bg-rose-50 rounded-xl text-rose-600">
+              <div className="p-2.5 bg-rose-50 rounded-xl text-rose-600">
                 <TrendingDown size={20} strokeWidth={1.5} />
               </div>
               {filterMonthUpper && <TrendBadge value={data.varEgresos} invert />}
@@ -343,11 +387,11 @@ export default function Home() {
         </div>
 
         {/* CUENTAS POR COBRAR */}
-        <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 hover:shadow-md transition-shadow flex flex-col justify-between relative overflow-hidden">
-          <div className="absolute bottom-0 left-0 w-full h-1 bg-amber-400/20"></div>
+        <div className="bg-white rounded-3xl p-7 shadow-sm border border-slate-100 hover:shadow-md transition-shadow flex flex-col justify-between relative overflow-hidden">
+          <div className="absolute bottom-0 left-0 w-full h-1.5 bg-amber-400/20"></div>
           <div>
             <div className="flex justify-between items-start mb-4">
-              <div className="p-2 bg-amber-50 rounded-xl text-amber-500">
+              <div className="p-2.5 bg-amber-50 rounded-xl text-amber-500">
                 <AlertTriangle size={20} strokeWidth={1.5} />
               </div>
               {filterMonthUpper && <TrendBadge value={data.varCxc} invert />}
@@ -376,22 +420,22 @@ export default function Home() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
         
         {/* TENDENCIA */}
-        <div className="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-slate-100 p-7">
+        <div className="lg:col-span-2 bg-white rounded-3xl shadow-sm border border-slate-100 p-8">
           <div className="flex justify-between items-end mb-8">
             <div>
-              <h3 className="text-lg font-light tracking-tight text-slate-800 flex items-center gap-2">
-                <Activity size={18} className="text-slate-400" strokeWidth={1.5} /> 
+              <h3 className="text-xl font-light tracking-tight text-slate-800 flex items-center gap-2">
+                <Activity size={20} className="text-slate-400" strokeWidth={1.5} /> 
                 <span className="font-semibold">Tendencia</span> Operativa
               </h3>
               <p className="text-[11px] font-medium text-slate-400 uppercase tracking-widest mt-2">Evolución Ingresos vs Egresos</p>
             </div>
-            <div className="flex gap-4">
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-[#16A34A]"></div>
+            <div className="flex gap-4 bg-slate-50 p-2 rounded-lg">
+              <div className="flex items-center gap-2 px-2">
+                <div className="w-2.5 h-2.5 rounded-full bg-[#16A34A]"></div>
                 <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Ingreso</span>
               </div>
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-[#DC2626]"></div>
+              <div className="flex items-center gap-2 px-2">
+                <div className="w-2.5 h-2.5 rounded-full bg-[#DC2626]"></div>
                 <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Egreso</span>
               </div>
             </div>
@@ -402,20 +446,20 @@ export default function Home() {
         </div>
 
         {/* CAPITAL HUMANO */}
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-7 flex flex-col justify-between relative overflow-hidden">
-          <div className="absolute -right-10 -bottom-10 opacity-[0.03]">
-            <Users size={200} strokeWidth={1} />
+        <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-8 flex flex-col justify-between relative overflow-hidden">
+          <div className="absolute -right-10 -bottom-10 opacity-[0.02]">
+            <Users size={240} strokeWidth={1} />
           </div>
           <div>
-            <h3 className="text-lg font-light tracking-tight text-slate-800 flex items-center gap-2 mb-2">
-              <Users size={18} className="text-slate-400" strokeWidth={1.5} /> 
+            <h3 className="text-xl font-light tracking-tight text-slate-800 flex items-center gap-2 mb-2">
+              <Users size={20} className="text-slate-400" strokeWidth={1.5} /> 
               <span className="font-semibold">Capital</span> Humano
             </h3>
             <p className="text-[11px] font-medium text-slate-400 uppercase tracking-widest">Base societaria</p>
             
-            <div className="mt-8 mb-10">
-              <p className="text-6xl font-light text-slate-800 tracking-tighter">{totalSocios}</p>
-              <p className="text-[10px] font-bold text-blue-500 uppercase tracking-[0.2em] mt-1">Activos Totales</p>
+            <div className="mt-8 mb-10 text-center">
+              <p className="text-7xl font-light text-slate-800 tracking-tighter">{totalSocios}</p>
+              <p className="text-[10px] font-bold text-blue-500 uppercase tracking-[0.2em] mt-2">Activos Totales</p>
             </div>
             
             <div className="space-y-5 relative z-10">
@@ -443,8 +487,8 @@ export default function Home() {
 
           <div className="mt-8 pt-5 border-t border-slate-50 flex justify-between items-center relative z-10">
             <div>
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Inscripciones</p>
-              <p className="text-sm font-semibold text-slate-700">+{totalNuevos} Socios</p>
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Nuevos Registros</p>
+              <p className="text-base font-semibold text-slate-700">+{totalNuevos} Socios</p>
             </div>
             {filterMonthUpper && <TrendBadge value={varNuevos} />}
           </div>
@@ -453,75 +497,42 @@ export default function Home() {
 
       {/* 📊 DISTRIBUCIONES */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 flex flex-col">
-          <div className="mb-6">
-            <h3 className="text-sm font-semibold text-slate-800 flex items-center gap-2">
+        <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-7 flex flex-col">
+          <div className="mb-6 flex flex-col">
+            <h3 className="text-sm font-semibold text-slate-800 flex items-center gap-2 mb-1">
               <Layers size={16} className="text-emerald-500" strokeWidth={1.5} /> 
-              Composición de Ingresos
+              Ingresos por Concepto
             </h3>
+            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Distribución del Flujo</p>
           </div>
           <div className="flex-1 min-h-[220px]">
             <DistributionPieChart data={data.incomeDistribution} type="income" />
           </div>
         </div>
         
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 flex flex-col">
-          <div className="mb-6">
-            <h3 className="text-sm font-semibold text-slate-800 flex items-center gap-2">
+        <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-7 flex flex-col">
+          <div className="mb-6 flex flex-col">
+            <h3 className="text-sm font-semibold text-slate-800 flex items-center gap-2 mb-1">
               <Layers size={16} className="text-rose-500" strokeWidth={1.5} /> 
-              Composición de Egresos
+              Gastos por Concepto
             </h3>
+            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Distribución Operativa</p>
           </div>
           <div className="flex-1 min-h-[220px]">
             <DistributionPieChart data={data.expenseDistribution} type="expense" />
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 flex flex-col">
-          <div className="mb-6">
-            <h3 className="text-sm font-semibold text-slate-800 flex items-center gap-2">
+        <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-7 flex flex-col">
+          <div className="mb-6 flex flex-col">
+            <h3 className="text-sm font-semibold text-slate-800 flex items-center gap-2 mb-1">
               <BarChart2 size={16} className="text-amber-500" strokeWidth={1.5} /> 
-              Morosidad por Concepto (CxC)
+              Morosidad
             </h3>
+            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Composición CxC</p>
           </div>
           <div className="flex-1 min-h-[200px]">
             <CxCStackedBarChart data={data.cxcComposition} />
-          </div>
-        </div>
-      </div>
-      
-      {/* 💡 MINI KPIS (FOOTER DASHBOARD) */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
-        <div className="bg-transparent border border-slate-200/60 p-4 rounded-xl flex items-center gap-4 hover:bg-white hover:shadow-sm transition-all">
-          <div className="p-2.5 bg-slate-100 rounded-lg text-slate-500"><DollarSign size={16} strokeWidth={2} /></div>
-          <div>
-            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Ingresos Atípicos</p>
-            <p className="text-base font-semibold text-slate-700">{formatBs(data.otrosIngresosBs)}</p>
-          </div>
-        </div>
-        
-        <div className="bg-transparent border border-slate-200/60 p-4 rounded-xl flex items-center gap-4 hover:bg-white hover:shadow-sm transition-all">
-          <div className="p-2.5 bg-slate-100 rounded-lg text-slate-500"><CreditCard size={16} strokeWidth={2} /></div>
-          <div>
-            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Egresos Atípicos</p>
-            <p className="text-base font-semibold text-slate-700">{formatBs(data.otrosEgresosBs)}</p>
-          </div>
-        </div>
-        
-        <div className="bg-transparent border border-slate-200/60 p-4 rounded-xl flex items-center gap-4 hover:bg-white hover:shadow-sm transition-all">
-          <div className="p-2.5 bg-amber-50 rounded-lg text-amber-500"><FileSpreadsheet size={16} strokeWidth={2} /></div>
-          <div>
-            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Préstamos Emitidos</p>
-            <p className="text-base font-semibold text-slate-700">{formatBs(data.prestamosBs)}</p>
-          </div>
-        </div>
-        
-        <div className="bg-transparent border border-slate-200/60 p-4 rounded-xl flex items-center gap-4 hover:bg-white hover:shadow-sm transition-all relative overflow-hidden">
-          <div className="absolute left-0 top-0 bottom-0 w-1 bg-rose-400"></div>
-          <div className="p-2.5 bg-rose-50 rounded-lg text-rose-500 ml-2"><AlertTriangle size={16} strokeWidth={2} /></div>
-          <div>
-            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Pasivos (CxP)</p>
-            <p className="text-base font-semibold text-slate-700">{formatBs(data.cxpBs)}</p>
           </div>
         </div>
       </div>
