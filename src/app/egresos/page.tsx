@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { TrendingDown, Search, Filter } from "lucide-react";
+import { useState } from "react";
+import { TrendingDown, Search } from "lucide-react";
 import { useAppStore } from "@/store/useAppStore";
+import { transaccionMatchesMes, labelFiltro } from "@/lib/mesUtils";
 
 type Transaccion = {
   id: number;
@@ -28,9 +29,7 @@ export default function EgresosPage() {
   const egresos = transacciones.filter((t) => t.tipo === "EGRESO");
 
   const filteredEgresos = egresos.filter((e) => {
-    const matchesMes =
-      filtroMesGlobal === "HISTÓRICO TOTAL" ||
-      e.mes?.toUpperCase() === filtroMesGlobal;
+    const matchesMes = transaccionMatchesMes(e.mes, filtroMesGlobal);
 
     const matchesSearch =
       !search ||

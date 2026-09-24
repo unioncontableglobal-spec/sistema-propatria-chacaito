@@ -4,9 +4,10 @@ import React, { useState, useEffect } from 'react';
 import { useAppStore } from '@/store/useAppStore';
 import { Printer, Search, FileText } from 'lucide-react';
 import PrintableView, { ReceiptData } from '@/components/recibos/PrintableView';
+import { selectorToCodigoPub, labelFiltro } from '@/lib/mesUtils';
 
 export default function HistorialRecibosPage() {
-  const { publicaciones } = useAppStore();
+  const { publicaciones, filtroMesGlobal } = useAppStore();
   const [transacciones, setTransacciones] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -14,6 +15,17 @@ export default function HistorialRecibosPage() {
   const [mes, setMes] = useState('');
   const [clasificacion, setClasificacion] = useState('');
   const [busqueda, setBusqueda] = useState('');
+
+  // ✅ Sincronizar con el filtro global del sidebar
+  useEffect(() => {
+    if (filtroMesGlobal === 'HISTÓRICO TOTAL') {
+      setMes(''); // Sin filtro = histórico
+    } else {
+      // Convertir "ENERO" -> "01-2026" para el selector de publicaciones
+      const codigo = selectorToCodigoPub(filtroMesGlobal);
+      if (codigo) setMes(codigo);
+    }
+  }, [filtroMesGlobal]);
 
   // Impresión y Vista Previa
   const [printData, setPrintData] = useState<ReceiptData | null>(null);

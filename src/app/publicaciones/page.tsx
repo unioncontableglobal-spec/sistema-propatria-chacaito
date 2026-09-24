@@ -5,6 +5,7 @@ import { useAppStore } from '@/store/useAppStore';
 import { Lock, Plus, Trash, Printer, AlertCircle, CheckCircle } from 'lucide-react';
 import PrintCartelCxC, { ReglasMensuales } from '@/components/publicaciones/PrintCartelCxC';
 import PrintListadoCxP, { EventoParaPagar } from '@/components/publicaciones/PrintListadoCxP';
+import { selectorToCodigoPub } from '@/lib/mesUtils';
 
 export default function PublicacionesPage() {
   const { sociosDirectorio, publicaciones, refreshData, filtroMesGlobal } = useAppStore();
@@ -29,16 +30,10 @@ export default function PublicacionesPage() {
 
   useEffect(() => {
     if (filtroMesGlobal && !isHistoricoGeneral) {
-      const mesesMap: Record<string, string> = {
-        'ENERO': '01-2026', 'FEBRERO': '02-2026', 'MARZO': '03-2026',
-        'ABRIL': '04-2026', 'MAYO': '05-2026', 'JUNIO': '06-2026',
-        'JULIO': '07-2026', 'AGOSTO': '08-2026', 'SEPTIEMBRE': '09-2026',
-        'OCTUBRE': '10-2026', 'NOVIEMBRE': '11-2026', 'DICIEMBRE': '12-2026'
-      };
-      const code = mesesMap[filtroMesGlobal.toUpperCase()];
+      const code = selectorToCodigoPub(filtroMesGlobal);
       if (code) setMes(code);
     }
-  }, [filtroMesGlobal]);
+  }, [filtroMesGlobal, isHistoricoGeneral]);
 
   const sociosActivos = sociosDirectorio.filter((s: any) => s.status === 'ACTIVO');
   const sociosActivosCount = sociosActivos.length;

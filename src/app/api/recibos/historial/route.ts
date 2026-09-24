@@ -2,19 +2,27 @@ export const dynamic = 'force-dynamic';
 
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { codigoPubToSelector, normalizarMes } from '@/lib/mesUtils';
 
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
-    const mes = searchParams.get('mes');
-    const tipo = searchParams.get('tipo');
+    const mes = searchParams.get('mes');            // puede ser "ENERO" o "01-2026"
+    const tipo = searchParams.get('tipo');           // "INGRESO" | "EGRESO"
     const clasificacion = searchParams.get('clasificacion');
     const busqueda = searchParams.get('busqueda');
 
     let whereClause: any = {};
 
     if (mes) {
-      whereClause.mes = mes;
+      // ✅ Normalizar: si viene en formato "01-2026" (publicaciones), convertir a "ENERO"
+      let mesNormalizado = mes;
+      if (mes.includes('-')) {
+        // Formato publicacion: "01-2026" -> "ENERO"
+        mesNormalizado = codigoPubToSelector(mes);
+      }
+      // Siempre buscar en MAYUSCULAS para coincidir con la BD
+      whereClause.mes = normalizarMes(mesNormalizado);
     }
 
     if (tipo) {

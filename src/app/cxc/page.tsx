@@ -3,7 +3,8 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useAppStore } from '@/store/useAppStore';
 import { formatUsd } from '@/lib/formatters';
-import { Search, Filter } from 'lucide-react';
+import { Search } from 'lucide-react';
+import { transaccionMatchesMes, labelFiltro } from '@/lib/mesUtils';
 
 export default function CxcPage() {
   const { publicaciones, filtroMesGlobal } = useAppStore();
@@ -16,6 +17,11 @@ export default function CxcPage() {
   const [filtroCategoria, setFiltroCategoria] = useState('Todas');
   const [filtroFormaPago, setFiltroFormaPago] = useState('Todas');
   const [busqueda, setBusqueda] = useState('');
+
+  // ✅ Sincronizar filtro local cuando cambia el selector global
+  useEffect(() => {
+    setFiltroMes(filtroMesGlobal === 'HISTÓRICO TOTAL' ? '' : filtroMesGlobal);
+  }, [filtroMesGlobal]);
 
   const mesesAprobados = publicaciones
     .filter(p => p.estado === 'APROBADO')
@@ -45,8 +51,8 @@ export default function CxcPage() {
   // Filtrado Frontend
   const filteredData = useMemo(() => {
     return transacciones.filter(tx => {
-      // 1. Mes
-      if (filtroMes && tx.mes !== filtroMes) return false;
+      // 1. Mes - usar transaccionMatchesMes para comparación consistente
+      if (filtroMes && !transaccionMatchesMes(tx.mes, filtroMes)) return false;
       
       // 2. Cupo (SA vs SB)
       if (filtroCupo !== 'Todos') {

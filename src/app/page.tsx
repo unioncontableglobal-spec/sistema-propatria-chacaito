@@ -9,6 +9,7 @@ import CxCStackedBarChart from '@/components/charts/CxCStackedBarChart';
 import { Users, UserPlus } from 'lucide-react';
 import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
+import { normalizarMes } from '@/lib/mesUtils';
 
 const TASA_CAMBIO = 35.00;
 
@@ -34,7 +35,8 @@ function groupTopCategories(map: Map<string, number>, maxCategories: number = 6)
 
 export default function Home() {
   const { data: rawData, filtroMesGlobal } = useAppStore();
-  const mesFiltro = filtroMesGlobal === 'HISTÓRICO TOTAL' ? 'HISTÓRICO TRIMESTRAL' : filtroMesGlobal;
+  // ✅ Filtro limpio: null = histórico, string = mes específico en mayúsculas
+  const filterMonthUpper = filtroMesGlobal === 'HISTÓRICO TOTAL' ? null : normalizarMes(filtroMesGlobal);
 
   const data = useMemo(() => {
     if (!rawData) return null;
@@ -54,7 +56,6 @@ export default function Home() {
     const expenseDistributionMap = new Map<string, number>();
     const cxcCompositionMap = new Map<string, any>();
 
-    const filterMonthUpper = mesFiltro !== 'HISTÓRICO TRIMESTRAL' && mesFiltro !== 'HISTORICO TRIMESTRAL' ? mesFiltro.toUpperCase() : null;
     const filterMonthIdx = filterMonthUpper ? (monthOrder[filterMonthUpper] || 99) : 99;
 
     let otrosIngresosBs = 0;

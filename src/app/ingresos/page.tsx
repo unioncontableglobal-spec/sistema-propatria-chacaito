@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Plus, Search, Eye } from "lucide-react";
+import { Plus, Search } from "lucide-react";
 import { useAppStore } from "@/store/useAppStore";
 import RegistroIngresoModal from "@/components/recibos/RegistroIngresoModal";
+import { transaccionMatchesMes, labelFiltro } from "@/lib/mesUtils";
 
 type Transaccion = {
   id: number;
@@ -22,15 +23,19 @@ export default function IngresosPage() {
   const [search, setSearch] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { transacciones, refreshData, filtroMesGlobal } = useAppStore();
-  const ingresos = transacciones.filter(t => t.tipo === 'INGRESO');
+  const ingresos = transacciones.filter((t) => t.tipo === 'INGRESO');
 
-  const filteredIngresos = ingresos.filter(i => {
-    const matchesSearch = (i.recibo && i.recibo.toLowerCase().includes(search.toLowerCase())) ||
+  const filteredIngresos = ingresos.filter((i) => {
+    const matchesSearch =
+      !search ||
+      (i.recibo && i.recibo.toLowerCase().includes(search.toLowerCase())) ||
       (i.socio && i.socio.nombre_apellido.toLowerCase().includes(search.toLowerCase()));
-      
-    if (filtroMesGlobal === 'HISTÓRICO TOTAL') return matchesSearch;
-    return matchesSearch && i.mes?.toUpperCase() === filtroMesGlobal;
+
+    return matchesSearch && transaccionMatchesMes(i.mes, filtroMesGlobal);
   });
+
+  const totalUsd = filteredIngresos.reduce((s, i) => s + (i.monto_usd || 0), 0);
+  const totalBs = filteredIngresos.reduce((s, i) => s + i.monto_bs, 0);
 
   return (
     <>
