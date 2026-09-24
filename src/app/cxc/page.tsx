@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useAppStore } from '@/store/useAppStore';
 import { formatUsd } from '@/lib/formatters';
-import { Search } from 'lucide-react';
+import { Search, FileText } from 'lucide-react';
 import { transaccionMatchesMes, labelFiltro } from '@/lib/mesUtils';
 
 export default function CxcPage() {

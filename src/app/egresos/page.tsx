@@ -155,7 +155,7 @@ export default function EgresosPage() {
                 const formas = egreso.formas_pago || [];
                 const metodos =
                   formas.length > 0
-                    ? formas.map((f) => f.tipo_pago).join(", ")
+                    ? formas.map((f: any) => f.tipo_pago).join(", ")
                     : "—";
                 const nombre =
                   egreso.socio?.nombre_apellido ||

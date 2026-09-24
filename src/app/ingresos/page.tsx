@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Plus, Search } from "lucide-react";
+import { Plus, Search, Eye } from "lucide-react";
 import { useAppStore } from "@/store/useAppStore";
 import RegistroIngresoModal from "@/components/recibos/RegistroIngresoModal";
 import { transaccionMatchesMes, labelFiltro } from "@/lib/mesUtils";

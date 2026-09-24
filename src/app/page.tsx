@@ -20,7 +20,8 @@ import {
   ArrowUpRight,
   ArrowDownRight,
   Layers,
-  FileSpreadsheet
+  FileSpreadsheet,
+  DollarSign
 } from 'lucide-react';
 import { normalizarMes } from '@/lib/mesUtils';
 
