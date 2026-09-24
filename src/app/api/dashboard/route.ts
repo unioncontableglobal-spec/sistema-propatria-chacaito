@@ -92,9 +92,27 @@ export async function GET() {
     const ingresosRaw = transacciones.filter(t => t.tipo === 'INGRESO').map(parseTransaction);
     const egresosRaw = transacciones.filter(t => t.tipo === 'EGRESO').map(parseTransaction);
 
+    // 3. Mapear Meses para CxC y CxP (que usan formato 01-2026)
+    const mapMonthDb = (dbMes: string | null) => {
+      if (!dbMes) return 'ENERO';
+      if (dbMes.startsWith('01-')) return 'ENERO';
+      if (dbMes.startsWith('02-')) return 'FEBRERO';
+      if (dbMes.startsWith('03-')) return 'MARZO';
+      if (dbMes.startsWith('04-')) return 'ABRIL';
+      if (dbMes.startsWith('05-')) return 'MAYO';
+      if (dbMes.startsWith('06-')) return 'JUNIO';
+      if (dbMes.startsWith('07-')) return 'JULIO';
+      if (dbMes.startsWith('08-')) return 'AGOSTO';
+      if (dbMes.startsWith('09-')) return 'SEPTIEMBRE';
+      if (dbMes.startsWith('10-')) return 'OCTUBRE';
+      if (dbMes.startsWith('11-')) return 'NOVIEMBRE';
+      if (dbMes.startsWith('12-')) return 'DICIEMBRE';
+      return dbMes.toUpperCase();
+    };
+
     // Simplify CxC / CxP for now or use realistic values based on current schema
     const cxcRaw = cxcList.map(c => ({
-      mes: c.mes || 'ENERO',
+      mes: mapMonthDb(c.mes),
       fianzas: c.tipo_publicacion === 'FIANZA' ? c.monto_a_cobrar : 0,
       ayudasBs: c.tipo_publicacion?.includes('AYUDA') ? c.monto_a_cobrar : 0,
       vidrios: c.tipo_publicacion?.includes('VIDRIO') ? c.monto_a_cobrar : 0,
@@ -103,7 +121,7 @@ export async function GET() {
     }));
 
     const cxpRaw = cxpList.map(p => ({
-      mes: p.mes || 'ENERO',
+      mes: mapMonthDb(p.mes),
       montoUsd: p.total || p.monto
     }));
 

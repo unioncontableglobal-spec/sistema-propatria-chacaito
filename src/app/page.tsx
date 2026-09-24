@@ -450,11 +450,11 @@ export default function Home() {
             </div>
             <div className="flex gap-4 bg-slate-50 p-2 rounded-lg">
               <div className="flex items-center gap-2 px-2">
-                <div className="w-2.5 h-2.5 rounded-full bg-[#16A34A]"></div>
+                <div className="w-2.5 h-2.5 rounded-full bg-[#3B82F6]"></div>
                 <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Ingreso</span>
               </div>
               <div className="flex items-center gap-2 px-2">
-                <div className="w-2.5 h-2.5 rounded-full bg-[#DC2626]"></div>
+                <div className="w-2.5 h-2.5 rounded-full bg-[#CBD5E1]"></div>
                 <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Egreso</span>
               </div>
             </div>
