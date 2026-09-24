@@ -7,21 +7,18 @@ import { Search, FileText } from 'lucide-react';
 import { transaccionMatchesMes, labelFiltro } from '@/lib/mesUtils';
 
 export default function CxpPage() {
-  const { publicaciones, filtroMesGlobal } = useAppStore();
+  const { publicaciones, filtroMesGlobal, setFiltroMesGlobal } = useAppStore();
   const [transacciones, setTransacciones] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
   // Filtros
-  const [filtroMes, setFiltroMes] = useState(filtroMesGlobal === 'HISTÓRICO TOTAL' ? '' : filtroMesGlobal);
+  const filtroMes = filtroMesGlobal === 'HISTÓRICO TOTAL' ? '' : filtroMesGlobal;
+  const setFiltroMes = (val: string) => setFiltroMesGlobal(val || 'HISTÓRICO TOTAL');
+
   const [filtroCupo, setFiltroCupo] = useState('Todos');
   const [filtroCategoria, setFiltroCategoria] = useState('Todas');
   const [filtroFormaPago, setFiltroFormaPago] = useState('Todas');
   const [busqueda, setBusqueda] = useState('');
-
-  // ✅ Sincronizar filtro local cuando cambia el selector global
-  useEffect(() => {
-    setFiltroMes(filtroMesGlobal === 'HISTÓRICO TOTAL' ? '' : filtroMesGlobal);
-  }, [filtroMesGlobal]);
 
   const mesesAprobados = publicaciones
     .filter(p => p.estado === 'APROBADO')
