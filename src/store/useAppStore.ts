@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 
-export type RawIngreso = { mes: string; clasificacion: string; montoBs: number };
-export type RawEgreso = { mes: string; clasificacion: string; montoBs: number };
+export type RawIngreso = { mes: string; clasificacion: string; montoBs: number; montoUsd: number; };
+export type RawEgreso = { mes: string; clasificacion: string; montoBs: number; montoUsd: number; };
 export type RawCxC = { mes: string; fianzas: number; ayudasBs: number; vidrios: number; montepio: number; grua: number };
 export type RawCxP = { mes: string; montoUsd: number };
 export type RawSocioActivo = { mes: string; tipo: string };

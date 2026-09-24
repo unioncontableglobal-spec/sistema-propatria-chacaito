@@ -62,9 +62,13 @@ export default function Home() {
     const prevMonthUpper = orderToMonth[prevMonthIdx] || null;
 
     let totalIngresosBs = 0;
+    let totalIngresosUsd = 0;
     let totalEgresosBs = 0;
+    let totalEgresosUsd = 0;
     let prevIngresosBs = 0;
+    let prevIngresosUsd = 0;
     let prevEgresosBs = 0;
+    let prevEgresosUsd = 0;
     
     let cxcBs = 0;
     let cxcUsd = 0;
@@ -96,6 +100,7 @@ export default function Home() {
 
       if (!filterMonthUpper || mes === filterMonthUpper) {
         totalIngresosBs += row.montoBs;
+        totalIngresosUsd += row.montoUsd;
         const clase = row.clasificacion?.toUpperCase() || 'OTROS';
         incomeDistributionMap.set(clase, (incomeDistributionMap.get(clase) || 0) + row.montoBs);
 
@@ -106,6 +111,7 @@ export default function Home() {
       }
       if (prevMonthUpper && mes === prevMonthUpper) {
         prevIngresosBs += row.montoBs;
+        prevIngresosUsd += row.montoUsd;
       }
     });
 
@@ -118,6 +124,7 @@ export default function Home() {
 
       if (!filterMonthUpper || mes === filterMonthUpper) {
         totalEgresosBs += row.montoBs;
+        totalEgresosUsd += row.montoUsd;
         const clase = row.clasificacion?.toUpperCase() || 'OTROS';
         expenseDistributionMap.set(clase, (expenseDistributionMap.get(clase) || 0) + row.montoBs);
         
@@ -130,6 +137,7 @@ export default function Home() {
       }
       if (prevMonthUpper && mes === prevMonthUpper) {
         prevEgresosBs += row.montoBs;
+        prevEgresosUsd += row.montoUsd;
       }
     });
 
@@ -203,11 +211,13 @@ export default function Home() {
 
     return {
       flujoCajaBs,
-      flujoCajaUsd: flujoCajaBs / TASA_CAMBIO,
+      flujoCajaUsd: totalIngresosUsd - totalEgresosUsd,
       varFlujo,
       totalIngresosBs,
+      totalIngresosUsd,
       varIngresos,
       totalEgresosBs,
+      totalEgresosUsd,
       varEgresos,
       cxcBs,
       cxcUsd,
@@ -220,8 +230,11 @@ export default function Home() {
       nuevosIngresosMesSB,
       prevNuevosIngresos,
       ingresosAtipicosBs,
+      ingresosAtipicosUsd: ingresosAtipicosBs / TASA_CAMBIO,
       egresosAtipicosBs,
+      egresosAtipicosUsd: egresosAtipicosBs / TASA_CAMBIO,
       prestamosBs,
+      prestamosUsd: prestamosBs / TASA_CAMBIO,
       eficienciaCobro,
       indiceSolvencia,
       monthlyTrend: Array.from(monthlyTrendMap.entries()).map(([name, data]) => ({ name, ...data })),
@@ -362,7 +375,7 @@ export default function Home() {
           </div>
           <div className="mt-6 pt-4 border-t border-slate-50 flex justify-between items-center">
             <span className="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Equivalente</span>
-            <span className="text-xs text-slate-600 font-medium">{formatUsd(data.totalIngresosBs / TASA_CAMBIO)} USD</span>
+            <span className="text-xs text-slate-600 font-medium">{formatUsd(data.totalIngresosUsd)} USD</span>
           </div>
         </div>
 
@@ -382,7 +395,7 @@ export default function Home() {
           </div>
           <div className="mt-6 pt-4 border-t border-slate-50 flex justify-between items-center">
             <span className="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Equivalente</span>
-            <span className="text-xs text-slate-600 font-medium">{formatUsd(data.totalEgresosBs / TASA_CAMBIO)} USD</span>
+            <span className="text-xs text-slate-600 font-medium">{formatUsd(data.totalEgresosUsd)} USD</span>
           </div>
         </div>
 

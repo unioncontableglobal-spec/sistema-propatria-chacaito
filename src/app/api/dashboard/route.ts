@@ -45,13 +45,52 @@ export async function GET() {
       })
     ]);
 
-    const ingresosRaw = transacciones
-      .filter(t => t.tipo === 'INGRESO')
-      .map(t => ({ mes: t.mes || 'ENERO', clasificacion: t.clasificacion || 'OTROS', montoBs: t.monto_bs }));
+    // 1. Calcular promedio realista de tasa por mes
+    const ratesByMonth: Record<string, {sum: number, count: number}> = {};
+    transacciones.forEach(t => {
+      const tasa = Number(t.tasa_cambio || 0);
+      const usd = Number(t.monto_usd || 0);
+      const bs = Number(t.monto_bs || 0);
+      if (usd === 1 && Math.abs(tasa - bs) < 1) return; // Excluir Efecto 1 USD
+      if (tasa <= 1) return;
+      const calcTasa = usd > 0 ? bs / usd : 0;
+      if (Math.abs(calcTasa - tasa) > 5) return; // Matemática incoherente
+      
+      const mes = t.mes || 'ENERO';
+      if (!ratesByMonth[mes]) ratesByMonth[mes] = { sum: 0, count: 0 };
+      ratesByMonth[mes].sum += tasa;
+      ratesByMonth[mes].count++;
+    });
 
-    const egresosRaw = transacciones
-      .filter(t => t.tipo === 'EGRESO')
-      .map(t => ({ mes: t.mes || 'ENERO', clasificacion: t.clasificacion || 'OTROS', montoBs: t.monto_bs }));
+    const avgRateByMonth: Record<string, number> = {};
+    for (const [mes, data] of Object.entries(ratesByMonth)) {
+      avgRateByMonth[mes] = data.sum / data.count;
+    }
+    
+    // Promedio global como fallback de seguridad
+    let globalAvg = 360; 
+    const validMonths = Object.values(avgRateByMonth);
+    if (validMonths.length > 0) {
+      globalAvg = validMonths.reduce((a, b) => a + b, 0) / validMonths.length;
+    }
+
+    // 2. Mapear transacciones inyectando el USD real
+    const parseTransaction = (t: any) => {
+      const mes = t.mes || 'ENERO';
+      const bs = Number(t.monto_bs || 0);
+      let usd = Number(t.monto_usd || 0);
+      const tasa = Number(t.tasa_cambio || 0);
+
+      // Si es Efecto 1 USD o no tiene USD real
+      if ((usd === 1 && Math.abs(tasa - bs) < 1) || usd === 0) {
+        const rate = avgRateByMonth[mes] || globalAvg;
+        usd = rate > 0 ? bs / rate : 0;
+      }
+      return { mes, clasificacion: t.clasificacion || 'OTROS', montoBs: bs, montoUsd: usd };
+    };
+
+    const ingresosRaw = transacciones.filter(t => t.tipo === 'INGRESO').map(parseTransaction);
+    const egresosRaw = transacciones.filter(t => t.tipo === 'EGRESO').map(parseTransaction);
 
     // Simplify CxC / CxP for now or use realistic values based on current schema
     const cxcRaw = cxcList.map(c => ({
@@ -95,14 +134,7 @@ export async function GET() {
         return { mes, ficha };
       });
 
-    // Calcular tasa de cambio referencial dinámica (más reciente, realista)
-    let tasaReferencial = 35.00; // default fallback
-    const validTasas = transacciones
-      .filter(t => t.tasa_cambio && t.tasa_cambio >= 35 && t.tasa_cambio <= 55)
-      .sort((a, b) => b.id - a.id); // Asumiendo que IDs más altos son más recientes
-    if (validTasas.length > 0) {
-      tasaReferencial = validTasas[0].tasa_cambio!;
-    }
+    let tasaReferencial = globalAvg;
 
     const rawData = {
       ingresosRaw,
