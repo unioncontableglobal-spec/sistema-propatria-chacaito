@@ -52,7 +52,13 @@ export default function Home() {
   const { data: rawData, filtroMesGlobal } = useAppStore();
   const filterMonthUpper = filtroMesGlobal === 'HISTÓRICO TOTAL' ? null : normalizarMes(filtroMesGlobal);
 
-  const TASA_CAMBIO = rawData?.tasaReferencial || 35.00;
+  const TASA_CAMBIO = useMemo(() => {
+    if (!rawData) return 35.00;
+    if (filterMonthUpper && rawData.tasaPorMes && rawData.tasaPorMes[filterMonthUpper]) {
+      return rawData.tasaPorMes[filterMonthUpper];
+    }
+    return rawData.tasaReferencial || 35.00;
+  }, [rawData, filterMonthUpper]);
 
   const data = useMemo(() => {
     if (!rawData) return null;

@@ -32,6 +32,7 @@ export type AppData = {
   sociosActivosRaw: RawSocioActivo[];
   nuevosIngresosRaw: RawNuevoIngreso[];
   tasaReferencial: number;
+  tasaPorMes: Record<string, number>;
 };
 
 interface AppState {

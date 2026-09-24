@@ -143,7 +143,8 @@ export async function GET() {
       cxpRaw,
       sociosActivosRaw,
       nuevosIngresosRaw,
-      tasaReferencial
+      tasaReferencial,
+      tasaPorMes: avgRateByMonth
     };
 
     return NextResponse.json(rawData);
