@@ -24,8 +24,6 @@ import {
 } from 'lucide-react';
 import { normalizarMes } from '@/lib/mesUtils';
 
-const TASA_CAMBIO = 35.00;
-
 const monthOrder: Record<string, number> = { 
   'ENERO': 1, 'FEBRERO': 2, 'MARZO': 3, 'ABRIL': 4, 
   'MAYO': 5, 'JUNIO': 6, 'JULIO': 7, 'AGOSTO': 8, 
@@ -53,6 +51,8 @@ function groupTopCategories(map: Map<string, number>, maxCategories: number = 5)
 export default function Home() {
   const { data: rawData, filtroMesGlobal } = useAppStore();
   const filterMonthUpper = filtroMesGlobal === 'HISTÓRICO TOTAL' ? null : normalizarMes(filtroMesGlobal);
+
+  const TASA_CAMBIO = rawData?.tasaReferencial || 35.00;
 
   const data = useMemo(() => {
     if (!rawData) return null;
@@ -229,7 +229,7 @@ export default function Home() {
       expenseDistribution,
       cxcComposition: Array.from(cxcCompositionMap.values())
     };
-  }, [rawData, filterMonthUpper]);
+  }, [rawData, filterMonthUpper, TASA_CAMBIO]);
 
   if (!data) return null;
 

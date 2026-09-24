@@ -31,6 +31,7 @@ export type AppData = {
   cxpRaw: RawCxP[];
   sociosActivosRaw: RawSocioActivo[];
   nuevosIngresosRaw: RawNuevoIngreso[];
+  tasaReferencial: number;
 };
 
 interface AppState {

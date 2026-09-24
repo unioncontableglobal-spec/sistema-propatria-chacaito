@@ -14,6 +14,7 @@ export async function GET() {
           mes: true,
           monto_bs: true,
           monto_usd: true,
+          tasa_cambio: true,
           clasificacion: true,
           socioId: true,
         },
@@ -94,13 +95,23 @@ export async function GET() {
         return { mes, ficha };
       });
 
+    // Calcular tasa de cambio referencial dinámica (más reciente, realista)
+    let tasaReferencial = 35.00; // default fallback
+    const validTasas = transacciones
+      .filter(t => t.tasa_cambio && t.tasa_cambio >= 35 && t.tasa_cambio <= 55)
+      .sort((a, b) => b.id - a.id); // Asumiendo que IDs más altos son más recientes
+    if (validTasas.length > 0) {
+      tasaReferencial = validTasas[0].tasa_cambio!;
+    }
+
     const rawData = {
       ingresosRaw,
       egresosRaw,
       cxcRaw,
       cxpRaw,
       sociosActivosRaw,
-      nuevosIngresosRaw
+      nuevosIngresosRaw,
+      tasaReferencial
     };
 
     return NextResponse.json(rawData);
