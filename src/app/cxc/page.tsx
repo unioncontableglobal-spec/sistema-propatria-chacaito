@@ -48,6 +48,8 @@ export default function CxcPage() {
 
   useEffect(() => {
     fetchIngresos();
+    // Sincronizar filtro local cuando cambia el global
+    setFiltroMes(filtroMesGlobal === 'HISTÓRICO TOTAL' ? '' : filtroMesGlobal);
   }, [filtroMesGlobal]);
 
   // Filtrado Frontend

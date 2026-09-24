@@ -49,6 +49,8 @@ export default function IngresosPage() {
 
   useEffect(() => {
     fetchIngresos();
+    // Sincronizar filtro local cuando cambia el global
+    setFiltroMes(filtroMesGlobal === 'HISTÓRICO TOTAL' ? '' : filtroMesGlobal);
   }, [filtroMesGlobal]);
 
   // Clasificaciones únicas para el select
