@@ -7,7 +7,9 @@ import { Search, FileText } from 'lucide-react';
 import { transaccionMatchesMes } from '@/lib/mesUtils';
 
 export default function EgresosPage() {
-  const { publicaciones, filtroMesGlobal, transacciones } = useAppStore();
+  const { publicaciones, filtroMesGlobal } = useAppStore();
+  const [transacciones, setTransacciones] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   // Filtros locales sincronizados con el global
   const [filtroMes, setFiltroMes] = useState(filtroMesGlobal === 'HISTÓRICO TOTAL' ? '' : filtroMesGlobal);
@@ -25,23 +27,40 @@ export default function EgresosPage() {
     .filter(p => p.estado === 'APROBADO')
     .map(p => p.mes);
 
-  // Usar los datos del store global 
-  const egresosBase = useMemo(() => {
-    return transacciones.filter(t => t.tipo === 'EGRESO');
-  }, [transacciones]);
+  const fetchEgresos = async () => {
+    setIsLoading(true);
+    try {
+      const url = filtroMesGlobal !== 'HISTÓRICO TOTAL' 
+        ? `/api/recibos/historial?tipo=EGRESO&mes=${filtroMesGlobal}` 
+        : `/api/recibos/historial?tipo=EGRESO`;
+      const res = await fetch(url);
+      const data = await res.json();
+      if (data.success) {
+        setTransacciones(data.data);
+      }
+    } catch (error) {
+      console.error('Error fetching egresos:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchEgresos();
+  }, [filtroMesGlobal]);
 
   // Clasificaciones únicas para el select
   const clasificacionesUnicas = useMemo(() => {
     const set = new Set<string>();
-    egresosBase.forEach(tx => {
+    transacciones.forEach(tx => {
       if (tx.clasificacion) set.add(tx.clasificacion);
     });
     return Array.from(set).sort();
-  }, [egresosBase]);
+  }, [transacciones]);
 
   // Filtrado Frontend
   const filteredData = useMemo(() => {
-    return egresosBase.filter(tx => {
+    return transacciones.filter(tx => {
       // 1. Mes
       if (filtroMes && !transaccionMatchesMes(tx.mes, filtroMes)) return false;
       
@@ -75,7 +94,7 @@ export default function EgresosPage() {
 
       return true;
     });
-  }, [egresosBase, filtroMes, filtroCupo, filtroCategoria, filtroFormaPago, busqueda]);
+  }, [transacciones, filtroMes, filtroCupo, filtroCategoria, filtroFormaPago, busqueda]);
 
   // KPIs
   const kpis = useMemo(() => {
@@ -337,7 +356,9 @@ export default function EgresosPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {filteredData.length === 0 ? (
+              {isLoading ? (
+                <tr><td colSpan={6} className="text-center py-10 text-gray-500">Cargando datos...</td></tr>
+              ) : filteredData.length === 0 ? (
                 <tr><td colSpan={6} className="text-center py-10 text-gray-400">No hay egresos que coincidan con los filtros.</td></tr>
               ) : (
                 filteredData.map(tx => {

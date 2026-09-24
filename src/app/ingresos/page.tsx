@@ -8,8 +8,10 @@ import { transaccionMatchesMes } from '@/lib/mesUtils';
 import RegistroIngresoModal from '@/components/recibos/RegistroIngresoModal';
 
 export default function IngresosPage() {
-  const { publicaciones, filtroMesGlobal, transacciones, refreshData } = useAppStore();
+  const { publicaciones, filtroMesGlobal, refreshData } = useAppStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [transacciones, setTransacciones] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   // Filtros locales sincronizados con el global
   const [filtroMes, setFiltroMes] = useState(filtroMesGlobal === 'HISTÓRICO TOTAL' ? '' : filtroMesGlobal);
@@ -27,23 +29,40 @@ export default function IngresosPage() {
     .filter(p => p.estado === 'APROBADO')
     .map(p => p.mes);
 
-  // Usar los datos del store global en lugar de hacer fetch directo (para que se actualice al registrar uno nuevo)
-  const ingresosBase = useMemo(() => {
-    return transacciones.filter(t => t.tipo === 'INGRESO');
-  }, [transacciones]);
+  const fetchIngresos = async () => {
+    setIsLoading(true);
+    try {
+      const url = filtroMesGlobal !== 'HISTÓRICO TOTAL' 
+        ? `/api/recibos/historial?tipo=INGRESO&mes=${filtroMesGlobal}` 
+        : `/api/recibos/historial?tipo=INGRESO`;
+      const res = await fetch(url);
+      const data = await res.json();
+      if (data.success) {
+        setTransacciones(data.data);
+      }
+    } catch (error) {
+      console.error('Error fetching ingresos:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchIngresos();
+  }, [filtroMesGlobal]);
 
   // Clasificaciones únicas para el select
   const clasificacionesUnicas = useMemo(() => {
     const set = new Set<string>();
-    ingresosBase.forEach(tx => {
+    transacciones.forEach(tx => {
       if (tx.clasificacion) set.add(tx.clasificacion);
     });
     return Array.from(set).sort();
-  }, [ingresosBase]);
+  }, [transacciones]);
 
   // Filtrado Frontend
   const filteredData = useMemo(() => {
-    return ingresosBase.filter(tx => {
+    return transacciones.filter(tx => {
       // 1. Mes
       if (filtroMes && !transaccionMatchesMes(tx.mes, filtroMes)) return false;
       
@@ -77,7 +96,7 @@ export default function IngresosPage() {
 
       return true;
     });
-  }, [ingresosBase, filtroMes, filtroCupo, filtroCategoria, filtroFormaPago, busqueda]);
+  }, [transacciones, filtroMes, filtroCupo, filtroCategoria, filtroFormaPago, busqueda]);
 
   // KPIs
   const kpis = useMemo(() => {
@@ -344,7 +363,9 @@ export default function IngresosPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {filteredData.length === 0 ? (
+              {isLoading ? (
+                <tr><td colSpan={6} className="text-center py-10 text-gray-500">Cargando datos...</td></tr>
+              ) : filteredData.length === 0 ? (
                 <tr><td colSpan={6} className="text-center py-10 text-gray-400">No hay recibos que coincidan con los filtros.</td></tr>
               ) : (
                 filteredData.map(tx => {
@@ -389,6 +410,7 @@ export default function IngresosPage() {
           onSuccess={async () => {
             setIsModalOpen(false);
             await refreshData();
+            fetchIngresos();
           }} 
         />
       )}
