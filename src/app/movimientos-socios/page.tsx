@@ -3,14 +3,26 @@
 import { useState, useEffect } from 'react';
 import MovimientoModal from '@/components/socios/MovimientoModal';
 import { format } from 'date-fns';
+import { useAppStore } from '@/store/useAppStore';
+
+const normalizarMes = (mes: string) => {
+  const map: Record<string, string> = {
+    'ENERO': 'ENERO', 'FEBRERO': 'FEBRERO', 'MARZO': 'MARZO', 'ABRIL': 'ABRIL',
+    'MAYO': 'MAYO', 'JUNIO': 'JUNIO', 'JULIO': 'JULIO', 'AGOSTO': 'AGOSTO',
+    'SEPTIEMBRE': 'SEPTIEMBRE', 'OCTUBRE': 'OCTUBRE', 'NOVIEMBRE': 'NOVIEMBRE', 'DICIEMBRE': 'DICIEMBRE'
+  };
+  return map[mes.toUpperCase()] || mes.toUpperCase();
+};
 
 export default function MovimientosSocios() {
   const [movimientos, setMovimientos] = useState<any[]>([]);
   const [cupos, setCupos] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
-  
   const [filterTipo, setFilterTipo] = useState('Todos');
+
+  const { filtroMesGlobal } = useAppStore();
+  const filterMonthUpper = filtroMesGlobal === 'HISTÓRICO TOTAL' ? null : normalizarMes(filtroMesGlobal);
 
   const fetchData = async () => {
     setLoading(true);
@@ -49,8 +61,19 @@ export default function MovimientosSocios() {
 
   const filteredMovimientos = movimientos.filter(m => {
     if (filterTipo !== 'Todos' && m.tipo !== filterTipo) return false;
+    
+    if (filterMonthUpper) {
+      const mDate = new Date(m.fecha);
+      const mMes = mDate.toLocaleString('es-ES', { month: 'long', timeZone: 'UTC' }).toUpperCase();
+      if (mMes !== filterMonthUpper) return false;
+    }
+    
     return true;
   });
+
+  const totalInscripciones = filteredMovimientos.filter(m => m.tipo === 'Inscripciones').length;
+  const totalCambios = filteredMovimientos.filter(m => m.tipo === 'Cambios').length;
+  const totalRetiros = filteredMovimientos.filter(m => m.tipo === 'Retiros').length;
 
   const handleAnular = async (id: number) => {
     if (!confirm("¿Estás seguro de anular este movimiento? Esto revertirá los cambios en la ficha del socio.")) return;
@@ -91,6 +114,37 @@ export default function MovimientosSocios() {
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
           Nuevo Movimiento
         </button>
+      </div>
+
+      {/* Tarjetas de Métricas Dinámicas del Mes */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+        <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
+          <div>
+            <p className="text-sm font-bold text-gray-500 uppercase">Inscripciones {filterMonthUpper ? `(${filterMonthUpper})` : ''}</p>
+            <p className="text-3xl font-black text-green-600 mt-1">{totalInscripciones}</p>
+          </div>
+          <div className="bg-green-50 p-3 rounded-full text-green-600">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+          </div>
+        </div>
+        <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
+          <div>
+            <p className="text-sm font-bold text-gray-500 uppercase">Retiros {filterMonthUpper ? `(${filterMonthUpper})` : ''}</p>
+            <p className="text-3xl font-black text-red-600 mt-1">{totalRetiros}</p>
+          </div>
+          <div className="bg-red-50 p-3 rounded-full text-red-600">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="18" y1="9" x2="24" y2="15"/><line x1="18" y1="15" x2="24" y2="9"/></svg>
+          </div>
+        </div>
+        <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
+          <div>
+            <p className="text-sm font-bold text-gray-500 uppercase">Cambios {filterMonthUpper ? `(${filterMonthUpper})` : ''}</p>
+            <p className="text-3xl font-black text-blue-600 mt-1">{totalCambios}</p>
+          </div>
+          <div className="bg-blue-50 p-3 rounded-full text-blue-600">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+          </div>
+        </div>
       </div>
 
       {/* Tarjetas de Métricas Estilo Glassmorphism */}
