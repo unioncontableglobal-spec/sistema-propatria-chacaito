@@ -282,7 +282,7 @@ export default function Home() {
         <div className="bg-white border border-slate-200/60 p-4 rounded-2xl flex items-center gap-4 hover:shadow-md transition-all shadow-sm">
           <div className="p-3 bg-emerald-50 rounded-xl text-emerald-500"><DollarSign size={20} strokeWidth={1.5} /></div>
           <div>
-            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Ingresos Atípicos</p>
+            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Otros Ingresos</p>
             <p className="text-lg font-bold text-slate-700 tracking-tight">{formatBs(data.ingresosAtipicosBs)}</p>
           </div>
         </div>
@@ -290,7 +290,7 @@ export default function Home() {
         <div className="bg-white border border-slate-200/60 p-4 rounded-2xl flex items-center gap-4 hover:shadow-md transition-all shadow-sm">
           <div className="p-3 bg-rose-50 rounded-xl text-rose-500"><CreditCard size={20} strokeWidth={1.5} /></div>
           <div>
-            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Egresos Atípicos</p>
+            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Otros Egresos</p>
             <p className="text-lg font-bold text-slate-700 tracking-tight">{formatBs(data.egresosAtipicosBs)}</p>
           </div>
         </div>
