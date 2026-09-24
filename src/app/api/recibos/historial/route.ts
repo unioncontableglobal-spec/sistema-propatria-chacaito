@@ -2,7 +2,7 @@ export const dynamic = 'force-dynamic';
 
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import { codigoPubToSelector, normalizarMes } from '@/lib/mesUtils';
+import { codigoPubToSelector, normalizarMes, selectorToCodigoPub } from '@/lib/mesUtils';
 
 export async function GET(req: NextRequest) {
   try {
@@ -15,14 +15,19 @@ export async function GET(req: NextRequest) {
     let whereClause: any = {};
 
     if (mes) {
-      // ✅ Normalizar: si viene en formato "01-2026" (publicaciones), convertir a "ENERO"
-      let mesNormalizado = mes;
+      // ✅ Resiliencia: buscar tanto por el nombre ("ENERO") como por el código ("01-2026")
+      let mesNom = mes.toUpperCase();
+      let mesCode = mes;
+      
       if (mes.includes('-')) {
-        // Formato publicacion: "01-2026" -> "ENERO"
-        mesNormalizado = codigoPubToSelector(mes);
+        mesNom = codigoPubToSelector(mes).toUpperCase();
+        mesCode = mes;
+      } else {
+        const _m = selectorToCodigoPub(mes);
+        if (_m) mesCode = _m;
       }
-      // Siempre buscar en MAYUSCULAS para coincidir con la BD
-      whereClause.mes = normalizarMes(mesNormalizado);
+
+      whereClause.mes = { in: [mesNom, mesCode] };
     }
 
     if (tipo) {

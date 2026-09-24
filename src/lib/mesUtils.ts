@@ -80,7 +80,12 @@ export function transaccionMatchesMes(
 ): boolean {
   if (filtroMesGlobal === 'HISTÓRICO TOTAL') return true;
   if (!mesTx) return false;
-  return normalizarMes(mesTx) === filtroMesGlobal.toUpperCase();
+  
+  const val = normalizarMes(mesTx);
+  const filterUpper = filtroMesGlobal.toUpperCase();
+  const filterCode = selectorToCodigoPub(filtroMesGlobal);
+
+  return val === filterUpper || val === filterCode || mesTx === filterCode || mesTx === filterUpper;
 }
 
 /**
