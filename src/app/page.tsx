@@ -12,13 +12,15 @@ import {
   TrendingUp, 
   TrendingDown, 
   Activity, 
-  DollarSign, 
+  Wallet, 
   CreditCard,
   PieChart,
   BarChart2,
   AlertTriangle,
   ArrowUpRight,
-  ArrowDownRight
+  ArrowDownRight,
+  Layers,
+  FileSpreadsheet
 } from 'lucide-react';
 import { normalizarMes } from '@/lib/mesUtils';
 
@@ -89,7 +91,6 @@ export default function Home() {
     rawData.ingresosRaw.forEach(row => {
       const mes = row.mes.toUpperCase();
       
-      // Tendencia mensual siempre se calcula completa
       if (!monthlyTrendMap.has(mes)) monthlyTrendMap.set(mes, { ingresos: 0, egresos: 0 });
       monthlyTrendMap.get(mes)!.ingresos += row.montoBs;
 
@@ -152,7 +153,7 @@ export default function Home() {
       if (prevMonthUpper && mes === prevMonthUpper) prevCxpUsd += row.montoUsd;
     });
 
-    // Socios Activos (Acumulado hasta el mes actual)
+    // Socios
     rawData.sociosActivosRaw.forEach(row => {
       const mes = row.mes.toUpperCase();
       const rowMonthIdx = monthOrder[mes] || 1; 
@@ -162,7 +163,6 @@ export default function Home() {
       else if (row.tipo === 'SB') totalSociosActivosSB++;
     });
 
-    // Nuevos Ingresos
     rawData.nuevosIngresosRaw.forEach(row => {
       const mes = row.mes.toUpperCase();
       if (!filterMonthUpper || mes === filterMonthUpper) {
@@ -180,7 +180,6 @@ export default function Home() {
     otrosIngresosBs = incomeDistribution.find(d => d.name === 'OTROS')?.value || 0;
     otrosEgresosBs = expenseDistribution.find(d => d.name === 'OTROS')?.value || 0;
 
-    // KPIs & Comparativas
     const flujoCajaBs = totalIngresosBs - totalEgresosBs;
     const prevFlujoCajaBs = prevIngresosBs - prevEgresosBs;
     
@@ -189,7 +188,6 @@ export default function Home() {
     const varFlujo = prevFlujoCajaBs !== 0 ? ((flujoCajaBs - prevFlujoCajaBs) / Math.abs(prevFlujoCajaBs)) * 100 : 0;
     const varCxc = prevCxcBs > 0 ? ((cxcBs - prevCxcBs) / prevCxcBs) * 100 : 0;
     
-    // Eficiencia Financiera
     const facturacionTotal = totalIngresosBs + cxcBs; 
     const eficienciaCobro = facturacionTotal > 0 ? (totalIngresosBs / facturacionTotal) * 100 : 0;
     const indiceSolvencia = totalEgresosBs > 0 ? (totalIngresosBs / totalEgresosBs) : 0;
@@ -230,232 +228,299 @@ export default function Home() {
   const totalNuevos = data.nuevosIngresosMesSA + data.nuevosIngresosMesSB;
   const varNuevos = data.prevNuevosIngresos > 0 ? ((totalNuevos - data.prevNuevosIngresos) / data.prevNuevosIngresos) * 100 : 0;
 
-  // Components para comparativas
   const TrendBadge = ({ value, invert = false }: { value: number, invert?: boolean }) => {
-    if (value === 0) return <span className="text-xs text-gray-400 font-medium">0% vs mes ant.</span>;
+    if (value === 0) return <span className="text-[10px] text-slate-400 font-medium tracking-wide">0.0% vs ANT.</span>;
     const isPositive = value > 0;
     const isGood = invert ? !isPositive : isPositive;
     return (
-      <span className={`text-xs font-bold flex items-center gap-0.5 ${isGood ? 'text-green-600' : 'text-red-500'}`}>
-        {isPositive ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}
-        {Math.abs(value).toFixed(1)}% <span className="text-gray-400 font-medium ml-1">vs ant.</span>
+      <span className={`text-[10px] font-semibold flex items-center gap-0.5 tracking-wide ${isGood ? 'text-emerald-600' : 'text-rose-500'}`}>
+        {isPositive ? <ArrowUpRight size={12} strokeWidth={2.5} /> : <ArrowDownRight size={12} strokeWidth={2.5} />}
+        {Math.abs(value).toFixed(1)}% vs ant.
       </span>
     );
   };
 
   return (
-    <div className="pb-10 max-w-7xl mx-auto space-y-6">
-      <header className="flex flex-col md:flex-row md:justify-between md:items-end gap-4 mb-2">
-        <div>
-          <h2 className="text-3xl font-black bg-clip-text text-transparent bg-gradient-to-r from-slate-800 to-slate-500 tracking-tight">
-            Dashboard Analítico Avanzado
-          </h2>
-          <p className="text-slate-500 font-medium mt-1">
-            Visión global del desempeño financiero y operativo
-            {filtroMesGlobal !== 'HISTÓRICO TOTAL' && <span className="ml-2 px-2 py-0.5 bg-blue-100 text-blue-700 rounded-md text-xs font-bold uppercase">{filtroMesGlobal} 2026</span>}
+    <div className="pb-12 max-w-[1400px] mx-auto space-y-8 font-sans">
+      
+      {/* 👑 HEADER PREMIUM */}
+      <header className="flex flex-col md:flex-row md:justify-between md:items-end gap-4 border-b border-slate-100 pb-5">
+        <div className="space-y-1">
+          <div className="flex items-center gap-3">
+            <h2 className="text-2xl font-light tracking-tight text-slate-800">
+              Resumen <span className="font-semibold">Ejecutivo</span>
+            </h2>
+            {filtroMesGlobal !== 'HISTÓRICO TOTAL' && (
+              <span className="px-2.5 py-0.5 bg-slate-800 text-white rounded-full text-[10px] font-semibold uppercase tracking-widest shadow-sm">
+                {filtroMesGlobal} 2026
+              </span>
+            )}
+          </div>
+          <p className="text-sm text-slate-400 font-light">
+            Análisis consolidado de rentabilidad y operaciones institucionales.
           </p>
+        </div>
+        <div className="flex gap-4">
+          <div className="text-right">
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Tasa Ref.</p>
+            <p className="text-sm font-medium text-slate-600">Bs. {TASA_CAMBIO.toFixed(2)} / USD</p>
+          </div>
         </div>
       </header>
       
-      {/* 🚀 METRICS SUPERIORES (Core Financials) */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-        {/* INGRESOS */}
-        <div className="bg-white rounded-2xl p-5 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] border border-slate-100 hover:shadow-lg transition-all group">
-          <div className="flex justify-between items-start mb-2">
-            <div className="p-2 bg-green-50 text-green-600 rounded-lg group-hover:scale-110 transition-transform">
-              <TrendingUp size={22} />
+      {/* 🚀 METRICS SUPERIORES (Estilo Delicado y Limpio) */}
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5">
+        
+        {/* FLUJO DE CAJA (Hero Metric) */}
+        <div className="bg-slate-900 rounded-2xl p-6 shadow-xl shadow-slate-900/10 border border-slate-800 relative overflow-hidden group">
+          <div className="absolute -right-6 -top-6 w-32 h-32 bg-white/5 rounded-full blur-2xl group-hover:bg-blue-500/10 transition-colors duration-500"></div>
+          <div className="relative z-10 flex flex-col h-full justify-between">
+            <div>
+              <div className="flex justify-between items-start mb-4">
+                <div className="p-2 bg-white/10 rounded-xl text-blue-300 backdrop-blur-md">
+                  <Wallet size={20} strokeWidth={1.5} />
+                </div>
+                {filterMonthUpper && (
+                  <span className={`text-[10px] font-semibold flex items-center gap-0.5 tracking-wide ${data.varFlujo >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                    {data.varFlujo >= 0 ? <ArrowUpRight size={12} strokeWidth={2.5} /> : <ArrowDownRight size={12} strokeWidth={2.5} />}
+                    {Math.abs(data.varFlujo).toFixed(1)}%
+                  </span>
+                )}
+              </div>
+              <h4 className="text-slate-400 text-[10px] font-bold uppercase tracking-[0.2em] mb-1">Flujo de Caja Neto</h4>
+              <p className="text-3xl font-light text-white tracking-tight truncate">
+                {formatBs(data.flujoCajaBs)}
+              </p>
+              <p className="text-sm text-slate-400 mt-1 font-medium">{formatUsd(data.flujoCajaUsd)} USD</p>
             </div>
-            {filterMonthUpper && <TrendBadge value={data.varIngresos} />}
+            
+            <div className="mt-6 pt-4 border-t border-white/10 flex justify-between items-center">
+              <span className="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Índice Solvencia</span>
+              <span className="text-xs text-blue-300 font-bold bg-blue-500/10 px-2 py-1 rounded-md">{data.indiceSolvencia.toFixed(2)}x</span>
+            </div>
           </div>
-          <h4 className="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">Total Ingresos</h4>
-          <p className="text-2xl font-black text-slate-800 tracking-tight truncate" title={formatBs(data.totalIngresosBs)}>
-            {formatBs(data.totalIngresosBs)}
-          </p>
-          <div className="mt-3 pt-3 border-t border-slate-50 text-xs text-slate-400 flex justify-between">
-            <span>Eqv. USD</span>
-            <span className="font-semibold text-slate-600">{formatUsd(data.totalIngresosBs / TASA_CAMBIO)}</span>
+        </div>
+
+        {/* INGRESOS */}
+        <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 hover:shadow-md transition-shadow flex flex-col justify-between">
+          <div>
+            <div className="flex justify-between items-start mb-4">
+              <div className="p-2 bg-emerald-50 rounded-xl text-emerald-600">
+                <TrendingUp size={20} strokeWidth={1.5} />
+              </div>
+              {filterMonthUpper && <TrendBadge value={data.varIngresos} />}
+            </div>
+            <h4 className="text-slate-400 text-[10px] font-bold uppercase tracking-[0.2em] mb-1">Ingresos Operativos</h4>
+            <p className="text-3xl font-light text-slate-800 tracking-tight truncate">
+              {formatBs(data.totalIngresosBs)}
+            </p>
+          </div>
+          <div className="mt-6 pt-4 border-t border-slate-50 flex justify-between items-center">
+            <span className="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Equivalente</span>
+            <span className="text-xs text-slate-600 font-medium">{formatUsd(data.totalIngresosBs / TASA_CAMBIO)} USD</span>
           </div>
         </div>
 
         {/* EGRESOS */}
-        <div className="bg-white rounded-2xl p-5 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] border border-slate-100 hover:shadow-lg transition-all group">
-          <div className="flex justify-between items-start mb-2">
-            <div className="p-2 bg-red-50 text-red-600 rounded-lg group-hover:scale-110 transition-transform">
-              <TrendingDown size={22} />
+        <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 hover:shadow-md transition-shadow flex flex-col justify-between">
+          <div>
+            <div className="flex justify-between items-start mb-4">
+              <div className="p-2 bg-rose-50 rounded-xl text-rose-600">
+                <TrendingDown size={20} strokeWidth={1.5} />
+              </div>
+              {filterMonthUpper && <TrendBadge value={data.varEgresos} invert />}
             </div>
-            {filterMonthUpper && <TrendBadge value={data.varEgresos} invert />}
+            <h4 className="text-slate-400 text-[10px] font-bold uppercase tracking-[0.2em] mb-1">Egresos Totales</h4>
+            <p className="text-3xl font-light text-slate-800 tracking-tight truncate">
+              {formatBs(data.totalEgresosBs)}
+            </p>
           </div>
-          <h4 className="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">Total Egresos</h4>
-          <p className="text-2xl font-black text-slate-800 tracking-tight truncate" title={formatBs(data.totalEgresosBs)}>
-            {formatBs(data.totalEgresosBs)}
-          </p>
-          <div className="mt-3 pt-3 border-t border-slate-50 text-xs text-slate-400 flex justify-between">
-            <span>Eqv. USD</span>
-            <span className="font-semibold text-slate-600">{formatUsd(data.totalEgresosBs / TASA_CAMBIO)}</span>
-          </div>
-        </div>
-
-        {/* FLUJO DE CAJA */}
-        <div className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl p-5 shadow-lg border border-slate-700 hover:shadow-xl transition-all group relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-bl-full -mr-4 -mt-4 transition-transform group-hover:scale-110"></div>
-          <div className="flex justify-between items-start mb-2 relative z-10">
-            <div className="p-2 bg-white/10 text-white rounded-lg backdrop-blur-sm">
-              <DollarSign size={22} />
-            </div>
-            {filterMonthUpper && <TrendBadge value={data.varFlujo} />}
-          </div>
-          <h4 className="text-slate-300 text-xs font-bold uppercase tracking-wider mb-1 relative z-10">Flujo de Caja Neto</h4>
-          <p className={`text-2xl font-black tracking-tight truncate relative z-10 ${data.flujoCajaBs >= 0 ? 'text-green-400' : 'text-red-400'}`} title={formatBs(data.flujoCajaBs)}>
-            {formatBs(data.flujoCajaBs)}
-          </p>
-          <div className="mt-3 pt-3 border-t border-white/10 text-xs text-slate-400 flex justify-between relative z-10">
-            <span>Margen / Solvencia</span>
-            <span className="font-bold text-white">{data.indiceSolvencia.toFixed(2)}x</span>
+          <div className="mt-6 pt-4 border-t border-slate-50 flex justify-between items-center">
+            <span className="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Equivalente</span>
+            <span className="text-xs text-slate-600 font-medium">{formatUsd(data.totalEgresosBs / TASA_CAMBIO)} USD</span>
           </div>
         </div>
 
         {/* CUENTAS POR COBRAR */}
-        <div className="bg-white rounded-2xl p-5 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] border border-slate-100 hover:shadow-lg transition-all group border-b-4 border-b-amber-400">
-          <div className="flex justify-between items-start mb-2">
-            <div className="p-2 bg-amber-50 text-amber-600 rounded-lg group-hover:scale-110 transition-transform">
-              <AlertTriangle size={22} />
+        <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 hover:shadow-md transition-shadow flex flex-col justify-between relative overflow-hidden">
+          <div className="absolute bottom-0 left-0 w-full h-1 bg-amber-400/20"></div>
+          <div>
+            <div className="flex justify-between items-start mb-4">
+              <div className="p-2 bg-amber-50 rounded-xl text-amber-500">
+                <AlertTriangle size={20} strokeWidth={1.5} />
+              </div>
+              {filterMonthUpper && <TrendBadge value={data.varCxc} invert />}
             </div>
-            {filterMonthUpper && <TrendBadge value={data.varCxc} invert />}
+            <h4 className="text-slate-400 text-[10px] font-bold uppercase tracking-[0.2em] mb-1">Cuentas x Cobrar</h4>
+            <p className="text-3xl font-light text-slate-800 tracking-tight truncate">
+              {formatBs(data.cxcBs)}
+            </p>
           </div>
-          <h4 className="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">Cuentas por Cobrar</h4>
-          <p className="text-2xl font-black text-slate-800 tracking-tight truncate" title={formatBs(data.cxcBs)}>
-            {formatBs(data.cxcBs)}
-          </p>
-          <div className="mt-3 pt-3 border-t border-slate-50 text-xs text-slate-400 flex items-center justify-between">
-            <span>Eficiencia de Cobro</span>
-            <div className="w-24 h-2 bg-slate-100 rounded-full overflow-hidden">
-              <div className={`h-full rounded-full ${data.eficienciaCobro > 80 ? 'bg-green-500' : data.eficienciaCobro > 50 ? 'bg-amber-400' : 'bg-red-500'}`} style={{ width: `${data.eficienciaCobro}%` }}></div>
+          <div className="mt-6 pt-4 border-t border-slate-50 flex items-center justify-between">
+            <span className="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Eficiencia</span>
+            <div className="flex items-center gap-2">
+              <div className="w-16 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                <div 
+                  className={`h-full rounded-full transition-all duration-1000 ${data.eficienciaCobro > 80 ? 'bg-emerald-500' : data.eficienciaCobro > 50 ? 'bg-amber-400' : 'bg-rose-500'}`} 
+                  style={{ width: `${data.eficienciaCobro}%` }}
+                ></div>
+              </div>
+              <span className="text-xs text-slate-600 font-bold">{data.eficienciaCobro.toFixed(0)}%</span>
             </div>
-            <span className="font-bold text-slate-600 ml-2">{data.eficienciaCobro.toFixed(0)}%</span>
           </div>
         </div>
       </div>
 
-      {/* 📈 GRAFICOS PRINCIPALES */}
+      {/* 📈 GRAFICOS & CAPITAL HUMANO */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-        <div className="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-slate-100 p-6 hover:shadow-md transition-shadow">
-          <div className="flex justify-between items-center mb-6">
+        
+        {/* TENDENCIA */}
+        <div className="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-slate-100 p-7">
+          <div className="flex justify-between items-end mb-8">
             <div>
-              <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
-                <Activity size={20} className="text-blue-500" /> Tendencia Operativa Anual
+              <h3 className="text-lg font-light tracking-tight text-slate-800 flex items-center gap-2">
+                <Activity size={18} className="text-slate-400" strokeWidth={1.5} /> 
+                <span className="font-semibold">Tendencia</span> Operativa
               </h3>
-              <p className="text-xs text-slate-400 mt-1">Evolución de Ingresos vs Egresos en Bs.</p>
+              <p className="text-[11px] font-medium text-slate-400 uppercase tracking-widest mt-2">Evolución Ingresos vs Egresos</p>
+            </div>
+            <div className="flex gap-4">
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-[#16A34A]"></div>
+                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Ingreso</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-[#DC2626]"></div>
+                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Egreso</span>
+              </div>
             </div>
           </div>
-          <div className="h-80 w-full">
+          <div className="h-72 w-full">
             <MonthlyTrendChart data={data.monthlyTrend} />
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 hover:shadow-md transition-shadow flex flex-col">
-          <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2 mb-1">
-            <Users size={20} className="text-blue-500" /> Capital Humano
-          </h3>
-          <p className="text-xs text-slate-400 mb-6">Estado actual de asociados activos</p>
-          
-          <div className="flex-1 flex flex-col justify-center gap-6">
-            <div className="text-center">
-              <p className="text-6xl font-black text-blue-600 mb-2">{totalSocios}</p>
-              <p className="text-sm font-bold text-slate-500 uppercase tracking-widest">Socios Activos</p>
+        {/* CAPITAL HUMANO */}
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-7 flex flex-col justify-between relative overflow-hidden">
+          <div className="absolute -right-10 -bottom-10 opacity-[0.03]">
+            <Users size={200} strokeWidth={1} />
+          </div>
+          <div>
+            <h3 className="text-lg font-light tracking-tight text-slate-800 flex items-center gap-2 mb-2">
+              <Users size={18} className="text-slate-400" strokeWidth={1.5} /> 
+              <span className="font-semibold">Capital</span> Humano
+            </h3>
+            <p className="text-[11px] font-medium text-slate-400 uppercase tracking-widest">Base societaria</p>
+            
+            <div className="mt-8 mb-10">
+              <p className="text-6xl font-light text-slate-800 tracking-tighter">{totalSocios}</p>
+              <p className="text-[10px] font-bold text-blue-500 uppercase tracking-[0.2em] mt-1">Activos Totales</p>
             </div>
             
-            <div className="space-y-4">
+            <div className="space-y-5 relative z-10">
               <div>
-                <div className="flex justify-between text-sm font-semibold mb-1">
-                  <span className="text-slate-600">Cupos SA (Socio Activo)</span>
-                  <span className="text-blue-600">{data.totalSociosActivosSA}</span>
+                <div className="flex justify-between text-[11px] font-bold uppercase tracking-wider mb-2">
+                  <span className="text-slate-500">Cupos SA</span>
+                  <span className="text-slate-700">{data.totalSociosActivosSA}</span>
                 </div>
-                <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
-                  <div className="h-full bg-blue-500 rounded-full" style={{ width: `${totalSocios > 0 ? (data.totalSociosActivosSA/totalSocios)*100 : 0}%` }}></div>
+                <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                  <div className="h-full bg-slate-800 rounded-full" style={{ width: `${totalSocios > 0 ? (data.totalSociosActivosSA/totalSocios)*100 : 0}%` }}></div>
                 </div>
               </div>
               
               <div>
-                <div className="flex justify-between text-sm font-semibold mb-1">
-                  <span className="text-slate-600">Cupos SB (Socio Beneficiario)</span>
-                  <span className="text-sky-400">{data.totalSociosActivosSB}</span>
+                <div className="flex justify-between text-[11px] font-bold uppercase tracking-wider mb-2">
+                  <span className="text-slate-500">Cupos SB</span>
+                  <span className="text-slate-700">{data.totalSociosActivosSB}</span>
                 </div>
-                <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
-                  <div className="h-full bg-sky-400 rounded-full" style={{ width: `${totalSocios > 0 ? (data.totalSociosActivosSB/totalSocios)*100 : 0}%` }}></div>
+                <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                  <div className="h-full bg-slate-400 rounded-full" style={{ width: `${totalSocios > 0 ? (data.totalSociosActivosSB/totalSocios)*100 : 0}%` }}></div>
                 </div>
               </div>
             </div>
+          </div>
 
-            <div className="mt-4 p-4 bg-slate-50 rounded-xl border border-slate-100 flex justify-between items-center">
-              <div>
-                <p className="text-xs font-bold text-slate-400 uppercase">Nuevas Inscripciones</p>
-                <p className="text-lg font-black text-slate-800">+{totalNuevos} este periodo</p>
-              </div>
-              {filterMonthUpper && <TrendBadge value={varNuevos} />}
+          <div className="mt-8 pt-5 border-t border-slate-50 flex justify-between items-center relative z-10">
+            <div>
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Inscripciones</p>
+              <p className="text-sm font-semibold text-slate-700">+{totalNuevos} Socios</p>
             </div>
+            {filterMonthUpper && <TrendBadge value={varNuevos} />}
           </div>
         </div>
       </div>
 
-      {/* 📊 GRAFICOS SECUNDARIOS Y DISTRIBUCIONES */}
+      {/* 📊 DISTRIBUCIONES */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-5 hover:shadow-md transition-shadow flex flex-col">
-          <h3 className="text-sm font-bold text-slate-800 flex items-center gap-2 mb-4">
-            <PieChart size={16} className="text-green-500" /> Distribución de Ingresos
-          </h3>
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 flex flex-col">
+          <div className="mb-6">
+            <h3 className="text-sm font-semibold text-slate-800 flex items-center gap-2">
+              <Layers size={16} className="text-emerald-500" strokeWidth={1.5} /> 
+              Composición de Ingresos
+            </h3>
+          </div>
           <div className="flex-1 min-h-[220px]">
             <DistributionPieChart data={data.incomeDistribution} type="income" />
           </div>
         </div>
         
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-5 hover:shadow-md transition-shadow flex flex-col">
-          <h3 className="text-sm font-bold text-slate-800 flex items-center gap-2 mb-4">
-            <PieChart size={16} className="text-red-500" /> Distribución de Egresos
-          </h3>
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 flex flex-col">
+          <div className="mb-6">
+            <h3 className="text-sm font-semibold text-slate-800 flex items-center gap-2">
+              <Layers size={16} className="text-rose-500" strokeWidth={1.5} /> 
+              Composición de Egresos
+            </h3>
+          </div>
           <div className="flex-1 min-h-[220px]">
             <DistributionPieChart data={data.expenseDistribution} type="expense" />
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-5 hover:shadow-md transition-shadow flex flex-col">
-          <h3 className="text-sm font-bold text-slate-800 flex items-center gap-2 mb-1">
-            <BarChart2 size={16} className="text-amber-500" /> Análisis de Morosidad CxC
-          </h3>
-          <p className="text-xs text-slate-400 mb-3">Composición de deuda por periodo</p>
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 flex flex-col">
+          <div className="mb-6">
+            <h3 className="text-sm font-semibold text-slate-800 flex items-center gap-2">
+              <BarChart2 size={16} className="text-amber-500" strokeWidth={1.5} /> 
+              Morosidad por Concepto (CxC)
+            </h3>
+          </div>
           <div className="flex-1 min-h-[200px]">
             <CxCStackedBarChart data={data.cxcComposition} />
           </div>
         </div>
       </div>
       
-      {/* 💡 MINI KPIS EXTRAS */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-white p-4 rounded-xl border border-slate-100 shadow-sm flex items-center gap-4">
-          <div className="p-3 bg-slate-50 rounded-lg text-slate-400"><DollarSign size={20} /></div>
+      {/* 💡 MINI KPIS (FOOTER DASHBOARD) */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
+        <div className="bg-transparent border border-slate-200/60 p-4 rounded-xl flex items-center gap-4 hover:bg-white hover:shadow-sm transition-all">
+          <div className="p-2.5 bg-slate-100 rounded-lg text-slate-500"><DollarSign size={16} strokeWidth={2} /></div>
           <div>
-            <p className="text-[10px] font-bold text-slate-400 uppercase">Otros Ingresos</p>
-            <p className="text-lg font-bold text-slate-700">{formatBs(data.otrosIngresosBs)}</p>
+            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Ingresos Atípicos</p>
+            <p className="text-base font-semibold text-slate-700">{formatBs(data.otrosIngresosBs)}</p>
           </div>
         </div>
-        <div className="bg-white p-4 rounded-xl border border-slate-100 shadow-sm flex items-center gap-4">
-          <div className="p-3 bg-slate-50 rounded-lg text-slate-400"><CreditCard size={20} /></div>
+        
+        <div className="bg-transparent border border-slate-200/60 p-4 rounded-xl flex items-center gap-4 hover:bg-white hover:shadow-sm transition-all">
+          <div className="p-2.5 bg-slate-100 rounded-lg text-slate-500"><CreditCard size={16} strokeWidth={2} /></div>
           <div>
-            <p className="text-[10px] font-bold text-slate-400 uppercase">Otros Egresos</p>
-            <p className="text-lg font-bold text-slate-700">{formatBs(data.otrosEgresosBs)}</p>
+            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Egresos Atípicos</p>
+            <p className="text-base font-semibold text-slate-700">{formatBs(data.otrosEgresosBs)}</p>
           </div>
         </div>
-        <div className="bg-white p-4 rounded-xl border border-slate-100 shadow-sm flex items-center gap-4">
-          <div className="p-3 bg-amber-50 rounded-lg text-amber-500"><TrendingUp size={20} /></div>
+        
+        <div className="bg-transparent border border-slate-200/60 p-4 rounded-xl flex items-center gap-4 hover:bg-white hover:shadow-sm transition-all">
+          <div className="p-2.5 bg-amber-50 rounded-lg text-amber-500"><FileSpreadsheet size={16} strokeWidth={2} /></div>
           <div>
-            <p className="text-[10px] font-bold text-slate-400 uppercase">Préstamos Otorgados</p>
-            <p className="text-lg font-bold text-slate-700">{formatBs(data.prestamosBs)}</p>
+            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Préstamos Emitidos</p>
+            <p className="text-base font-semibold text-slate-700">{formatBs(data.prestamosBs)}</p>
           </div>
         </div>
-        <div className="bg-white p-4 rounded-xl border border-slate-100 shadow-sm flex items-center gap-4 border-r-4 border-r-red-400">
-          <div className="p-3 bg-red-50 rounded-lg text-red-500"><AlertTriangle size={20} /></div>
+        
+        <div className="bg-transparent border border-slate-200/60 p-4 rounded-xl flex items-center gap-4 hover:bg-white hover:shadow-sm transition-all relative overflow-hidden">
+          <div className="absolute left-0 top-0 bottom-0 w-1 bg-rose-400"></div>
+          <div className="p-2.5 bg-rose-50 rounded-lg text-rose-500 ml-2"><AlertTriangle size={16} strokeWidth={2} /></div>
           <div>
-            <p className="text-[10px] font-bold text-slate-400 uppercase">Cuentas por Pagar</p>
-            <p className="text-lg font-bold text-slate-700">{formatBs(data.cxpBs)}</p>
+            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Pasivos (CxP)</p>
+            <p className="text-base font-semibold text-slate-700">{formatBs(data.cxpBs)}</p>
           </div>
         </div>
       </div>
