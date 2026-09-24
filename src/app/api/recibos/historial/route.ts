@@ -65,7 +65,16 @@ export async function GET(req: NextRequest) {
     }
 
     const transacciones = await prisma.transaccion.findMany({
-      where: whereClause,
+      where: {
+        ...whereClause,
+        // ✅ Excluir registros NULOS y con monto 0 de la vista de auditoría
+        NOT: [
+          { clasificacion: 'NULO' },
+          { clasificacion: 'ANULADO' },
+          { clasificacion: 'ANULADA' },
+        ],
+        monto_bs: { gt: 0 }
+      },
       include: {
         socio: {
           select: {
@@ -86,7 +95,7 @@ export async function GET(req: NextRequest) {
       orderBy: {
         fecha: 'desc'
       },
-      take: 200 // Limit to avoid massive payloads if no filter is applied
+      take: 500 // ✅ Aumentado para auditorías completas
     });
 
     return NextResponse.json({ success: true, data: transacciones });

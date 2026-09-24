@@ -5,10 +5,44 @@ import prisma from '@/lib/prisma';
 
 export async function GET() {
   try {
-    const transacciones = await prisma.transaccion.findMany();
-    const cxcList = await prisma.cuentaPorCobrar.findMany();
-    const cxpList = await prisma.cuentaPorPagar.findMany();
-    const socios = await prisma.socio.findMany();
+    // ✅ OPTIMIZADO: Seleccionar solo campos necesarios y excluir NULOs/montos 0
+    const [transacciones, cxcList, cxpList, socios] = await Promise.all([
+      prisma.transaccion.findMany({
+        select: {
+          id: true,
+          tipo: true,
+          mes: true,
+          monto_bs: true,
+          monto_usd: true,
+          clasificacion: true,
+          socioId: true,
+        },
+        where: {
+          NOT: [
+            { clasificacion: 'NULO' },
+            { clasificacion: 'ANULADO' },
+            { clasificacion: 'ANULADA' },
+          ],
+          monto_bs: { gt: 0 }
+        }
+      }),
+      prisma.cuentaPorCobrar.findMany({
+        select: { mes: true, tipo_publicacion: true, monto_a_cobrar: true }
+      }),
+      prisma.cuentaPorPagar.findMany({
+        select: { mes: true, monto: true, total: true }
+      }),
+      prisma.socio.findMany({
+        select: {
+          id: true,
+          codigo: true,
+          ficha: true,
+          status: true,
+          f_afiliacion: true,
+          nombre_apellido: true
+        }
+      })
+    ]);
 
     const ingresosRaw = transacciones
       .filter(t => t.tipo === 'INGRESO')

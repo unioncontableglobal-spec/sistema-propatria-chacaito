@@ -109,7 +109,7 @@ export default function Sidebar({ initialRole }: { initialRole: string | null })
               <div className="text-[10px] font-bold text-gray-500 tracking-widest px-3 mb-2 uppercase">MÓDULO FINANCIERO</div>
               <ul className="space-y-1">
                 <li><Link href="/ingresos" className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${pathname.startsWith('/ingresos') ? 'bg-[#1E293B] text-white font-medium' : 'text-gray-400 hover:text-white hover:bg-[#1E293B]'}`}><FileText size={18} /> Auditoría de Ingresos</Link></li>
-                <li><Link href="#" className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-gray-400 hover:text-white hover:bg-[#1E293B]`}><ClipboardCheck size={18} /> Auditoría de Egresos</Link></li>
+                <li><Link href="/egresos" className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${pathname.startsWith('/egresos') ? 'bg-[#1E293B] text-white font-medium' : 'text-gray-400 hover:text-white hover:bg-[#1E293B]'}`}><ClipboardCheck size={18} /> Auditoría de Egresos</Link></li>
               </ul>
             </div>
           )}

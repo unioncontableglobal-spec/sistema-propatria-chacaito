@@ -6,9 +6,21 @@ import prisma from '@/lib/prisma';
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
-    const tipo = searchParams.get('tipo'); // "INGRESO" or "EGRESO"
+    const tipo = searchParams.get('tipo'); // "INGRESO" or "EGRESO" or null (all)
     
-    const where = tipo ? { tipo } : {};
+    const where: any = {
+      // ✅ Excluir registros NULOS o con monto 0 para no contaminar cálculos
+      NOT: [
+        { clasificacion: 'NULO' },
+        { clasificacion: 'ANULADO' },
+        { clasificacion: 'ANULADA' },
+      ],
+      monto_bs: { gt: 0 }
+    };
+
+    if (tipo) {
+      where.tipo = tipo;
+    }
 
     const transacciones = await prisma.transaccion.findMany({
       where,
