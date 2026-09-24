@@ -31,8 +31,10 @@ export default function CxcPage() {
   const fetchIngresos = async () => {
     setIsLoading(true);
     try {
-      // Pedimos todos los ingresos. Podemos optimizar con parámetros de búsqueda si es muy pesado.
-      const res = await fetch(`/api/recibos/historial?tipo=INGRESO`);
+      const url = filtroMesGlobal !== 'HISTÓRICO TOTAL' 
+        ? `/api/recibos/historial?tipo=INGRESO&mes=${filtroMesGlobal}` 
+        : `/api/recibos/historial?tipo=INGRESO`;
+      const res = await fetch(url);
       const data = await res.json();
       if (data.success) {
         setTransacciones(data.data);
@@ -46,7 +48,7 @@ export default function CxcPage() {
 
   useEffect(() => {
     fetchIngresos();
-  }, []);
+  }, [filtroMesGlobal]);
 
   // Filtrado Frontend
   const filteredData = useMemo(() => {

@@ -31,7 +31,10 @@ export default function CxpPage() {
   const fetchEgresos = async () => {
     setIsLoading(true);
     try {
-      const res = await fetch(`/api/recibos/historial?tipo=EGRESO`);
+      const url = filtroMesGlobal !== 'HISTÓRICO TOTAL' 
+        ? `/api/recibos/historial?tipo=EGRESO&mes=${filtroMesGlobal}` 
+        : `/api/recibos/historial?tipo=EGRESO`;
+      const res = await fetch(url);
       const data = await res.json();
       if (data.success) {
         setTransacciones(data.data);
@@ -45,7 +48,7 @@ export default function CxpPage() {
 
   useEffect(() => {
     fetchEgresos();
-  }, []);
+  }, [filtroMesGlobal]);
 
   // Filtrado Frontend
   const filteredData = useMemo(() => {
