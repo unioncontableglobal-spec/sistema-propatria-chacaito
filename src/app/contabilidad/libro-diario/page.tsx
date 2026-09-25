@@ -4,11 +4,19 @@ import React, { useEffect, useState } from 'react';
 import { Book, Download, Search } from 'lucide-react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { useAppStore } from '@/store/useAppStore';
 
 export default function LibroDiarioPage() {
   const [asientos, setAsientos] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [mesFiltro, setMesFiltro] = useState(format(new Date(), 'yyyy-MM'));
+
+  // Sincronización con el filtro global de la app
+  const { filtroMesGlobal, setFiltroMesGlobal } = useAppStore();
+  
+  // Si el filtro global es "HISTÓRICO TOTAL", usamos el mes actual por defecto
+  const isHistorico = filtroMesGlobal === 'HISTÓRICO TOTAL';
+  const currentMonth = format(new Date(), 'yyyy-MM');
+  const mesFiltro = isHistorico ? currentMonth : filtroMesGlobal;
 
   useEffect(() => {
     fetch('/api/asientos')
@@ -56,7 +64,7 @@ export default function LibroDiarioPage() {
           <input 
             type="month" 
             value={mesFiltro}
-            onChange={(e) => setMesFiltro(e.target.value)}
+            onChange={(e) => setFiltroMesGlobal(e.target.value)}
             className="border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#3B82F6] outline-none font-medium text-gray-700"
           />
           <button className="flex items-center gap-2 bg-[#0F172A] hover:bg-slate-800 text-white px-4 py-2.5 rounded-lg font-medium transition-colors">
