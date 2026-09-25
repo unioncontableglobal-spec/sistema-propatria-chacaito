@@ -174,9 +174,13 @@ export default function EgresosPage() {
       .sort((a, b) => b.monto - a.monto)
       .slice(0, 4);
 
+    const conceptosDetalle = Array.from(conceptosMap.entries())
+      .map(([concepto, monto]) => ({ concepto, monto, porcentaje: totalUsd > 0 ? (monto / totalUsd) * 100 : 0 }))
+      .sort((a, b) => b.monto - a.monto);
+
     return { 
       totalUsd, totalBs, efectivoUsd, bancoUsd, 
-      dolaresRealesUsd, efecto1UsdBs, efecto1UsdConvertido: efecto1UsdBs / avgTasa, topBancos, topConceptos
+      dolaresRealesUsd, efecto1UsdBs, efecto1UsdConvertido: efecto1UsdBs / avgTasa, topBancos, topConceptos, conceptosDetalle
     };
   }, [filteredData]);
 
@@ -278,6 +282,37 @@ export default function EgresosPage() {
               <span className="font-bold text-red-100">{formatUsd(c.monto)}</span>
             </div>
           ))}
+        </div>
+      </div>
+
+      {/* DETALLE DE CATEGORÍAS */}
+      <div className="mb-8">
+        <h3 className="text-sm font-black text-[#0A1128] uppercase tracking-wider mb-4 flex items-center gap-2">
+          <svg className="text-red-500" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21.21 15.89A10 10 0 1 1 8 2.83M22 12A10 10 0 0 0 12 2v10z"/></svg>
+          Auditoría Detallada por Categorías
+        </h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {kpis.conceptosDetalle.length === 0 ? (
+            <p className="text-sm text-gray-500">No hay categorías registradas en este período.</p>
+          ) : (
+            kpis.conceptosDetalle.map((c, idx) => (
+              <div key={c.concepto} className="bg-white rounded-xl p-4 shadow-sm border border-gray-100 flex flex-col justify-between hover:shadow-md transition-shadow">
+                <div className="flex justify-between items-start mb-3">
+                  <h4 className="font-bold text-gray-700 text-xs uppercase pr-2 line-clamp-2">{c.concepto}</h4>
+                  <span className="bg-red-50 text-red-700 text-[10px] font-black px-2 py-1 rounded-md">
+                    #{idx + 1}
+                  </span>
+                </div>
+                <div>
+                  <p className="text-xl font-black text-[#0A1128] mb-2">{formatUsd(c.monto)}</p>
+                  <div className="w-full bg-gray-100 rounded-full h-1.5 mb-1">
+                    <div className="bg-red-500 h-1.5 rounded-full" style={{ width: `${c.porcentaje}%` }}></div>
+                  </div>
+                  <p className="text-[10px] text-gray-400 font-bold text-right">{c.porcentaje.toFixed(1)}% del total</p>
+                </div>
+              </div>
+            ))
+          )}
         </div>
       </div>
 
