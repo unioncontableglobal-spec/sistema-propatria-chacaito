@@ -20,6 +20,10 @@ export default function ResultadosPage() {
   const [transacciones, setTransacciones] = useState<Transaccion[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  
+  // Filtros de fecha personalizados
+  const [fechaDesde, setFechaDesde] = useState('');
+  const [fechaHasta, setFechaHasta] = useState('');
 
   useEffect(() => {
     fetchTransacciones();
@@ -39,11 +43,32 @@ export default function ResultadosPage() {
     }
   };
 
-  // Filtrado por mes seleccionado o histórico total
+  // Filtrado por mes seleccionado o histórico total o rango de fechas
   const filteredData = useMemo(() => {
-    if (!filtroMesGlobal || filtroMesGlobal === 'Todos') return transacciones;
-    return transacciones.filter(t => t.mes === filtroMesGlobal);
-  }, [transacciones, filtroMesGlobal]);
+    let result = transacciones;
+
+    // Si hay un rango de fechas custom, se usa eso por encima del mes global
+    if (fechaDesde || fechaHasta) {
+      result = result.filter(t => {
+        const tDate = new Date(t.fecha);
+        let pass = true;
+        if (fechaDesde) {
+          const fromDate = new Date(fechaDesde);
+          if (tDate < fromDate) pass = false;
+        }
+        if (fechaHasta) {
+          const toDate = new Date(fechaHasta);
+          toDate.setHours(23, 59, 59, 999);
+          if (tDate > toDate) pass = false;
+        }
+        return pass;
+      });
+      return result;
+    }
+
+    if (!filtroMesGlobal || filtroMesGlobal === 'Todos') return result;
+    return result.filter(t => t.mes === filtroMesGlobal);
+  }, [transacciones, filtroMesGlobal, fechaDesde, fechaHasta]);
 
   // Cálculos de Utilidad
   const kpis = useMemo(() => {
@@ -140,10 +165,39 @@ export default function ResultadosPage() {
           <h1 className="text-2xl font-black text-[#0A1128] tracking-tight">Auditoría de Resultados</h1>
           <p className="text-sm text-gray-500 font-medium mt-1">Análisis de Utilidad, Ingresos vs Egresos y Diagnóstico.</p>
         </div>
-        <button onClick={() => window.print()} className="bg-white border border-gray-200 text-[#0A1128] px-4 py-2 rounded-xl font-bold text-sm hover:bg-gray-50 transition-colors shadow-sm flex items-center gap-2">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
-          Imprimir
-        </button>
+        
+        <div className="flex items-center gap-3">
+          <div className="bg-white p-2 rounded-xl border border-gray-200 shadow-sm flex items-center gap-2">
+            <span className="text-xs font-bold text-gray-400 uppercase tracking-widest pl-2">Desde</span>
+            <input 
+              type="date" 
+              value={fechaDesde}
+              onChange={(e) => setFechaDesde(e.target.value)}
+              className="text-sm font-semibold text-[#0A1128] bg-gray-50 border border-gray-200 rounded-lg px-2 py-1 outline-none focus:border-blue-500"
+            />
+            <span className="text-xs font-bold text-gray-400 uppercase tracking-widest pl-2">Hasta</span>
+            <input 
+              type="date" 
+              value={fechaHasta}
+              onChange={(e) => setFechaHasta(e.target.value)}
+              className="text-sm font-semibold text-[#0A1128] bg-gray-50 border border-gray-200 rounded-lg px-2 py-1 outline-none focus:border-blue-500"
+            />
+            {(fechaDesde || fechaHasta) && (
+              <button 
+                onClick={() => { setFechaDesde(''); setFechaHasta(''); }}
+                className="text-gray-400 hover:text-red-500 ml-1"
+                title="Limpiar fechas"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+              </button>
+            )}
+          </div>
+
+          <button onClick={() => window.print()} className="bg-white border border-gray-200 text-[#0A1128] px-4 py-2 rounded-xl font-bold text-sm hover:bg-gray-50 transition-colors shadow-sm flex items-center gap-2 h-[42px]">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+            Imprimir
+          </button>
+        </div>
       </div>
 
       {/* RIF HEADER FOR PRINT ONLY */}
@@ -151,7 +205,9 @@ export default function ResultadosPage() {
         <h1 className="text-2xl font-black text-[#0A1128] tracking-widest uppercase">Unión Contable Global</h1>
         <p className="text-sm font-bold text-gray-600">RIF: J-50714716-9</p>
         <h2 className="text-xl font-bold text-[#0A1128] mt-4 uppercase">Estado de Resultados (Ingresos vs Egresos)</h2>
-        <p className="text-sm text-gray-500 font-semibold mt-1">Período Auditado: {filtroMesGlobal || 'Histórico Total'}</p>
+        <p className="text-sm text-gray-500 font-semibold mt-1">
+          Período Auditado: {fechaDesde || fechaHasta ? `Desde ${fechaDesde || 'Inicio'} Hasta ${fechaHasta || 'Hoy'}` : (filtroMesGlobal || 'Histórico Total')}
+        </p>
       </div>
 
       {/* RESUMEN EJECUTIVO (KPIs) */}
