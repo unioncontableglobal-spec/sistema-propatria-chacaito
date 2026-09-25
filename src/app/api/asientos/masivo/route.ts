@@ -44,79 +44,85 @@ export async function POST(req: NextRequest) {
     let count = 0;
     const ops: any[] = [];
 
-    // Procesar cada uno
-    for (const t of pendientes) {
-      const socioNombre = t.socio ? ` - ${t.socio.nombre_apellido}` : '';
-      const concepto = t.codigo_concepto || t.clasificacion || t.detalle || '';
-      
-      let pagoStr = '';
-      let bancoId = DEFAULT_CAJA;
+      // Calcular número de asiento base para este lote
+      const lastAsiento = await prisma.asientoContable.findFirst({
+        orderBy: { numero: 'desc' }
+      });
+      const startNumero = lastAsiento ? lastAsiento.numero + 1 : 1;
 
-      if (t.formas_pago && t.formas_pago.length > 0) {
-        const fp = t.formas_pago[0];
-        pagoStr = ` (Vía: ${fp.tipo_pago}${fp.banco ? ` ${fp.banco}` : ''}${fp.referencia ? ` Ref: ${fp.referencia}` : ''})`;
+      // Procesar cada uno
+      for (const t of pendientes) {
+        const socioNombre = t.socio ? ` - ${t.socio.nombre_apellido}` : '';
+        const concepto = t.codigo_concepto || t.clasificacion || t.detalle || '';
         
-        // Mapeo inteligente con prioridad a EFECTIVO
-        const tipoPago = fp.tipo_pago.toUpperCase();
-        const b = (fp.banco || '').toUpperCase();
-        
-        if (tipoPago.includes('EFECTIVO')) {
-          bancoId = mapCuentas.get('1101001'); // Caja Principal (Efectivo y Equivalentes)
-        } else if (b.includes('BANCAMIGA-9750')) {
-          bancoId = mapCuentas.get('1102005');
-        } else if (b.includes('BANCAMIGA')) {
-          bancoId = mapCuentas.get('1102001');
-        } else if (b.includes('BANESCO')) {
-          bancoId = mapCuentas.get('1102004');
-        } else if (b.includes('MERCANTIL')) {
-          bancoId = mapCuentas.get('1102002');
-        } else if (b.includes('VENEZUELA')) {
-          bancoId = mapCuentas.get('1102003');
-        } else if (b.includes('A.C.P.C.CH')) {
-          bancoId = mapCuentas.get('1102006');
+        let pagoStr = '';
+        let bancoId = DEFAULT_CAJA;
+
+        if (t.formas_pago && t.formas_pago.length > 0) {
+          const fp = t.formas_pago[0];
+          pagoStr = ` (Vía: ${fp.tipo_pago}${fp.banco ? ` ${fp.banco}` : ''}${fp.referencia ? ` Ref: ${fp.referencia}` : ''})`;
+          
+          // Mapeo inteligente con prioridad a EFECTIVO
+          const tipoPago = fp.tipo_pago.toUpperCase();
+          const b = (fp.banco || '').toUpperCase();
+          
+          if (tipoPago.includes('EFECTIVO')) {
+            bancoId = mapCuentas.get('1101001'); // Caja Principal (Efectivo y Equivalentes)
+          } else if (b.includes('BANCAMIGA-9750')) {
+            bancoId = mapCuentas.get('1102005');
+          } else if (b.includes('BANCAMIGA')) {
+            bancoId = mapCuentas.get('1102001');
+          } else if (b.includes('BANESCO')) {
+            bancoId = mapCuentas.get('1102004');
+          } else if (b.includes('MERCANTIL')) {
+            bancoId = mapCuentas.get('1102002');
+          } else if (b.includes('VENEZUELA')) {
+            bancoId = mapCuentas.get('1102003');
+          } else if (b.includes('A.C.P.C.CH')) {
+            bancoId = mapCuentas.get('1102006');
+          }
         }
-      }
 
-      const descripcion = `Contabilización automática de ${t.tipo} Recibo #${t.recibo}${socioNombre}: ${concepto}${pagoStr}`;
+        const descripcion = `Contabilización automática de ${t.tipo} Recibo #${t.recibo}${socioNombre}: ${concepto}${pagoStr}`;
 
-      // ----------------------------------------------------
-      // LÓGICA PREDICTIVA DE CUENTAS SEGÚN EL PDF 2024
-      // ----------------------------------------------------
-      let cuentaDebe: number | undefined;
-      let cuentaHaber: number | undefined;
-      const classUpper = (t.clasificacion || '').toUpperCase();
-      const concUpper = (t.codigo_concepto || '').toUpperCase();
+        // ----------------------------------------------------
+        // LÓGICA PREDICTIVA DE CUENTAS SEGÚN EL PDF 2024
+        // ----------------------------------------------------
+        let cuentaDebe: number | undefined;
+        let cuentaHaber: number | undefined;
+        const classUpper = (t.clasificacion || '').toUpperCase();
+        const concUpper = (t.codigo_concepto || '').toUpperCase();
 
-      if (t.tipo === 'INGRESO') {
-        cuentaDebe = bancoId || DEFAULT_CAJA;
-        
-        // Asignación predictiva de Ingresos
-        if (classUpper.includes('FINANZAS') || concUpper.includes('FINANZAS')) {
-          cuentaHaber = INGRESO_FINANZAS;
+        if (t.tipo === 'INGRESO') {
+          cuentaDebe = bancoId || DEFAULT_CAJA;
+          
+          // Asignación predictiva de Ingresos
+          if (classUpper.includes('FINANZAS') || concUpper.includes('FINANZAS')) {
+            cuentaHaber = INGRESO_FINANZAS;
+          } else {
+            // Todo lo demás de ingresos (Cuotas especiales, mantenimiento, calcomanías, etc)
+            cuentaHaber = INGRESO_SOSTENIMIENTO;
+          }
+
         } else {
-          // Todo lo demás de ingresos (Cuotas especiales, mantenimiento, calcomanías, etc)
-          cuentaHaber = INGRESO_SOSTENIMIENTO;
+          cuentaHaber = bancoId || DEFAULT_CAJA;
+
+          // Asignación predictiva de Gastos
+          if (classUpper.includes('SUELDO') || classUpper.includes('PERSONAL') || classUpper.includes('HONORARIO')) {
+            cuentaDebe = GASTO_PERSONAL;
+          } else if (classUpper.includes('BANCO') || classUpper.includes('COMISION')) {
+            cuentaDebe = GASTO_BANCARIO;
+          } else {
+            cuentaDebe = GASTO_DEFAULT; // Gastos de Administración por defecto para todo lo demás
+          }
         }
 
-      } else {
-        cuentaHaber = bancoId || DEFAULT_CAJA;
-
-        // Asignación predictiva de Gastos
-        if (classUpper.includes('SUELDO') || classUpper.includes('PERSONAL') || classUpper.includes('HONORARIO')) {
-          cuentaDebe = GASTO_PERSONAL;
-        } else if (classUpper.includes('BANCO') || classUpper.includes('COMISION')) {
-          cuentaDebe = GASTO_BANCARIO;
-        } else {
-          cuentaDebe = GASTO_DEFAULT; // Gastos de Administración por defecto para todo lo demás
+        if (!cuentaDebe || !cuentaHaber) {
+          console.warn('Saltando transaccion por falta de cuenta', t.id);
+          continue;
         }
-      }
-
-      if (!cuentaDebe || !cuentaHaber) {
-        console.warn('Saltando transaccion por falta de cuenta', t.id);
-        continue;
-      }
-      
-      const numero = Date.now() + count; 
+        
+        const numero = startNumero + count; 
 
       ops.push(prisma.asientoContable.create({
         data: {
