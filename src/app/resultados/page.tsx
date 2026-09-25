@@ -32,10 +32,11 @@ export default function ResultadosPage() {
   const fetchTransacciones = async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/transacciones');
+      // Use the exact same endpoint as ingresos and egresos for consistency
+      const res = await fetch('/api/recibos/historial');
       if (!res.ok) throw new Error('Error al cargar datos');
       const data = await res.json();
-      setTransacciones(data);
+      setTransacciones(data.data || []);
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -116,7 +117,7 @@ export default function ResultadosPage() {
 
     // 1. Calcular Tasa Promedio global
     let sumTasa = 0; let countTasa = 0;
-    transacciones.forEach(tx => {
+    filteredData.forEach(tx => {
       const usd = Number(tx.monto_usd || 0);
       const bs = Number(tx.monto_bs || 0);
       const tasa = Number(tx.tasa_cambio || 0);
@@ -126,7 +127,7 @@ export default function ResultadosPage() {
     });
     const avgTasa = countTasa > 0 ? sumTasa / countTasa : 360;
 
-    transacciones.forEach(t => {
+    filteredData.forEach(t => {
       if (!months[t.mes]) {
         months[t.mes] = { ingresos: 0, egresos: 0 };
       }
