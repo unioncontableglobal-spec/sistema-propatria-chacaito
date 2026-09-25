@@ -102,8 +102,8 @@ export default function CxpPage() {
 
     // Desglose profundo
     let dolaresRealesUsd = 0;
-    let efecto1UsdBs = 0; 
     let bancosMap = new Map<string, number>();
+    let metodosMap = new Map<string, number>();
 
     // Determinar la tasa promedio mensual (simplificada, de los que sí convirtieron)
     let sumTasa = 0; let countTasa = 0;
@@ -122,26 +122,35 @@ export default function CxpPage() {
       const bs = Number(tx.monto_bs || 0);
       const tasa = Number(tx.tasa_cambio || 0);
 
-      // Auditar Efecto 1 USD vs Dólares Reales
+      // Calcular USD Real
       let realUsd = usd;
       if ((usd === 1 && Math.abs(tasa - bs) < 1) || usd === 0) {
-        efecto1UsdBs += bs;
         realUsd = bs / avgTasa;
-      } else {
-        dolaresRealesUsd += realUsd;
       }
+      dolaresRealesUsd += realUsd;
 
       totalUsd += realUsd;
       totalBs += bs;
 
-      // Distribuir formas de pago
-      let isEfectivo = false;
+      // Distribuir formas de pago de forma PROPORCIONAL para evitar distorsiones
       if (tx.formas_pago && tx.formas_pago.length > 0) {
         tx.formas_pago.forEach((fp: any) => {
-          const fpUsd = fp.monto_usd || (fp.monto_bs / avgTasa);
-          if (fp.tipo_pago.toLowerCase().includes('efectivo')) {
+          const bsFp = Number(fp.monto_bs || 0);
+          const usdFp = Number(fp.monto_usd || 0);
+          
+          let proportion = 1;
+          if (bs > 0 && bsFp > 0) {
+            proportion = bsFp / bs;
+          } else if (usd > 0 && usdFp > 0) {
+            proportion = usdFp / usd;
+          }
+          
+          const fpUsd = realUsd * proportion;
+          const method = fp.tipo_pago ? fp.tipo_pago.toUpperCase() : 'NO ESPECIFICADO';
+          metodosMap.set(method, (metodosMap.get(method) || 0) + fpUsd);
+
+          if (method.includes('EFECTIVO')) {
             efectivoUsd += fpUsd;
-            isEfectivo = true;
           } else {
             bancoUsd += fpUsd;
             if (fp.banco) {
@@ -152,6 +161,7 @@ export default function CxpPage() {
         });
       } else {
         efectivoUsd += realUsd;
+        metodosMap.set('EFECTIVO', (metodosMap.get('EFECTIVO') || 0) + realUsd);
       }
 
       // Categorías
@@ -161,15 +171,18 @@ export default function CxpPage() {
       if (tx.clasificacion?.includes('REMANENTE')) remanentes += realUsd;
     });
 
-    // Ordenar bancos de mayor a menor
+    // Ordenar bancos y metodos
     const topBancos = Array.from(bancosMap.entries())
       .map(([banco, monto]) => ({ banco, monto }))
-      .sort((a, b) => b.monto - a.monto)
-      .slice(0, 5);
+      .sort((a, b) => b.monto - a.monto);
+      
+    const topMetodos = Array.from(metodosMap.entries())
+      .map(([metodo, monto]) => ({ metodo, monto }))
+      .sort((a, b) => b.monto - a.monto);
 
     return { 
       totalUsd, totalBs, efectivoUsd, bancoUsd, ayudas, vidrios, montepios, remanentes,
-      dolaresRealesUsd, efecto1UsdBs, efecto1UsdConvertido: efecto1UsdBs / avgTasa, topBancos
+      dolaresRealesUsd, topBancos, topMetodos
     };
   }, [filteredData]);
 
@@ -282,29 +295,30 @@ export default function CxpPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-        {/* COMPOSICIÓN DE EFECTO 1 USD */}
+        {/* COMPOSICIÓN DE MÉTODOS DE PAGO */}
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
           <h3 className="text-sm font-black text-[#0A1128] uppercase tracking-wider mb-4 border-b border-gray-100 pb-3 flex items-center gap-2">
-            <svg className="text-indigo-500" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 2v20"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-            Auditoría de Conversión (Divisas vs Bs Puros)
+            <svg className="text-indigo-500" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M7 15h0M2 9h20"/></svg>
+            Desglose por Métodos de Pago
           </h3>
-          <div className="flex gap-4 items-center">
-            <div className="flex-1">
-              <p className="text-xs font-bold text-gray-500 mb-1">Divisas Reales (Convertidas/Cargadas)</p>
-              <p className="text-xl font-black text-indigo-700">{formatUsd(kpis.dolaresRealesUsd)}</p>
-              <p className="text-[10px] font-semibold text-gray-400 mt-1">{kpis.totalUsd > 0 ? ((kpis.dolaresRealesUsd / kpis.totalUsd) * 100).toFixed(1) : 0}% de los egresos</p>
+          {kpis.topMetodos.length === 0 ? (
+            <p className="text-sm text-gray-400 py-4 text-center">No hay métodos registrados.</p>
+          ) : (
+            <div className="space-y-3">
+              {kpis.topMetodos.map((m, idx) => (
+                <div key={idx} className="flex justify-between items-center">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-indigo-400"></div>
+                    <span className="text-xs font-bold text-gray-700">{m.metodo}</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="text-xs font-black text-indigo-700">{formatUsd(m.monto)}</span>
+                    <span className="text-[10px] font-bold text-gray-400 w-8 text-right">{kpis.totalUsd > 0 ? ((m.monto / kpis.totalUsd) * 100).toFixed(0) : 0}%</span>
+                  </div>
+                </div>
+              ))}
             </div>
-            <div className="w-px h-12 bg-gray-200"></div>
-            <div className="flex-1">
-              <p className="text-xs font-bold text-gray-500 mb-1">Efecto 1 USD (Se quedó en Bs)</p>
-              <p className="text-xl font-black text-rose-600">{formatUsd(kpis.efecto1UsdConvertido)} <span className="text-xs font-medium text-rose-400 font-normal">eq. USD</span></p>
-              <p className="text-[10px] font-semibold text-gray-400 mt-1">Bs. {kpis.efecto1UsdBs.toLocaleString('es-VE', {minimumFractionDigits: 2})}</p>
-            </div>
-          </div>
-          <div className="w-full bg-gray-100 rounded-full h-2 mt-4 flex overflow-hidden">
-            <div className="bg-indigo-500 h-2" style={{ width: `${kpis.totalUsd > 0 ? (kpis.dolaresRealesUsd / kpis.totalUsd) * 100 : 0}%` }}></div>
-            <div className="bg-rose-500 h-2" style={{ width: `${kpis.totalUsd > 0 ? (kpis.efecto1UsdConvertido / kpis.totalUsd) * 100 : 0}%` }}></div>
-          </div>
+          )}
         </div>
 
         {/* COMPOSICIÓN BANCARIA */}
