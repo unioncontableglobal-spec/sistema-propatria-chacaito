@@ -44,14 +44,24 @@ export default function NuevoAsientoPage() {
           const f = data.formas_pago[0];
           pagoStr = ` (Vía: ${f.tipo_pago}${f.banco ? ` ${f.banco}` : ''}${f.referencia ? ` Ref: ${f.referencia}` : ''})`;
           
+          const tipoPago = f.tipo_pago.toUpperCase();
           const b = (f.banco || '').toUpperCase();
-          if (b.includes('BANCAMIGA-9750')) bancoIdStr = cuentasData.find((c: any) => c.codigo === '1102005')?.id.toString() || '';
-          else if (b.includes('BANCAMIGA')) bancoIdStr = cuentasData.find((c: any) => c.codigo === '1102001')?.id.toString() || '';
-          else if (b.includes('BANESCO')) bancoIdStr = cuentasData.find((c: any) => c.codigo === '1102004')?.id.toString() || '';
-          else if (b.includes('MERCANTIL')) bancoIdStr = cuentasData.find((c: any) => c.codigo === '1102002')?.id.toString() || '';
-          else if (b.includes('VENEZUELA')) bancoIdStr = cuentasData.find((c: any) => c.codigo === '1102003')?.id.toString() || '';
-          else if (b.includes('A.C.P.C.CH')) bancoIdStr = cuentasData.find((c: any) => c.codigo === '1102006')?.id.toString() || '';
-          else if (f.tipo_pago.toUpperCase().includes('EFECTIVO')) bancoIdStr = cuentasData.find((c: any) => c.codigo === '1101001')?.id.toString() || '';
+          
+          if (tipoPago.includes('EFECTIVO')) {
+            bancoIdStr = cuentasData.find((c: any) => c.codigo === '1101001')?.id.toString() || '';
+          } else if (b.includes('BANCAMIGA-9750')) {
+            bancoIdStr = cuentasData.find((c: any) => c.codigo === '1102005')?.id.toString() || '';
+          } else if (b.includes('BANCAMIGA')) {
+            bancoIdStr = cuentasData.find((c: any) => c.codigo === '1102001')?.id.toString() || '';
+          } else if (b.includes('BANESCO')) {
+            bancoIdStr = cuentasData.find((c: any) => c.codigo === '1102004')?.id.toString() || '';
+          } else if (b.includes('MERCANTIL')) {
+            bancoIdStr = cuentasData.find((c: any) => c.codigo === '1102002')?.id.toString() || '';
+          } else if (b.includes('VENEZUELA')) {
+            bancoIdStr = cuentasData.find((c: any) => c.codigo === '1102003')?.id.toString() || '';
+          } else if (b.includes('A.C.P.C.CH')) {
+            bancoIdStr = cuentasData.find((c: any) => c.codigo === '1102006')?.id.toString() || '';
+          }
         }
 
         setDescripcion(`Contabilización de ${data.tipo} Recibo #${data.recibo}${socioNombre}: ${concepto}${pagoStr}`);

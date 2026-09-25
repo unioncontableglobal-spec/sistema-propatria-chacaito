@@ -55,15 +55,25 @@ export async function POST(req: NextRequest) {
         const fp = t.formas_pago[0];
         pagoStr = ` (Vía: ${fp.tipo_pago}${fp.banco ? ` ${fp.banco}` : ''}${fp.referencia ? ` Ref: ${fp.referencia}` : ''})`;
         
-        // Mapeo simple de bancos
+        // Mapeo inteligente con prioridad a EFECTIVO
+        const tipoPago = fp.tipo_pago.toUpperCase();
         const b = (fp.banco || '').toUpperCase();
-        if (b.includes('BANCAMIGA-9750')) bancoId = mapCuentas.get('1102005');
-        else if (b.includes('BANCAMIGA')) bancoId = mapCuentas.get('1102001');
-        else if (b.includes('BANESCO')) bancoId = mapCuentas.get('1102004');
-        else if (b.includes('MERCANTIL')) bancoId = mapCuentas.get('1102002');
-        else if (b.includes('VENEZUELA')) bancoId = mapCuentas.get('1102003');
-        else if (b.includes('A.C.P.C.CH')) bancoId = mapCuentas.get('1102006'); // Banco A.C.P.C.CH
-        else if (fp.tipo_pago.toUpperCase().includes('EFECTIVO')) bancoId = mapCuentas.get('1101001'); // Caja Principal
+        
+        if (tipoPago.includes('EFECTIVO')) {
+          bancoId = mapCuentas.get('1101001'); // Caja Principal (Efectivo y Equivalentes)
+        } else if (b.includes('BANCAMIGA-9750')) {
+          bancoId = mapCuentas.get('1102005');
+        } else if (b.includes('BANCAMIGA')) {
+          bancoId = mapCuentas.get('1102001');
+        } else if (b.includes('BANESCO')) {
+          bancoId = mapCuentas.get('1102004');
+        } else if (b.includes('MERCANTIL')) {
+          bancoId = mapCuentas.get('1102002');
+        } else if (b.includes('VENEZUELA')) {
+          bancoId = mapCuentas.get('1102003');
+        } else if (b.includes('A.C.P.C.CH')) {
+          bancoId = mapCuentas.get('1102006');
+        }
       }
 
       const descripcion = `Contabilización automática de ${t.tipo} Recibo #${t.recibo}${socioNombre}: ${concepto}${pagoStr}`;
