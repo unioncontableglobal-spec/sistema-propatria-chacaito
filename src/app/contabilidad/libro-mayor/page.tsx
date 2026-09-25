@@ -6,17 +6,15 @@ import { format, endOfMonth, isBefore, isSameMonth } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { useAppStore } from '@/store/useAppStore';
 
+import { selectorToYyyyMm, labelFiltro } from '@/lib/mesUtils';
+
 export default function LibroMayorPage() {
   const [datosMayor, setDatosMayor] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   // Sincronización con el filtro global de la app
-  const { filtroMesGlobal, setFiltroMesGlobal } = useAppStore();
-  
-  // Si el filtro global es "HISTÓRICO TOTAL", usamos el mes actual por defecto
-  const isHistorico = filtroMesGlobal === 'HISTÓRICO TOTAL';
-  const currentMonth = format(new Date(), 'yyyy-MM');
-  const mesFiltro = isHistorico ? currentMonth : filtroMesGlobal;
+  const { filtroMesGlobal } = useAppStore();
+  const mesFiltro = selectorToYyyyMm(filtroMesGlobal);
 
   useEffect(() => {
     fetch('/api/asientos')
@@ -102,17 +100,11 @@ export default function LibroMayorPage() {
           </div>
           <div>
             <h1 className="text-2xl font-bold text-[#0F172A]">Libro Mayor</h1>
-            <p className="text-gray-500">Saldos y Movimientos por Cuenta</p>
+            <p className="text-gray-500">Saldos y Movimientos por Cuenta ({labelFiltro(filtroMesGlobal)})</p>
           </div>
         </div>
         
         <div className="flex items-center gap-3 w-full md:w-auto">
-          <input 
-            type="month" 
-            value={mesFiltro}
-            onChange={(e) => setFiltroMesGlobal(e.target.value)}
-            className="border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-[#3B82F6] outline-none font-medium text-gray-700"
-          />
           <button className="flex items-center gap-2 bg-[#0F172A] hover:bg-slate-800 text-white px-4 py-2.5 rounded-lg font-medium transition-colors">
             <Download size={18} />
             Exportar

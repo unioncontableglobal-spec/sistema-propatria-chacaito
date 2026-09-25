@@ -60,6 +60,18 @@ export function codigoPubToSelector(codigo: string): string {
 }
 
 /**
+ * Convierte el valor del selector ("ENERO") a formato de fecha ISO ("2026-01")
+ * usado por inputs type="month" y las APIs contables.
+ */
+export function selectorToYyyyMm(filtroMes: string): string {
+  if (filtroMes === 'HISTÓRICO TOTAL') return '2026-01'; // Default
+  const codigo = selectorToCodigoPub(filtroMes);
+  if (!codigo) return '2026-01';
+  const [mm, yyyy] = codigo.split('-');
+  return `${yyyy}-${mm}`;
+}
+
+/**
  * Normaliza cualquier string de mes a MAYÚSCULAS para comparaciones.
  * Maneja: "Enero", "ENERO", "enero" → "ENERO"
  */
