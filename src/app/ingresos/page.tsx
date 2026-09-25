@@ -252,27 +252,27 @@ export default function IngresosPage() {
           </div>
         </div>
 
-        <div className="bg-white border-l-4 border-emerald-500 rounded-2xl p-5 shadow-sm flex flex-col justify-between">
+        <div className="bg-white border-l-4 border-blue-600 rounded-2xl p-5 shadow-sm flex flex-col justify-between">
           <div>
             <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1">Ingresos Vía Banco</p>
-            <p className="text-2xl font-black text-emerald-600">{formatUsd(kpis.bancoUsd)}</p>
+            <p className="text-2xl font-black text-blue-600">{formatUsd(kpis.bancoUsd)}</p>
           </div>
           <div className="mt-2 pt-2 border-t border-gray-100 w-full">
             <div className="w-full bg-gray-100 rounded-full h-1.5 mb-1">
-              <div className="bg-emerald-500 h-1.5 rounded-full" style={{ width: `${kpis.totalUsd > 0 ? (kpis.bancoUsd / kpis.totalUsd) * 100 : 0}%` }}></div>
+              <div className="bg-blue-600 h-1.5 rounded-full" style={{ width: `${kpis.totalUsd > 0 ? (kpis.bancoUsd / kpis.totalUsd) * 100 : 0}%` }}></div>
             </div>
             <p className="text-[10px] text-gray-400 font-bold text-right">{kpis.totalUsd > 0 ? ((kpis.bancoUsd / kpis.totalUsd) * 100).toFixed(1) : 0}% del total</p>
           </div>
         </div>
 
-        <div className="bg-white border-l-4 border-amber-500 rounded-2xl p-5 shadow-sm flex flex-col justify-between">
+        <div className="bg-white border-l-4 border-yellow-400 rounded-2xl p-5 shadow-sm flex flex-col justify-between">
           <div>
             <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1">Ingresos Vía Efectivo</p>
-            <p className="text-2xl font-black text-amber-600">{formatUsd(kpis.efectivoUsd)}</p>
+            <p className="text-2xl font-black text-yellow-500">{formatUsd(kpis.efectivoUsd)}</p>
           </div>
           <div className="mt-2 pt-2 border-t border-gray-100 w-full">
             <div className="w-full bg-gray-100 rounded-full h-1.5 mb-1">
-              <div className="bg-amber-500 h-1.5 rounded-full" style={{ width: `${kpis.totalUsd > 0 ? (kpis.efectivoUsd / kpis.totalUsd) * 100 : 0}%` }}></div>
+              <div className="bg-yellow-400 h-1.5 rounded-full" style={{ width: `${kpis.totalUsd > 0 ? (kpis.efectivoUsd / kpis.totalUsd) * 100 : 0}%` }}></div>
             </div>
             <p className="text-[10px] text-gray-400 font-bold text-right">{kpis.totalUsd > 0 ? ((kpis.efectivoUsd / kpis.totalUsd) * 100).toFixed(1) : 0}% del total</p>
           </div>
@@ -326,7 +326,7 @@ export default function IngresosPage() {
                 </div>
                 <div className="w-full bg-gray-100 rounded-full h-2.5 overflow-hidden shadow-inner">
                   <div 
-                    className="h-full rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 transition-all duration-1000 ease-out" 
+                    className="h-full rounded-full bg-blue-600 transition-all duration-1000 ease-out" 
                     style={{ width: `${c.porcentaje}%` }}
                   />
                 </div>
@@ -340,32 +340,32 @@ export default function IngresosPage() {
         {/* COMPOSICIÓN DE EFECTO 1 USD */}
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
           <h3 className="text-sm font-black text-[#0A1128] uppercase tracking-wider mb-4 border-b border-gray-100 pb-3 flex items-center gap-2">
-            <svg className="text-indigo-500" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 2v20"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            <svg className="text-blue-600" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 2v20"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
             Auditoría de Conversión Cambiaria
           </h3>
           <div className="flex gap-4 items-center">
             <div className="flex-1">
               <p className="text-xs font-bold text-gray-500 mb-1">Divisas Reales (Convertidas/Cargadas)</p>
-              <p className="text-xl font-black text-indigo-700">{formatUsd(kpis.dolaresRealesUsd)}</p>
+              <p className="text-xl font-black text-blue-600">{formatUsd(kpis.dolaresRealesUsd)}</p>
               <p className="text-[10px] font-semibold text-gray-400 mt-1">{kpis.totalUsd > 0 ? ((kpis.dolaresRealesUsd / kpis.totalUsd) * 100).toFixed(1) : 0}% de los ingresos</p>
             </div>
             <div className="w-px h-12 bg-gray-200"></div>
             <div className="flex-1">
               <p className="text-xs font-bold text-gray-500 mb-1">Efecto 1 USD (Se quedó en Bs)</p>
-              <p className="text-xl font-black text-rose-600">{formatUsd(kpis.efecto1UsdConvertido)} <span className="text-xs font-medium text-rose-400 font-normal">eq. USD</span></p>
+              <p className="text-xl font-black text-yellow-500">{formatUsd(kpis.efecto1UsdConvertido)} <span className="text-xs font-medium text-yellow-500 font-normal">eq. USD</span></p>
               <p className="text-[10px] font-semibold text-gray-400 mt-1">Bs. {kpis.efecto1UsdBs.toLocaleString('es-VE', {minimumFractionDigits: 2})}</p>
             </div>
           </div>
           <div className="w-full bg-gray-100 rounded-full h-2 mt-4 flex overflow-hidden">
-            <div className="bg-indigo-500 h-2" style={{ width: `${kpis.totalUsd > 0 ? (kpis.dolaresRealesUsd / kpis.totalUsd) * 100 : 0}%` }}></div>
-            <div className="bg-rose-500 h-2" style={{ width: `${kpis.totalUsd > 0 ? (kpis.efecto1UsdConvertido / kpis.totalUsd) * 100 : 0}%` }}></div>
+            <div className="bg-blue-600 h-2" style={{ width: `${kpis.totalUsd > 0 ? (kpis.dolaresRealesUsd / kpis.totalUsd) * 100 : 0}%` }}></div>
+            <div className="bg-yellow-400 h-2" style={{ width: `${kpis.totalUsd > 0 ? (kpis.efecto1UsdConvertido / kpis.totalUsd) * 100 : 0}%` }}></div>
           </div>
         </div>
 
         {/* COMPOSICIÓN BANCARIA */}
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
           <h3 className="text-sm font-black text-[#0A1128] uppercase tracking-wider mb-4 border-b border-gray-100 pb-3 flex items-center gap-2">
-            <svg className="text-teal-500" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+            <svg className="text-blue-600" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
             Bancos Receptores Top 5
           </h3>
           {kpis.topBancos.length === 0 ? (
@@ -375,11 +375,11 @@ export default function IngresosPage() {
               {kpis.topBancos.map((b, idx) => (
                 <div key={idx} className="flex justify-between items-center">
                   <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-teal-400"></div>
+                    <div className="w-2 h-2 rounded-full bg-blue-600"></div>
                     <span className="text-xs font-bold text-gray-700">{b.banco}</span>
                   </div>
                   <div className="flex items-center gap-3">
-                    <span className="text-xs font-black text-teal-700">{formatUsd(b.monto)}</span>
+                    <span className="text-xs font-black text-blue-600">{formatUsd(b.monto)}</span>
                     <span className="text-[10px] font-bold text-gray-400 w-8 text-right">{kpis.bancoUsd > 0 ? ((b.monto / kpis.bancoUsd) * 100).toFixed(0) : 0}%</span>
                   </div>
                 </div>
