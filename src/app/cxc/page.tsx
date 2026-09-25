@@ -189,7 +189,7 @@ export default function CxcPage() {
 
   return (
     <>
-      <div className="p-6 bg-[#F8FAFC] min-h-screen print:hidden">
+      <div className="p-6 bg-[#F8FAFC] min-h-screen print-hide">
         <div className="flex justify-between items-center mb-6">
         <div>
           <h1 className="text-2xl font-black text-[#0A1128]">Auditoría CxC y Recibos</h1>
@@ -417,9 +417,10 @@ export default function CxcPage() {
           </table>
         </div>
       </div>
+    </div>
 
       {/* ================= PRINT ONLY REPORT ================= */}
-      <div className="hidden print:block print-only text-black bg-white" style={{ width: '8.5in', minHeight: '11in', margin: '0 auto', padding: '0.5in', boxSizing: 'border-box', fontFamily: 'Arial, sans-serif' }}>
+      <div className="print-show-block text-black bg-white" style={{ width: '8.5in', minHeight: '11in', margin: '0 auto', padding: '0.5in', boxSizing: 'border-box', fontFamily: 'Arial, sans-serif' }}>
         
         {/* Membrete Formal */}
         <div className="text-center mb-6">

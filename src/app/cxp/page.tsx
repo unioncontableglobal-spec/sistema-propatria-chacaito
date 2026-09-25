@@ -447,6 +447,7 @@ export default function CxpPage() {
           </table>
         </div>
       </div>
+    </div>
 
       {/* ================= PRINT ONLY REPORT ================= */}
       <div className="hidden print:block print-only text-black bg-white" style={{ width: '8.5in', minHeight: '11in', margin: '0 auto', padding: '0.5in', boxSizing: 'border-box', fontFamily: 'Arial, sans-serif' }}>

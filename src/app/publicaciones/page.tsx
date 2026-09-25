@@ -819,6 +819,7 @@ export default function PublicacionesPage() {
                 })}
               </div>
             ) : (
+              <p className="text-sm text-gray-500">No hay publicaciones previas.</p>
             )}
           </div>
 

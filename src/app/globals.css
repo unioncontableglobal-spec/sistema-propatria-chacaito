@@ -345,7 +345,15 @@ ul {
   }
 
   /* No print class */
-  .no-print {
+  .no-print, .print-hide {
     display: none !important;
   }
+
+  .print-show-block {
+    display: block !important;
+  }
+}
+
+.print-show-block {
+  display: none;
 }
