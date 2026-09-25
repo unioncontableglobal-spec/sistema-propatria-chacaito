@@ -25,38 +25,68 @@ export default function NuevoAsientoPage() {
   const [transaccionData, setTransaccionData] = useState<any>(null);
 
   useEffect(() => {
-    fetch('/api/cuentas')
-      .then(res => res.json())
-      .then(data => {
-        if (!data.error) setCuentas(data);
-      })
-      .catch(err => console.error(err));
+    Promise.all([
+      fetch('/api/cuentas').then(res => res.json()),
+      transaccionId ? fetch(`/api/transacciones/${transaccionId}`).then(res => res.json()) : Promise.resolve(null)
+    ]).then(([cuentasData, data]) => {
+      if (!cuentasData.error) setCuentas(cuentasData);
+      
+      if (data && !data.error) {
+        setTransaccionData(data);
+        setFecha(data.fecha.split('T')[0]);
+        const socioNombre = data.socio ? ` - ${data.socio.nombre_apellido}` : '';
+        const concepto = data.codigo_concepto || data.clasificacion || data.detalle || '';
+        let pagoStr = '';
+        
+        // --- LÓGICA PREDICTIVA ---
+        let bancoIdStr = '';
+        if (data.formas_pago && data.formas_pago.length > 0) {
+          const f = data.formas_pago[0];
+          pagoStr = ` (Vía: ${f.tipo_pago}${f.banco ? ` ${f.banco}` : ''}${f.referencia ? ` Ref: ${f.referencia}` : ''})`;
+          
+          const b = (f.banco || '').toUpperCase();
+          if (b.includes('BANCAMIGA-9750')) bancoIdStr = cuentasData.find((c: any) => c.codigo === '1102005')?.id.toString() || '';
+          else if (b.includes('BANCAMIGA')) bancoIdStr = cuentasData.find((c: any) => c.codigo === '1102001')?.id.toString() || '';
+          else if (b.includes('BANESCO')) bancoIdStr = cuentasData.find((c: any) => c.codigo === '1102004')?.id.toString() || '';
+          else if (b.includes('MERCANTIL')) bancoIdStr = cuentasData.find((c: any) => c.codigo === '1102002')?.id.toString() || '';
+          else if (b.includes('VENEZUELA')) bancoIdStr = cuentasData.find((c: any) => c.codigo === '1102003')?.id.toString() || '';
+          else if (b.includes('A.C.P.C.CH')) bancoIdStr = cuentasData.find((c: any) => c.codigo === '1102006')?.id.toString() || '';
+          else if (f.tipo_pago.toUpperCase().includes('EFECTIVO')) bancoIdStr = cuentasData.find((c: any) => c.codigo === '1101001')?.id.toString() || '';
+        }
 
-    if (transaccionId) {
-      fetch(`/api/transacciones/${transaccionId}`)
-        .then(res => res.json())
-        .then(data => {
-          if (!data.error) {
-            setTransaccionData(data);
-            setFecha(data.fecha.split('T')[0]);
-            const socioNombre = data.socio ? ` - ${data.socio.nombre_apellido}` : '';
-            const concepto = data.codigo_concepto || data.clasificacion || data.detalle || '';
-            let pagoStr = '';
-            if (data.formas_pago && data.formas_pago.length > 0) {
-              const f = data.formas_pago[0];
-              pagoStr = ` (Vía: ${f.tipo_pago}${f.banco ? ` ${f.banco}` : ''}${f.referencia ? ` Ref: ${f.referencia}` : ''})`;
-            }
-            setDescripcion(`Contabilización de ${data.tipo} Recibo #${data.recibo}${socioNombre}: ${concepto}${pagoStr}`);
-            
-            // Auto-fill montos
-            setDetalles([
-              { id: 1, cuentaId: '', debe: data.tipo === 'EGRESO' ? String(data.monto_bs) : '', haber: data.tipo === 'INGRESO' ? String(data.monto_bs) : '' },
-              { id: 2, cuentaId: '', debe: data.tipo === 'INGRESO' ? String(data.monto_bs) : '', haber: data.tipo === 'EGRESO' ? String(data.monto_bs) : '' }
-            ]);
-          }
-        })
-        .catch(err => console.error(err));
-    }
+        setDescripcion(`Contabilización de ${data.tipo} Recibo #${data.recibo}${socioNombre}: ${concepto}${pagoStr}`);
+        
+        // Determinar cuentas predictivas
+        const DEFAULT_CAJA = cuentasData.find((c: any) => c.codigo === '1101001')?.id.toString() || '';
+        const INGRESO_FINANZAS = cuentasData.find((c: any) => c.codigo === '4102002')?.id.toString() || '';
+        const INGRESO_SOSTENIMIENTO = cuentasData.find((c: any) => c.codigo === '4102003')?.id.toString() || '';
+        const GASTO_DEFAULT = cuentasData.find((c: any) => c.codigo === '6106009')?.id.toString() || '';
+        const GASTO_PERSONAL = cuentasData.find((c: any) => c.codigo === '6106005')?.id.toString() || '';
+        const GASTO_BANCARIO = cuentasData.find((c: any) => c.codigo === '6106006')?.id.toString() || '';
+
+        let cDebe = '';
+        let cHaber = '';
+        const classUpper = (data.clasificacion || '').toUpperCase();
+        const concUpper = (data.codigo_concepto || '').toUpperCase();
+
+        if (data.tipo === 'INGRESO') {
+          cDebe = bancoIdStr || DEFAULT_CAJA;
+          if (classUpper.includes('FINANZAS') || concUpper.includes('FINANZAS')) cHaber = INGRESO_FINANZAS;
+          else cHaber = INGRESO_SOSTENIMIENTO;
+        } else {
+          cHaber = bancoIdStr || DEFAULT_CAJA;
+          if (classUpper.includes('SUELDO') || classUpper.includes('PERSONAL') || classUpper.includes('HONORARIO')) cDebe = GASTO_PERSONAL;
+          else if (classUpper.includes('BANCO') || classUpper.includes('COMISION')) cDebe = GASTO_BANCARIO;
+          else cDebe = GASTO_DEFAULT;
+        }
+
+        // Auto-fill montos y cuentas
+        setDetalles([
+          { id: 1, cuentaId: cDebe, debe: data.tipo === 'EGRESO' ? String(data.monto_bs) : String(data.monto_bs), haber: '' },
+          { id: 2, cuentaId: cHaber, debe: '', haber: data.tipo === 'INGRESO' ? String(data.monto_bs) : String(data.monto_bs) }
+        ]);
+      }
+    }).catch(err => console.error(err));
   }, [transaccionId]);
 
   const totalDebe = detalles.reduce((acc, curr) => acc + (Number(curr.debe) || 0), 0);
