@@ -297,7 +297,7 @@ export default function EgresosPage() {
           </span>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
+        <div className="flex flex-col gap-5">
           {kpis.conceptosDetalle.length === 0 ? (
             <p className="text-sm text-gray-500 col-span-2">No hay categorías registradas en este período.</p>
           ) : (
