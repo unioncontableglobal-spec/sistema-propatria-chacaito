@@ -65,8 +65,8 @@ export async function POST(req: NextRequest) {
 
       const descripcion = `Contabilización automática de ${t.tipo} Recibo #${t.recibo}${socioNombre}: ${concepto}${pagoStr}`;
 
-      let cuentaDebe = '';
-      let cuentaHaber = '';
+      let cuentaDebe: number | undefined;
+      let cuentaHaber: number | undefined;
 
       if (t.tipo === 'INGRESO') {
         cuentaDebe = bancoId || DEFAULT_CAJA;
@@ -80,19 +80,20 @@ export async function POST(req: NextRequest) {
         console.warn('Saltando transaccion por falta de cuenta', t.id);
         continue;
       }
+      
+      // Auto-generar número de asiento temporal (si no usamos autoincrement directamente)
+      const numero = Date.now() + count; 
 
       // Crear el asiento
-      const asiento = await prisma.asiento.create({
+      const asiento = await prisma.asientoContable.create({
         data: {
+          numero,
           fecha: t.fecha,
           descripcion,
-          referencia: `Recibo #${t.recibo}`,
-          origenTipo: t.tipo,
-          origenId: String(t.id),
           detalles: {
             create: [
-              { cuentaId: cuentaDebe, debeBs: t.monto_bs, haberBs: 0 },
-              { cuentaId: cuentaHaber, debeBs: 0, haberBs: t.monto_bs }
+              { cuentaId: cuentaDebe, debe: t.monto_bs, haber: 0 },
+              { cuentaId: cuentaHaber, debe: 0, haber: t.monto_bs }
             ]
           }
         }
