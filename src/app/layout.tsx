@@ -31,6 +31,7 @@ const geistMono = Geist_Mono({
 
 import GlobalLoader from "@/components/GlobalLoader";
 import GlobalMonthSelector from "@/components/layout/GlobalMonthSelector";
+import AIAssistant from "@/components/AIAssistant";
 
 export const metadata: Metadata = {
   title: "Unión Contable Global",
@@ -53,6 +54,7 @@ export default async function RootLayout({
             <Sidebar initialRole={initialRole} />
             <main className="main-content">
               {children}
+              <AIAssistant />
             </main>
           </div>
         </GlobalLoader>
