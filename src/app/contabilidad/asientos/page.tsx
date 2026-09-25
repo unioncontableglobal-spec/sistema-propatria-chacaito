@@ -44,7 +44,7 @@ export default function AsientosContablesPage() {
   };
 
   return (
-    <div className="p-6 max-w-6xl mx-auto">
+    <div className="p-4 md:p-6 max-w-7xl mx-auto">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
         <div className="flex items-center gap-3">
           <div className="bg-blue-100 p-3 rounded-lg text-[#3B82F6]">
@@ -103,13 +103,13 @@ export default function AsientosContablesPage() {
             <table className="w-full text-sm text-left">
               <thead className="bg-[#0F172A] text-white">
                 <tr>
-                  <th className="px-6 py-4 font-semibold w-32">Fecha</th>
-                  <th className="px-6 py-4 font-semibold w-24">Recibo</th>
-                  <th className="px-6 py-4 font-semibold w-32 text-center">Tipo</th>
-                  <th className="px-6 py-4 font-semibold">Concepto</th>
-                  <th className="px-6 py-4 font-semibold text-right">Monto (Bs)</th>
-                  <th className="px-6 py-4 font-semibold text-center w-36">Estado</th>
-                  <th className="px-6 py-4 font-semibold text-center w-32">Acción</th>
+                  <th className="px-4 py-3 font-semibold whitespace-nowrap">Fecha</th>
+                  <th className="px-4 py-3 font-semibold whitespace-nowrap">Recibo</th>
+                  <th className="px-4 py-3 font-semibold text-center whitespace-nowrap">Tipo</th>
+                  <th className="px-4 py-3 font-semibold">Concepto</th>
+                  <th className="px-4 py-3 font-semibold text-right whitespace-nowrap">Monto (Bs)</th>
+                  <th className="px-4 py-3 font-semibold text-center whitespace-nowrap">Estado</th>
+                  <th className="px-4 py-3 font-semibold text-center whitespace-nowrap">Acción</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
@@ -118,19 +118,19 @@ export default function AsientosContablesPage() {
                   
                   return (
                     <tr key={t.id} className={`transition-colors ${isContabilizado ? 'bg-gray-50/50 opacity-60' : 'hover:bg-blue-50/30'}`}>
-                      <td className="px-6 py-4 text-gray-600">{format(new Date(t.fecha), 'dd/MM/yyyy')}</td>
-                      <td className="px-6 py-4 font-bold text-gray-700">#{t.recibo}</td>
-                      <td className="px-6 py-4 text-center">
-                        <span className={`px-2 py-1 rounded text-xs font-bold ${t.tipo === 'INGRESO' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                      <td className="px-4 py-3 text-gray-600 whitespace-nowrap">{format(new Date(t.fecha), 'dd/MM/yyyy')}</td>
+                      <td className="px-4 py-3 font-bold text-gray-700 whitespace-nowrap">#{t.recibo}</td>
+                      <td className="px-4 py-3 text-center whitespace-nowrap">
+                        <span className={`px-2 py-1 rounded text-[10px] font-bold ${t.tipo === 'INGRESO' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
                           {t.tipo}
                         </span>
                       </td>
-                      <td className="px-6 py-4 text-gray-800">
-                        <div className="font-medium truncate max-w-xs">{t.codigo_concepto || t.clasificacion || 'Sin concepto'}</div>
-                        <div className="text-xs text-gray-500 truncate max-w-xs">{t.socio ? t.socio.nombre_apellido : t.detalle}</div>
+                      <td className="px-4 py-3 text-gray-800">
+                        <div className="font-medium truncate max-w-[200px] md:max-w-xs">{t.codigo_concepto || t.clasificacion || 'Sin concepto'}</div>
+                        <div className="text-xs text-gray-500 truncate max-w-[200px] md:max-w-xs">{t.socio ? t.socio.nombre_apellido : t.detalle}</div>
                       </td>
-                      <td className="px-6 py-4 text-right font-bold text-[#0F172A]">{formatCurrency(t.monto_bs)}</td>
-                      <td className="px-6 py-4 text-center">
+                      <td className="px-4 py-3 text-right font-bold text-[#0F172A] whitespace-nowrap">{formatCurrency(t.monto_bs)}</td>
+                      <td className="px-4 py-3 text-center whitespace-nowrap">
                         {isContabilizado ? (
                           <span className="flex items-center justify-center gap-1 text-green-600 text-xs font-bold">
                             <CheckCircle size={14} /> CONCILIADO
@@ -141,20 +141,20 @@ export default function AsientosContablesPage() {
                           </span>
                         )}
                       </td>
-                      <td className="px-6 py-4 text-center">
+                      <td className="px-4 py-3 text-center whitespace-nowrap">
                         {isContabilizado ? (
                           <Link 
                             href="/contabilidad/libro-diario" 
-                            className="text-[#3B82F6] hover:underline text-xs font-semibold"
+                            className="text-[#3B82F6] hover:underline text-xs font-semibold whitespace-nowrap"
                           >
-                            Ver Asiento #{t.asientoId} en Diario
+                            Ver en Diario
                           </Link>
                         ) : (
                           <button
                             onClick={() => router.push(`/contabilidad/asientos/nuevo?transaccionId=${t.id}`)}
-                            className="flex items-center justify-center gap-1 w-full bg-[#0F172A] hover:bg-slate-800 text-white py-1.5 px-3 rounded text-xs font-bold transition-colors shadow-sm"
+                            className="flex items-center justify-center gap-1 w-full bg-[#0F172A] hover:bg-slate-800 text-white py-1.5 px-2 rounded text-xs font-bold transition-colors shadow-sm whitespace-nowrap"
                           >
-                            Hacer Asiento <ArrowRight size={14} />
+                            Asentar <ArrowRight size={14} />
                           </button>
                         )}
                       </td>
