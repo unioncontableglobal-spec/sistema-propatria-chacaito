@@ -41,7 +41,12 @@ export default function NuevoAsientoPage() {
             setFecha(data.fecha.split('T')[0]);
             const socioNombre = data.socio ? ` - ${data.socio.nombre_apellido}` : '';
             const concepto = data.codigo_concepto || data.clasificacion || data.detalle || '';
-            setDescripcion(`Contabilización de ${data.tipo} Recibo #${data.recibo} ${socioNombre}: ${concepto}`);
+            let pagoStr = '';
+            if (data.formas_pago && data.formas_pago.length > 0) {
+              const f = data.formas_pago[0];
+              pagoStr = ` (Vía: ${f.tipo_pago}${f.banco ? ` ${f.banco}` : ''}${f.referencia ? ` Ref: ${f.referencia}` : ''})`;
+            }
+            setDescripcion(`Contabilización de ${data.tipo} Recibo #${data.recibo}${socioNombre}: ${concepto}${pagoStr}`);
             
             // Auto-fill montos
             setDetalles([
