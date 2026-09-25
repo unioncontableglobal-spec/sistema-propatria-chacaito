@@ -16,5 +16,8 @@ Este documento define la arquitectura de despliegue del proyecto y las reglas ob
 
 2. **Base de Datos (Turso)**:
    - La base de datos es SQLite pero está alojada en **Turso** (remoto).
+   - **DIFERENCIACIÓN DE ENTORNOS:** Los datos registrados localmente en el archivo `prisma/dev.db` NO existen en producción.
+   - Si el usuario dice que "sí hay datos" pero en Vercel no aparecen, indícale inmediatamente que debe replicar los datos en Turso o ejecutar los registros en el sistema de producción.
+   - Cualquier prueba de concepto o automatización debe contemplar si los datos están en el entorno correcto.
    - Para interactuar con la base de datos vía scripts interactivos (como validaciones rápidas en Node.js), siempre se deben usar las variables de entorno remotas.
    - Cualquier script de Node.js que cree el asistente para corregir, auditar o migrar datos *debe* incluir en su cabecera `require('dotenv').config()` para poder leer `TURSO_DATABASE_URL` y `TURSO_AUTH_TOKEN` exitosamente de los archivos `.env` locales.
