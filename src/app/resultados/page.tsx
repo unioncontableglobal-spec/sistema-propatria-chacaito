@@ -32,11 +32,13 @@ export default function ResultadosPage() {
   const fetchTransacciones = async () => {
     setLoading(true);
     try {
-      // Use the exact same endpoint as ingresos and egresos for consistency
-      const res = await fetch('/api/recibos/historial');
-      if (!res.ok) throw new Error('Error al cargar datos');
-      const data = await res.json();
-      setTransacciones(data.data || []);
+      const [resIngresos, resEgresos] = await Promise.all([
+        fetch('/api/recibos/historial?tipo=INGRESO'),
+        fetch('/api/recibos/historial?tipo=EGRESO')
+      ]);
+      const dataIngresos = await resIngresos.json();
+      const dataEgresos = await resEgresos.json();
+      setTransacciones([...(dataIngresos.data || []), ...(dataEgresos.data || [])]);
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -67,7 +69,7 @@ export default function ResultadosPage() {
       return result;
     }
 
-    if (!filtroMesGlobal || filtroMesGlobal === 'Todos') return result;
+    if (!filtroMesGlobal || filtroMesGlobal === 'Todos' || filtroMesGlobal === 'HISTÓRICO TOTAL') return result;
     return result.filter(t => t.mes === filtroMesGlobal);
   }, [transacciones, filtroMesGlobal, fechaDesde, fechaHasta]);
 
