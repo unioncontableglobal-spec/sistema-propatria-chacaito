@@ -62,9 +62,7 @@ export default function CxpPage() {
 
       // 3. Categoría (Ayudas, Vidrios, Montepío, Remanentes, etc.)
       if (filtroCategoria !== 'Todas') {
-        if (filtroCategoria === 'Egresos CxP (Asociados)' && !['EGRESO_CXP', 'PAGO DE AYUDAS', 'PAGO VIDRIOS', 'PAGO MONTEPIO'].includes(tx.clasificacion)) return false;
-        if (filtroCategoria === 'Otros Egresos' && ['EGRESO_CXP', 'PAGO DE AYUDAS', 'PAGO VIDRIOS', 'PAGO MONTEPIO'].includes(tx.clasificacion)) return false;
-        if (filtroCategoria !== 'Egresos CxP (Asociados)' && filtroCategoria !== 'Otros Egresos' && tx.clasificacion !== filtroCategoria) return false;
+        if (tx.clasificacion !== filtroCategoria) return false;
       }
 
       // 4. Forma de Pago
@@ -209,11 +207,9 @@ export default function CxpPage() {
           <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Categoría</label>
           <select value={filtroCategoria} onChange={e => setFiltroCategoria(e.target.value)} className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 bg-gray-50">
             <option value="Todas">Todas</option>
-            <option value="Egresos CxP (Asociados)">Solo Egresos Asociados</option>
             <option value="PAGO DE AYUDAS">Solo Ayudas</option>
             <option value="PAGO MONTEPIO">Solo Montepíos</option>
             <option value="PAGO VIDRIOS">Solo Vidrios</option>
-            <option value="Otros Egresos">Otros Egresos / Proveedores</option>
           </select>
         </div>
         <div className="flex-1 min-w-[150px]">

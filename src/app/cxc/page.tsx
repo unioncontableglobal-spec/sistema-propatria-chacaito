@@ -62,9 +62,7 @@ export default function CxcPage() {
 
       // 3. Categoría
       if (filtroCategoria !== 'Todas') {
-        if (filtroCategoria === 'Recibos de Publicaciones' && !['INGRESO_CXP', 'FINANZAS', 'VIDRIO', 'MONTEPIOS', 'GRUA', 'CxC 2025'].includes(tx.clasificacion)) return false;
-        if (filtroCategoria === 'Otros Ingresos' && ['INGRESO_CXP', 'FINANZAS', 'VIDRIO', 'MONTEPIOS', 'GRUA', 'CxC 2025'].includes(tx.clasificacion)) return false;
-        if (filtroCategoria !== 'Recibos de Publicaciones' && filtroCategoria !== 'Otros Ingresos' && tx.clasificacion !== filtroCategoria) return false;
+        if (tx.clasificacion !== filtroCategoria) return false;
       }
 
       // 4. Forma de Pago
@@ -208,11 +206,9 @@ export default function CxcPage() {
           <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Categoría</label>
           <select value={filtroCategoria} onChange={e => setFiltroCategoria(e.target.value)} className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 bg-gray-50">
             <option value="Todas">Todas</option>
-            <option value="Recibos de Publicaciones">Conceptos de Publicación</option>
             <option value="FINANZAS">Solo Finanzas</option>
             <option value="MONTEPIOS">Solo Montepíos</option>
             <option value="VIDRIO">Solo Vidrios</option>
-            <option value="Otros Ingresos">Otros Ingresos (No Publicación)</option>
           </select>
         </div>
         <div className="flex-1 min-w-[150px]">
