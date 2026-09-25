@@ -8,6 +8,9 @@ Este documento define la arquitectura de despliegue del proyecto y las reglas ob
 
 1. **Frontend / Aplicación (Vercel)**:
    - Este sistema está desplegado en **Vercel**.
+   - **NUNCA** proporciones enlaces a `localhost:3000` al usuario para probar nuevas vistas o funcionalidades.
+   - Asume siempre que el usuario está probando el sistema en su URL de producción en Vercel.
+   - Cuando indiques dónde ver una nueva pantalla, simplemente dile: "Ve a la ruta `/tu/ruta` en el sistema", ya que él conoce su dominio principal.
    - Cualquier cambio en el código fuente (archivos locales) **debe ser subido al repositorio remoto (usando git commit y git push)** para que Vercel inicie el proceso de *build* y el usuario pueda ver los cambios en producción.
    - Si el usuario indica que "no ve los cambios", debes recordarle proactivamente que Vercel tarda un par de minutos en realizar el despliegue automático tras un push.
 
