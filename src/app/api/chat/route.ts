@@ -22,7 +22,7 @@ Tu trabajo es guiar a los administradores y tesoreros del sistema web en sus lab
 export async function POST(req: Request) {
   const { messages } = await req.json();
 
-  const result = streamText({
+  const result = await streamText({
     model: google('gemini-2.5-flash'),
     system: SYSTEM_PROMPT,
     messages,
