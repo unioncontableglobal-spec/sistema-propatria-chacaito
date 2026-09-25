@@ -33,10 +33,13 @@ export async function POST(req: NextRequest) {
     const cuentas = await prisma.cuentaContable.findMany();
     const mapCuentas = new Map(cuentas.map(c => [c.codigo, c.id]));
 
-    // Códigos por defecto si no están en el mapa
-    const DEFAULT_CAJA = mapCuentas.get('1101001');
-    const DEFAULT_INGRESO = mapCuentas.get('4101011'); // Otros Ingresos
-    const DEFAULT_EGRESO = mapCuentas.get('6104031'); // Otros Gastos de Operación
+    // Códigos por defecto basados en el Estado Financiero 2024 (PDF)
+    const DEFAULT_CAJA = mapCuentas.get('1101001'); // Caja Principal
+    const INGRESO_FINANZAS = mapCuentas.get('4102002'); // Aportes Socios Por Cuotas Ordinarias Finanzas
+    const INGRESO_SOSTENIMIENTO = mapCuentas.get('4102003'); // Aportes Socios Varios Para Sostenimiento Asociación
+    const GASTO_DEFAULT = mapCuentas.get('6106009'); // Gastos de Administración
+    const GASTO_PERSONAL = mapCuentas.get('6106005'); // Remuneraciones al Personal
+    const GASTO_BANCARIO = mapCuentas.get('6106006'); // Gastos Bancarios
 
     let count = 0;
 
@@ -65,15 +68,36 @@ export async function POST(req: NextRequest) {
 
       const descripcion = `Contabilización automática de ${t.tipo} Recibo #${t.recibo}${socioNombre}: ${concepto}${pagoStr}`;
 
+      // ----------------------------------------------------
+      // LÓGICA PREDICTIVA DE CUENTAS SEGÚN EL PDF 2024
+      // ----------------------------------------------------
       let cuentaDebe: number | undefined;
       let cuentaHaber: number | undefined;
+      const classUpper = (t.clasificacion || '').toUpperCase();
+      const concUpper = (t.codigo_concepto || '').toUpperCase();
 
       if (t.tipo === 'INGRESO') {
         cuentaDebe = bancoId || DEFAULT_CAJA;
-        cuentaHaber = DEFAULT_INGRESO;
+        
+        // Asignación predictiva de Ingresos
+        if (classUpper.includes('FINANZAS') || concUpper.includes('FINANZAS')) {
+          cuentaHaber = INGRESO_FINANZAS;
+        } else {
+          // Todo lo demás de ingresos (Cuotas especiales, mantenimiento, calcomanías, etc)
+          cuentaHaber = INGRESO_SOSTENIMIENTO;
+        }
+
       } else {
-        cuentaDebe = DEFAULT_EGRESO;
         cuentaHaber = bancoId || DEFAULT_CAJA;
+
+        // Asignación predictiva de Gastos
+        if (classUpper.includes('SUELDO') || classUpper.includes('PERSONAL') || classUpper.includes('HONORARIO')) {
+          cuentaDebe = GASTO_PERSONAL;
+        } else if (classUpper.includes('BANCO') || classUpper.includes('COMISION')) {
+          cuentaDebe = GASTO_BANCARIO;
+        } else {
+          cuentaDebe = GASTO_DEFAULT; // Gastos de Administración por defecto para todo lo demás
+        }
       }
 
       if (!cuentaDebe || !cuentaHaber) {
