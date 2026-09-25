@@ -16,7 +16,7 @@ type Transaccion = {
 };
 
 export default function ResultadosPage() {
-  const { globalMonth } = useAppStore();
+  const { filtroMesGlobal } = useAppStore();
   const [transacciones, setTransacciones] = useState<Transaccion[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -41,9 +41,9 @@ export default function ResultadosPage() {
 
   // Filtrado por mes seleccionado o histórico total
   const filteredData = useMemo(() => {
-    if (!globalMonth || globalMonth === 'Todos') return transacciones;
-    return transacciones.filter(t => t.mes === globalMonth);
-  }, [transacciones, globalMonth]);
+    if (!filtroMesGlobal || filtroMesGlobal === 'Todos') return transacciones;
+    return transacciones.filter(t => t.mes === filtroMesGlobal);
+  }, [transacciones, filtroMesGlobal]);
 
   // Cálculos de Utilidad
   const kpis = useMemo(() => {
@@ -149,7 +149,7 @@ export default function ResultadosPage() {
         <h1 className="text-2xl font-black text-[#0A1128] tracking-widest uppercase">Unión Contable Global</h1>
         <p className="text-sm font-bold text-gray-600">RIF: J-50714716-9</p>
         <h2 className="text-xl font-bold text-[#0A1128] mt-4 uppercase">Estado de Resultados (Ingresos vs Egresos)</h2>
-        <p className="text-sm text-gray-500 font-semibold mt-1">Período Auditado: {globalMonth || 'Histórico Total'}</p>
+        <p className="text-sm text-gray-500 font-semibold mt-1">Período Auditado: {filtroMesGlobal || 'Histórico Total'}</p>
       </div>
 
       {/* RESUMEN EJECUTIVO (KPIs) */}
