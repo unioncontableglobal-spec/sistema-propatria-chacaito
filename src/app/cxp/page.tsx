@@ -4,10 +4,10 @@ import { useState, useEffect, useMemo } from 'react';
 import { useAppStore } from '@/store/useAppStore';
 import { formatUsd } from '@/lib/formatters';
 import { Search, FileText } from 'lucide-react';
-import { transaccionMatchesMes, labelFiltro, codigoPubToSelector } from '@/lib/mesUtils';
+import { transaccionMatchesMes, labelFiltro, codigoPubToSelector, selectorToCodigoPub } from '@/lib/mesUtils';
 
 export default function CxpPage() {
-  const { publicaciones, filtroMesGlobal, setFiltroMesGlobal } = useAppStore();
+  const { data, publicaciones, filtroMesGlobal, setFiltroMesGlobal } = useAppStore();
   const [transacciones, setTransacciones] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -23,6 +23,17 @@ export default function CxpPage() {
   const mesesAprobados = publicaciones
     .filter(p => p.estado === 'APROBADO')
     .map(p => codigoPubToSelector(p.mes).toUpperCase());
+
+  const metaCxp = useMemo(() => {
+    if (!data?.cxpRaw) return 0;
+    const targetMes = filtroMesGlobal !== 'HISTÓRICO TOTAL' ? selectorToCodigoPub(filtroMesGlobal) : null;
+    let total = 0;
+    data.cxpRaw.forEach(cxp => {
+      if (targetMes && cxp.mes !== targetMes) return;
+      total += (cxp.total || cxp.monto || 0);
+    });
+    return total;
+  }, [data?.cxpRaw, filtroMesGlobal]);
 
   // Fetch de egresos
   const fetchEgresos = async () => {
@@ -254,12 +265,24 @@ export default function CxpPage() {
 
       {/* KPIs DE AUDITORIA PROFUNDA */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        <div className="bg-white border-l-4 border-red-500 rounded-2xl p-5 shadow-sm">
-          <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1">Egresos (USD Real)</p>
-          <p className="text-3xl font-black text-[#0A1128]">{formatUsd(kpis.totalUsd)}</p>
-          <div className="flex justify-between items-center mt-2 pt-2 border-t border-gray-100">
-            <span className="text-xs font-semibold text-gray-400">Total Bs. Histórico:</span>
-            <span className="text-xs font-bold text-slate-700">Bs. {kpis.totalBs.toLocaleString('es-VE', {minimumFractionDigits: 2})}</span>
+        <div className="bg-white border-l-4 border-red-500 rounded-2xl p-5 shadow-sm flex flex-col justify-between">
+          <div>
+            <div className="flex justify-between items-start mb-1">
+              <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Egresos (Pagado)</p>
+              <span className="text-[10px] font-bold text-red-500 bg-red-50 px-2 py-0.5 rounded-full">
+                Meta: {formatUsd(metaCxp)}
+              </span>
+            </div>
+            <p className="text-3xl font-black text-[#0A1128]">{formatUsd(kpis.totalUsd)}</p>
+          </div>
+          <div className="mt-2 pt-2 border-t border-gray-100 w-full">
+            <div className="w-full bg-gray-100 rounded-full h-1.5 mb-1">
+              <div className="bg-red-500 h-1.5 rounded-full" style={{ width: `${metaCxp > 0 ? Math.min((kpis.totalUsd / metaCxp) * 100, 100) : 0}%` }}></div>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-[10px] font-bold text-gray-400">Tot. Bs: {kpis.totalBs.toLocaleString('es-VE', {minimumFractionDigits: 2})}</span>
+              <p className="text-[10px] text-gray-500 font-bold text-right">{metaCxp > 0 ? ((kpis.totalUsd / metaCxp) * 100).toFixed(1) : 0}% pagado</p>
+            </div>
           </div>
         </div>
 
