@@ -123,33 +123,47 @@ export async function POST(req: NextRequest) {
         }
         
         const numero = startNumero + count; 
-
-      ops.push(prisma.asientoContable.create({
-        data: {
-          numero,
-          fecha: t.fecha,
-          descripcion,
-          detalles: {
-            create: [
-              { cuentaId: cuentaDebe, debe: t.monto_bs, haber: 0 },
-              { cuentaId: cuentaHaber, debe: 0, haber: t.monto_bs }
-            ]
-          }
-        }
-      }));
-
-      ops.push(prisma.transaccion.update({
-        where: { id: t.id },
-        data: { asientoId: numero }
-      }));
-      
-      count++;
+        
+        // En lugar de pushear operaciones asincronas sueltas,
+        // vamos a guardar la estructura de datos que necesitamos para el interactive transaction.
+        ops.push({ 
+          transaccion: t, 
+          cuentaDebe, 
+          cuentaHaber, 
+          numero, 
+          descripcion 
+        });
+        
+        count++;
     }
 
-    // Ejecutar en lotes para evitar Vercel Timeouts y Prisma locks
-    const chunkSize = 100; // 50 asientos + 50 actualizaciones por lote
+    // Ejecutar en lotes pequeños (transacciones interactivas) para poder obtener el ID autoincremental
+    const chunkSize = 50; 
     for (let i = 0; i < ops.length; i += chunkSize) {
-      await prisma.$transaction(ops.slice(i, i + chunkSize));
+      const chunk = ops.slice(i, i + chunkSize);
+      
+      await prisma.$transaction(async (tx) => {
+        for (const op of chunk) {
+          const asiento = await tx.asientoContable.create({
+            data: {
+              numero: op.numero,
+              fecha: op.transaccion.fecha,
+              descripcion: op.descripcion,
+              detalles: {
+                create: [
+                  { cuentaId: op.cuentaDebe, debe: op.transaccion.monto_bs, haber: 0 },
+                  { cuentaId: op.cuentaHaber, debe: 0, haber: op.transaccion.monto_bs }
+                ]
+              }
+            }
+          });
+
+          await tx.transaccion.update({
+            where: { id: op.transaccion.id },
+            data: { asientoId: asiento.id } // Usar asiento.id (Foreign Key correcto), no el numero
+          });
+        }
+      });
     }
 
     return NextResponse.json({ message: 'Procesamiento exitoso', count });
