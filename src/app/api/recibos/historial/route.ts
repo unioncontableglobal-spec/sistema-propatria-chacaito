@@ -77,6 +77,9 @@ export async function GET(req: NextRequest) {
       ];
     }
 
+    const limitParam = searchParams.get('limit');
+    const take = limitParam ? parseInt(limitParam) : 500;
+
     const transacciones = await prisma.transaccion.findMany({
       where: {
         ...whereClause,
@@ -108,7 +111,7 @@ export async function GET(req: NextRequest) {
       orderBy: {
         fecha: 'desc'
       },
-      take: 500 // ✅ Aumentado para auditorías completas
+      take
     });
 
     return NextResponse.json({ success: true, data: transacciones });
