@@ -29,8 +29,8 @@ export default function CxcPage() {
     setIsLoading(true);
     try {
       const url = filtroMesGlobal !== 'HISTÓRICO TOTAL' 
-        ? `/api/recibos/historial?tipo=INGRESO&mes=${filtroMesGlobal}` 
-        : `/api/recibos/historial?tipo=INGRESO`;
+        ? `/api/recibos/historial?tipo=INGRESO&clasificacion=INGRESO_CXP&mes=${filtroMesGlobal}` 
+        : `/api/recibos/historial?tipo=INGRESO&clasificacion=INGRESO_CXP`;
       const res = await fetch(url);
       const data = await res.json();
       if (data.success) {
