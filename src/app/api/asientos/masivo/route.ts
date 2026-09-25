@@ -42,6 +42,7 @@ export async function POST(req: NextRequest) {
     const GASTO_BANCARIO = mapCuentas.get('6106006'); // Gastos Bancarios
 
     let count = 0;
+    const ops: any[] = [];
 
     // Procesar cada uno
     for (const t of pendientes) {
@@ -115,11 +116,9 @@ export async function POST(req: NextRequest) {
         continue;
       }
       
-      // Auto-generar número de asiento temporal (si no usamos autoincrement directamente)
       const numero = Date.now() + count; 
 
-      // Crear el asiento
-      const asiento = await prisma.asientoContable.create({
+      ops.push(prisma.asientoContable.create({
         data: {
           numero,
           fecha: t.fecha,
@@ -131,15 +130,20 @@ export async function POST(req: NextRequest) {
             ]
           }
         }
-      });
+      }));
 
-      // Actualizar la transacción
-      await prisma.transaccion.update({
+      ops.push(prisma.transaccion.update({
         where: { id: t.id },
-        data: { asientoId: asiento.numero }
-      });
+        data: { asientoId: numero }
+      }));
       
       count++;
+    }
+
+    // Ejecutar en lotes para evitar Vercel Timeouts y Prisma locks
+    const chunkSize = 100; // 50 asientos + 50 actualizaciones por lote
+    for (let i = 0; i < ops.length; i += chunkSize) {
+      await prisma.$transaction(ops.slice(i, i + chunkSize));
     }
 
     return NextResponse.json({ message: 'Procesamiento exitoso', count });
