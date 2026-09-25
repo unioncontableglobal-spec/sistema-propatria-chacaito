@@ -293,29 +293,42 @@ export default function IngresosPage() {
       </div>
 
       {/* DETALLE DE CATEGORÍAS */}
-      <div className="mb-8">
-        <h3 className="text-sm font-black text-[#0A1128] uppercase tracking-wider mb-4 flex items-center gap-2">
-          <svg className="text-blue-500" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21.21 15.89A10 10 0 1 1 8 2.83M22 12A10 10 0 0 0 12 2v10z"/></svg>
-          Auditoría Detallada por Categorías
-        </h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+      <div className="mb-8 bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
+        <div className="flex items-center justify-between mb-6 border-b border-gray-100 pb-4">
+          <h3 className="text-sm font-black text-[#0A1128] uppercase tracking-wider flex items-center gap-2">
+            <svg className="text-blue-600" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21.21 15.89A10 10 0 1 1 8 2.83M22 12A10 10 0 0 0 12 2v10z"/></svg>
+            Desglose Analítico por Categorías
+          </h3>
+          <span className="text-xs font-bold text-gray-400 bg-gray-100 px-3 py-1 rounded-full">
+            {kpis.conceptosDetalle.length} Conceptos Registrados
+          </span>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
           {kpis.conceptosDetalle.length === 0 ? (
-            <p className="text-sm text-gray-500">No hay categorías registradas en este período.</p>
+            <p className="text-sm text-gray-500 col-span-2">No hay categorías registradas en este período.</p>
           ) : (
             kpis.conceptosDetalle.map((c, idx) => (
-              <div key={c.concepto} className="bg-white rounded-xl p-4 shadow-sm border border-gray-100 flex flex-col justify-between hover:shadow-md transition-shadow">
-                <div className="flex justify-between items-start mb-3">
-                  <h4 className="font-bold text-gray-700 text-xs uppercase pr-2 line-clamp-2">{c.concepto}</h4>
-                  <span className="bg-blue-50 text-blue-700 text-[10px] font-black px-2 py-1 rounded-md">
-                    #{idx + 1}
-                  </span>
-                </div>
-                <div>
-                  <p className="text-xl font-black text-[#0A1128] mb-2">{formatUsd(c.monto)}</p>
-                  <div className="w-full bg-gray-100 rounded-full h-1.5 mb-1">
-                    <div className="bg-blue-500 h-1.5 rounded-full" style={{ width: `${c.porcentaje}%` }}></div>
+              <div key={c.concepto} className="group flex flex-col gap-2 relative">
+                <div className="flex justify-between items-end">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-black text-blue-600 bg-blue-50 w-5 h-5 flex items-center justify-center rounded-sm">
+                      {idx + 1}
+                    </span>
+                    <span className="text-sm font-bold text-gray-700 uppercase tracking-wide truncate max-w-[180px]" title={c.concepto}>
+                      {c.concepto}
+                    </span>
                   </div>
-                  <p className="text-[10px] text-gray-400 font-bold text-right">{c.porcentaje.toFixed(1)}% del total</p>
+                  <div className="flex items-baseline gap-3">
+                    <span className="text-sm font-black text-[#0A1128]">{formatUsd(c.monto)}</span>
+                    <span className="text-xs text-gray-400 font-bold w-10 text-right">{c.porcentaje.toFixed(1)}%</span>
+                  </div>
+                </div>
+                <div className="w-full bg-gray-100 rounded-full h-2.5 overflow-hidden shadow-inner">
+                  <div 
+                    className="h-full rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 transition-all duration-1000 ease-out" 
+                    style={{ width: `${c.porcentaje}%` }}
+                  />
                 </div>
               </div>
             ))
