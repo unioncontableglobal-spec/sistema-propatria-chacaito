@@ -245,9 +245,10 @@ export default function PublicacionesPage() {
   };
 
   return (
-    <div className="p-6">
-      {/* Preview Modal */}
-      {isPreviewOpen && printMode !== 'NONE' && (
+    <>
+      <div className="p-6 print:hidden">
+        {/* Preview Modal */}
+        {isPreviewOpen && printMode !== 'NONE' && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 no-print">
           <div className="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in duration-200">
             {/* Header del Modal */}
@@ -289,16 +290,6 @@ export default function PublicacionesPage() {
           </div>
         </div>
       )}
-
-      {/* Capa de Impresión Real (Oculta en pantalla, visible al imprimir) */}
-      <div className="hidden print:block absolute top-0 left-0 w-full bg-white z-[9999]">
-        {printMode === 'CXC' && (
-          <PrintCartelCxC reglas={getReglasParaImprimir()} />
-        )}
-        {printMode === 'CXP' && (
-          <PrintListadoCxP mes={mes} eventos={eventos} sociosActivosCount={sociosActivosCount} />
-        )}
-      </div>
 
       <div className="mb-6 no-print">
         <h1 className="text-2xl font-bold text-[#0A1128]">Módulo de Publicaciones</h1>
@@ -828,10 +819,20 @@ export default function PublicacionesPage() {
                 })}
               </div>
             ) : (
-              <p className="text-sm text-gray-500">No hay publicaciones previas.</p>
             )}
           </div>
 
-    </div>
+      </div>
+
+      {/* Capa de Impresión Real (Oculta en pantalla, visible al imprimir) */}
+      <div className="hidden print:block absolute top-0 left-0 w-full bg-white z-[9999]">
+        {printMode === 'CXC' && (
+          <PrintCartelCxC reglas={getReglasParaImprimir()} />
+        )}
+        {printMode === 'CXP' && (
+          <PrintListadoCxP mes={mes} eventos={eventos} sociosActivosCount={sociosActivosCount} />
+        )}
+      </div>
+    </>
   );
 }

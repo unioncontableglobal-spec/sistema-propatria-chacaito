@@ -52,7 +52,7 @@ export default function Sidebar({ initialRole }: { initialRole: string | null })
   };
 
   return (
-    <aside className="sidebar flex flex-col justify-between h-screen sticky top-0 bg-[#0F172A] text-white overflow-hidden w-[280px] shrink-0 border-r border-[#1E293B]">
+    <aside className="sidebar flex flex-col justify-between h-screen sticky top-0 bg-[#0F172A] text-white overflow-hidden w-[280px] shrink-0 border-r border-[#1E293B] print:hidden">
       <div className="flex-1 overflow-y-auto">
         <div className="p-6 pb-4 border-b border-[#1E293B]">
           <h1 className="text-[14px] font-extrabold text-blue-400 tracking-wider">ASOC. CIVIL PROPATRIA CHACAITO</h1>

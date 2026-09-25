@@ -336,30 +336,12 @@ ul {
 @media print {
   @page {
     size: letter portrait;
-    margin: 0; /* Remove default browser margins */
+    margin: 0.5in;
   }
 
   body {
     background-color: white !important;
     color: black !important;
-    min-height: auto;
-  }
-
-  /* Hide everything by default in print */
-  body * {
-    visibility: hidden;
-  }
-
-  /* Show only print-only elements */
-  .print-only, .print-only * {
-    visibility: visible;
-  }
-
-  .print-only {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
   }
 
   /* No print class */

@@ -188,8 +188,9 @@ export default function CxcPage() {
   }, [filteredData]);
 
   return (
-    <div className="p-6 bg-[#F8FAFC] min-h-screen">
-      <div className="flex justify-between items-center mb-6">
+    <>
+      <div className="p-6 bg-[#F8FAFC] min-h-screen print:hidden">
+        <div className="flex justify-between items-center mb-6">
         <div>
           <h1 className="text-2xl font-black text-[#0A1128]">Auditoría CxC y Recibos</h1>
           <p className="text-sm text-gray-500 font-medium">Revisión detallada de ingresos por concepto, socio y forma de pago.</p>
@@ -415,7 +416,6 @@ export default function CxcPage() {
             </tbody>
           </table>
         </div>
-        </div>
       </div>
 
       {/* ================= PRINT ONLY REPORT ================= */}
@@ -484,6 +484,6 @@ export default function CxcPage() {
           <p className="mt-8 text-[10px] text-gray-400">Software desarrollado y diseñado por Leydi Zerpa</p>
         </div>
       </div>
-    </div>
+    </>
   );
 }
