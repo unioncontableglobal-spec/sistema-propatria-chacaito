@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { generarAsientoDesdeTransaccion } from '@/lib/contabilidad';
 
 export async function POST(req: NextRequest) {
   try {
@@ -48,10 +49,6 @@ export async function POST(req: NextRequest) {
     // Update CuentasPorCobrar if this is an INGRESO
     if (tipo === 'INGRESO' && socioId) {
       for (const concepto of conceptos) {
-        // Here we do a basic matching based on descriptions or codes
-        // If a specific debt is being paid, we can mark it as "PAGADA"
-        // This is a simplified logic. Adjust according to exact naming conventions.
-        
         let tipoPub = concepto.descripcion.toUpperCase();
         if (tipoPub.includes('FINANZAS')) tipoPub = 'FINANZAS';
         else if (tipoPub.includes('VIDRIO')) tipoPub = 'VIDRIOS';
@@ -62,13 +59,21 @@ export async function POST(req: NextRequest) {
             socioId: parseInt(socioId.toString(), 10),
             estado: 'PENDIENTE',
             tipo_publicacion: tipoPub
-            // Ideamente también filtrar por mes si aplica
           },
           data: {
             estado: 'PAGADA'
           }
         });
       }
+    }
+
+    // AUTOMATIZACIÓN CONTABLE: Generar el asiento automáticamente
+    try {
+      await generarAsientoDesdeTransaccion(transaccion.id);
+    } catch (contabilidadError) {
+      console.error('Error generando asiento contable:', contabilidadError);
+      // No bloqueamos la creación del recibo si falla el asiento, 
+      // pero se registra el error.
     }
 
     return NextResponse.json({ success: true, transaccion });
