@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { Inbox, CheckCircle, Clock, ArrowRight } from 'lucide-react';
+import { Inbox, CheckCircle, Clock, ArrowRight, Zap, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import Link from 'next/link';
@@ -14,12 +14,13 @@ export default function AsientosContablesPage() {
   const router = useRouter();
   const [transacciones, setTransacciones] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isProcessingMasivo, setIsProcessingMasivo] = useState(false);
   
   // Sincronización con el filtro global de la app
   const { filtroMesGlobal } = useAppStore();
   const mesFiltro = selectorToYyyyMm(filtroMesGlobal);
 
-  useEffect(() => {
+  const cargarTransacciones = () => {
     setIsLoading(true);
     fetch(`/api/transacciones/pendientes?mes=${mesFiltro}`)
       .then(res => res.json())
@@ -30,7 +31,34 @@ export default function AsientosContablesPage() {
       })
       .catch(err => console.error(err))
       .finally(() => setIsLoading(false));
+  };
+
+  useEffect(() => {
+    cargarTransacciones();
   }, [mesFiltro]);
+
+  const handleContabilizacionMasiva = async () => {
+    if (!confirm(`¿Estás seguro de contabilizar automáticamente los ${pendientes} recibos pendientes de este mes?`)) return;
+    
+    setIsProcessingMasivo(true);
+    try {
+      const res = await fetch('/api/asientos/masivo', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mes: mesFiltro })
+      });
+      const data = await res.json();
+      
+      if (!res.ok) throw new Error(data.error || 'Error al procesar');
+      
+      alert(`¡Éxito! Se generaron ${data.count} asientos automáticamente.`);
+      cargarTransacciones(); // recargar la tabla
+    } catch (err: any) {
+      alert(`Error: ${err.message}`);
+    } finally {
+      setIsProcessingMasivo(false);
+    }
+  };
 
   const totalRecibos = transacciones.length;
   const contabilizados = transacciones.filter(t => t.asientoId !== null).length;
@@ -55,6 +83,19 @@ export default function AsientosContablesPage() {
             <p className="text-gray-500">Auditoría contable y generación de asientos ({labelFiltro(filtroMesGlobal)})</p>
           </div>
         </div>
+        {pendientes > 0 && (
+          <button 
+            onClick={handleContabilizacionMasiva}
+            disabled={isProcessingMasivo}
+            className="flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 disabled:opacity-50 text-white px-5 py-2.5 rounded-lg font-bold shadow-md transition-all transform hover:scale-105 active:scale-95 whitespace-nowrap"
+          >
+            {isProcessingMasivo ? (
+              <><Loader2 size={18} className="animate-spin" /> Procesando {pendientes} recibos...</>
+            ) : (
+              <><Zap size={18} className="text-yellow-300" /> Contabilizar Todo el Mes</>
+            )}
+          </button>
+        )}
       </div>
 
       {/* Tarjeta de Progreso */}
