@@ -110,6 +110,7 @@ export default function Sidebar({ initialRole }: { initialRole: string | null })
               <ul className="space-y-1">
                 <li><Link href="/ingresos" className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${pathname.startsWith('/ingresos') ? 'bg-[#1E293B] text-white font-medium' : 'text-gray-400 hover:text-white hover:bg-[#1E293B]'}`}><FileText size={18} /> Auditoría de Ingresos</Link></li>
                 <li><Link href="/egresos" className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${pathname.startsWith('/egresos') ? 'bg-[#1E293B] text-white font-medium' : 'text-gray-400 hover:text-white hover:bg-[#1E293B]'}`}><ClipboardCheck size={18} /> Auditoría de Egresos</Link></li>
+                <li><Link href="/resultados" className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${pathname.startsWith('/resultados') ? 'bg-blue-600 text-white font-medium' : 'text-gray-400 hover:text-white hover:bg-[#1E293B]'}`}><TrendingUp size={18} /> Auditoría de Resultados</Link></li>
               </ul>
             </div>
           )}
