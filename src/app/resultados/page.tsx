@@ -75,11 +75,30 @@ export default function ResultadosPage() {
     let ingresos = 0;
     let egresos = 0;
 
+    // 1. Calcular Tasa Promedio
+    let sumTasa = 0; let countTasa = 0;
+    filteredData.forEach(tx => {
+      const usd = Number(tx.monto_usd || 0);
+      const bs = Number(tx.monto_bs || 0);
+      const tasa = Number(tx.tasa_cambio || 0);
+      if (!(usd === 1 && Math.abs(tasa - bs) < 1) && tasa > 1) {
+        sumTasa += tasa; countTasa++;
+      }
+    });
+    const avgTasa = countTasa > 0 ? sumTasa / countTasa : 360; // fallback
+
     filteredData.forEach(t => {
-      // Usar USD si existe, sino convertir usando una tasa estimada o dejar 0
-      const monto = t.monto_usd || 0; 
-      if (t.tipo === 'INGRESO') ingresos += monto;
-      if (t.tipo === 'EGRESO') egresos += monto;
+      const usd = Number(t.monto_usd || 0);
+      const bs = Number(t.monto_bs || 0);
+      const tasa = Number(t.tasa_cambio || 0);
+
+      let realUsd = usd;
+      if ((usd === 1 && Math.abs(tasa - bs) < 1) || usd === 0) {
+        realUsd = bs / avgTasa;
+      }
+
+      if (t.tipo === 'INGRESO') ingresos += realUsd;
+      if (t.tipo === 'EGRESO') egresos += realUsd;
     });
 
     const utilidad = ingresos - egresos;
@@ -95,13 +114,33 @@ export default function ResultadosPage() {
     // Lista cronológica para ordenar después (Enero, Febrero...)
     const order = ["ENERO", "FEBRERO", "MARZO", "ABRIL", "MAYO", "JUNIO", "JULIO", "AGOSTO", "SEPTIEMBRE", "OCTUBRE", "NOVIEMBRE", "DICIEMBRE"];
 
+    // 1. Calcular Tasa Promedio global
+    let sumTasa = 0; let countTasa = 0;
+    transacciones.forEach(tx => {
+      const usd = Number(tx.monto_usd || 0);
+      const bs = Number(tx.monto_bs || 0);
+      const tasa = Number(tx.tasa_cambio || 0);
+      if (!(usd === 1 && Math.abs(tasa - bs) < 1) && tasa > 1) {
+        sumTasa += tasa; countTasa++;
+      }
+    });
+    const avgTasa = countTasa > 0 ? sumTasa / countTasa : 360;
+
     transacciones.forEach(t => {
       if (!months[t.mes]) {
         months[t.mes] = { ingresos: 0, egresos: 0 };
       }
-      const monto = t.monto_usd || 0;
-      if (t.tipo === 'INGRESO') months[t.mes].ingresos += monto;
-      if (t.tipo === 'EGRESO') months[t.mes].egresos += monto;
+      const usd = Number(t.monto_usd || 0);
+      const bs = Number(t.monto_bs || 0);
+      const tasa = Number(t.tasa_cambio || 0);
+      
+      let realUsd = usd;
+      if ((usd === 1 && Math.abs(tasa - bs) < 1) || usd === 0) {
+        realUsd = bs / avgTasa;
+      }
+
+      if (t.tipo === 'INGRESO') months[t.mes].ingresos += realUsd;
+      if (t.tipo === 'EGRESO') months[t.mes].egresos += realUsd;
     });
 
     return Object.keys(months).map(mes => {
