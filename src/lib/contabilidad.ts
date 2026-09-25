@@ -7,56 +7,51 @@ export async function generarAsientoDesdeTransaccion(transaccionId: number) {
   });
 
   if (!transaccion) return null;
-  if (transaccion.asientoId) return transaccion.asientoId;
+  if (transaccion.asientoId) return transaccion.asientoId; // Already has an asiento
 
   const esIngreso = transaccion.tipo === 'INGRESO';
   const formaPago = transaccion.formas_pago[0];
   
   // 1. Determinar Cuenta de Banco/Caja
   let codigoBancoCaja = '1101'; // Default Caja
+  let nombreBancoCaja = 'Caja General';
   
   if (formaPago) {
-    const tipoPago = formaPago.tipo_pago.toUpperCase();
-    if (tipoPago.includes('TRANSF') || tipoPago.includes('PAGO M')) {
-      codigoBancoCaja = '1102'; // Bancos (simplificado)
-    } else if (tipoPago.includes('USD') || tipoPago.includes('DIVISA')) {
-      codigoBancoCaja = '1101003'; // Caja Moneda Extranjera
+    if (formaPago.tipo_pago.toUpperCase().includes('TRANSF') || formaPago.tipo_pago.toUpperCase().includes('PAGO M')) {
+      codigoBancoCaja = '1102'; // Banco
+      nombreBancoCaja = formaPago.banco ? `Banco - ${formaPago.banco}` : 'Bancos';
+    } else if (formaPago.tipo_pago.toUpperCase().includes('USD') || formaPago.tipo_pago.toUpperCase().includes('DIVISA')) {
+      codigoBancoCaja = '1101003';
+      nombreBancoCaja = 'Caja en Moneda Extranjera';
     }
   }
 
-  // Buscar la cuenta real de Banco/Caja en el plan
+  // Ensure Banco/Caja account exists
   let cuentaCaja = await prisma.cuentaContable.findUnique({ where: { codigo: codigoBancoCaja } });
   if (!cuentaCaja) {
-    cuentaCaja = await prisma.cuentaContable.findFirst({ where: { codigo: { startsWith: '110' } } });
-  }
-
-  // 2. Determinar Cuenta de Contrapartida desde CategoriaMovimiento
-  let cuentaContra = null;
-  if (transaccion.clasificacion) {
-    const categoria = await prisma.categoriaMovimiento.findFirst({
-      where: { nombre: transaccion.clasificacion }
+    cuentaCaja = await prisma.cuentaContable.create({
+      data: { codigo: codigoBancoCaja, nombre: nombreBancoCaja, tipoSaldo: 'DEUDOR', clase: 'REAL' }
     });
-    
-    if (categoria && categoria.codigo) {
-      cuentaContra = await prisma.cuentaContable.findUnique({
-        where: { codigo: categoria.codigo }
-      });
-    }
   }
 
-  // Fallback si no se encontró cuenta en la categoría
+  // 2. Determinar Cuenta de Contrapartida (Ingreso o Egreso)
+  let codigoContrapartida = esIngreso ? '4101' : '5101';
+  let nombreContrapartida = transaccion.clasificacion || (esIngreso ? 'Ingresos Varios' : 'Gastos Varios');
+  
+  let cuentaContra = await prisma.cuentaContable.findUnique({ where: { codigo: codigoContrapartida } });
   if (!cuentaContra) {
-    const fallbackCode = esIngreso ? '4101' : '5101'; // Ingresos Ordinarios / Gastos Ordinarios
-    cuentaContra = await prisma.cuentaContable.findUnique({ where: { codigo: fallbackCode } });
-  }
-
-  // Si no se encuentra ninguna cuenta, no podemos generar asiento (el plan está vacío)
-  if (!cuentaCaja || !cuentaContra) {
-    console.error(`No se encontraron cuentas para generar asiento. Caja: ${cuentaCaja?.codigo}, Contra: ${cuentaContra?.codigo}`);
-    return null; 
+    cuentaContra = await prisma.cuentaContable.create({
+      data: { 
+        codigo: codigoContrapartida, 
+        nombre: nombreContrapartida, 
+        tipoSaldo: esIngreso ? 'ACREEDOR' : 'DEUDOR', 
+        clase: 'NOMINAL' 
+      }
+    });
   }
 
   // 3. Crear Asiento
+  // Obtener el próximo número de asiento (simulado con count + 1)
   const count = await prisma.asientoContable.count();
   const numeroAsiento = count + 1;
 

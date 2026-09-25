@@ -1,16 +1,10 @@
 const xlsx = require('xlsx');
-const path = require('path');
 
-const filePath = '/Users/leydizerpa/Desktop/Sistema  Propatria Chacaito /Sistema de Contabilidad MS369.xlsm';
-const workbook = xlsx.readFile(filePath);
-
-console.log("Sheet names:");
-console.log(workbook.SheetNames);
-
-workbook.SheetNames.forEach(sheetName => {
-    console.log(`\n--- Sheet: ${sheetName} ---`);
-    const worksheet = workbook.Sheets[sheetName];
-    // Convert up to 10 rows to JSON to inspect headers and data
-    const data = xlsx.utils.sheet_to_json(worksheet, { header: 1 });
-    console.log(JSON.stringify(data.slice(0, 10), null, 2));
-});
+const workbook = xlsx.readFile('../BASE DE DATOS  Entreda_Primer_Trimestre_2026.xlsx');
+const sheetName = workbook.SheetNames[0];
+console.log("Sheet Name:", sheetName);
+const sheet = workbook.Sheets[sheetName];
+const data = xlsx.utils.sheet_to_json(sheet, { header: 1 });
+console.log("Columns:", data[0]);
+console.log("Row 1:", data[1]);
+console.log("Row 2:", data[2]);
