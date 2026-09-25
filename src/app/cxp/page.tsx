@@ -68,10 +68,14 @@ export default function CxpPage() {
       // 4. Forma de Pago
       if (filtroFormaPago !== 'Todas') {
         const formas = tx.formas_pago || [];
-        const tieneForma = formas.some((fp: any) => 
-          (filtroFormaPago === 'Efectivo' && fp.tipo_pago.toLowerCase().includes('efectivo')) ||
-          (filtroFormaPago === 'Transferencia' && (fp.tipo_pago.toLowerCase().includes('transf') || fp.tipo_pago.toLowerCase().includes('pago movil')))
-        );
+        const tieneForma = formas.some((fp: any) => {
+          const tipo = (fp.tipo_pago || '').toLowerCase();
+          if (filtroFormaPago === 'Efectivo') return tipo.includes('efectivo');
+          if (filtroFormaPago === 'Transferencia') return tipo.includes('transf') || tipo.includes('pago movil');
+          if (filtroFormaPago === 'Canje') return tipo.includes('canje');
+          if (filtroFormaPago === 'Cheque') return tipo.includes('cheque');
+          return false;
+        });
         if (!tieneForma && formas.length > 0) return false;
         if (formas.length === 0 && filtroFormaPago !== 'Efectivo') return false; 
       }
@@ -231,6 +235,8 @@ export default function CxpPage() {
             <option value="Todas">Todas</option>
             <option value="Transferencia">Transferencia / Pago Móvil</option>
             <option value="Efectivo">Efectivo</option>
+            <option value="Canje">Canje</option>
+            <option value="Cheque">Cheque</option>
           </select>
         </div>
         <div className="flex-[2] min-w-[200px] relative">
