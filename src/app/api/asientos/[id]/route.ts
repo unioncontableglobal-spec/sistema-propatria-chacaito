@@ -3,10 +3,11 @@ import prisma from '@/lib/prisma';
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const asientoId = parseInt(params.id);
+    const { id } = await params;
+    const asientoId = parseInt(id);
     if (isNaN(asientoId)) {
       return NextResponse.json({ error: 'ID inválido' }, { status: 400 });
     }
