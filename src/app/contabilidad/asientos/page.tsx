@@ -41,22 +41,33 @@ export default function AsientosContablesPage() {
     if (!confirm(`¿Estás seguro de contabilizar automáticamente los ${pendientes} recibos pendientes de este mes?`)) return;
     
     setIsProcessingMasivo(true);
+    let currentRemaining = pendientes;
+    let totalProcessed = 0;
+
     try {
-      const res = await fetch('/api/asientos/masivo', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ mes: mesFiltro })
-      });
-      const data = await res.json();
+      while (currentRemaining > 0) {
+        const res = await fetch('/api/asientos/masivo', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ mes: mesFiltro })
+        });
+        const data = await res.json();
+        
+        if (!res.ok) throw new Error(data.error || 'Error al procesar');
+        
+        totalProcessed += data.count || 0;
+        currentRemaining = data.remaining || 0;
+        
+        // Refresh UI state during long processing to update the progress bar incrementally
+        await cargarTransacciones(); 
+      }
       
-      if (!res.ok) throw new Error(data.error || 'Error al procesar');
-      
-      alert(`¡Éxito! Se generaron ${data.count} asientos automáticamente.`);
-      cargarTransacciones(); // recargar la tabla
+      alert(`¡Éxito! Se generaron ${totalProcessed} asientos automáticamente.`);
     } catch (err: any) {
-      alert(`Error: ${err.message}`);
+      alert(`Error en el procesamiento: ${err.message}`);
     } finally {
       setIsProcessingMasivo(false);
+      cargarTransacciones(); 
     }
   };
 

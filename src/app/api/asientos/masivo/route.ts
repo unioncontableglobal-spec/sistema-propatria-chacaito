@@ -137,36 +137,41 @@ export async function POST(req: NextRequest) {
         count++;
     }
 
-    // Ejecutar en lotes pequeños (transacciones interactivas) para poder obtener el ID autoincremental
-    const chunkSize = 50; 
-    for (let i = 0; i < ops.length; i += chunkSize) {
-      const chunk = ops.slice(i, i + chunkSize);
-      
-      await prisma.$transaction(async (tx) => {
-        for (const op of chunk) {
-          const asiento = await tx.asientoContable.create({
-            data: {
-              numero: op.numero,
-              fecha: op.transaccion.fecha,
-              descripcion: op.descripcion,
-              detalles: {
-                create: [
-                  { cuentaId: op.cuentaDebe, debe: op.transaccion.monto_bs, haber: 0 },
-                  { cuentaId: op.cuentaHaber, debe: 0, haber: op.transaccion.monto_bs }
-                ]
-              }
-            }
-          });
-
-          await tx.transaccion.update({
-            where: { id: op.transaccion.id },
-            data: { asientoId: asiento.id } // Usar asiento.id (Foreign Key correcto), no el numero
-          });
+    // Procesar solo los primeros 50 para evitar Vercel Timeout (10s) y SQLITE_BUSY (concurrencia)
+    // El frontend llamará a esta API repetidamente hasta terminar
+    const BATCH_SIZE = 50;
+    const batch = ops.slice(0, BATCH_SIZE);
+    
+    for (const op of batch) {
+      // 1. Crear AsientoContable
+      const asiento = await prisma.asientoContable.create({
+        data: {
+          numero: op.numero,
+          fecha: op.transaccion.fecha,
+          descripcion: op.descripcion,
+          detalles: {
+            create: [
+              { cuentaId: op.cuentaDebe, debe: op.transaccion.monto_bs, haber: 0 },
+              { cuentaId: op.cuentaHaber, debe: 0, haber: op.transaccion.monto_bs }
+            ]
+          }
         }
+      });
+
+      // 2. Actualizar Transaccion
+      await prisma.transaccion.update({
+        where: { id: op.transaccion.id },
+        data: { asientoId: asiento.id } 
       });
     }
 
-    return NextResponse.json({ message: 'Procesamiento exitoso', count });
+    const remaining = Math.max(0, ops.length - BATCH_SIZE);
+
+    return NextResponse.json({ 
+      message: remaining > 0 ? 'Procesamiento parcial exitoso' : 'Procesamiento total exitoso', 
+      count: batch.length,
+      remaining 
+    });
   } catch (error: any) {
     console.error('Error en contabilización masiva:', error);
     return NextResponse.json({ error: 'Error interno del servidor', details: error.message }, { status: 500 });
