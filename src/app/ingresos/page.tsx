@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { useAppStore } from '@/store/useAppStore';
 import { formatUsd } from '@/lib/formatters';
 import { Search, FileText, Plus, Eye } from 'lucide-react';
-import { transaccionMatchesMes } from '@/lib/mesUtils';
+import { transaccionMatchesMes, codigoPubToSelector } from '@/lib/mesUtils';
 import RegistroIngresoModal from '@/components/recibos/RegistroIngresoModal';
 
 export default function IngresosPage() {
@@ -24,7 +24,7 @@ export default function IngresosPage() {
 
   const mesesAprobados = publicaciones
     .filter(p => p.estado === 'APROBADO')
-    .map(p => p.mes);
+    .map(p => codigoPubToSelector(p.mes).toUpperCase());
 
   const fetchIngresos = async () => {
     setIsLoading(true);
@@ -46,8 +46,6 @@ export default function IngresosPage() {
 
   useEffect(() => {
     fetchIngresos();
-    // Sincronizar filtro local cuando cambia el global
-    setFiltroMes(filtroMesGlobal === 'HISTÓRICO TOTAL' ? '' : filtroMesGlobal);
   }, [filtroMesGlobal]);
 
   // Clasificaciones únicas para el select

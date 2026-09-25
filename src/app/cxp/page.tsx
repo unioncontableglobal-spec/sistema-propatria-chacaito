@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { useAppStore } from '@/store/useAppStore';
 import { formatUsd } from '@/lib/formatters';
 import { Search, FileText } from 'lucide-react';
-import { transaccionMatchesMes, labelFiltro } from '@/lib/mesUtils';
+import { transaccionMatchesMes, labelFiltro, codigoPubToSelector } from '@/lib/mesUtils';
 
 export default function CxpPage() {
   const { publicaciones, filtroMesGlobal, setFiltroMesGlobal } = useAppStore();
@@ -22,7 +22,7 @@ export default function CxpPage() {
 
   const mesesAprobados = publicaciones
     .filter(p => p.estado === 'APROBADO')
-    .map(p => p.mes);
+    .map(p => codigoPubToSelector(p.mes).toUpperCase());
 
   // Fetch de egresos
   const fetchEgresos = async () => {
@@ -45,8 +45,6 @@ export default function CxpPage() {
 
   useEffect(() => {
     fetchEgresos();
-    // Sincronizar filtro local cuando cambia el global
-    setFiltroMes(filtroMesGlobal === 'HISTÓRICO TOTAL' ? '' : filtroMesGlobal);
   }, [filtroMesGlobal]);
 
   // Filtrado Frontend
