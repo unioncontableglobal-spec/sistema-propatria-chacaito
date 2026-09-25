@@ -5,6 +5,7 @@ import { useAppStore } from '@/store/useAppStore';
 import { formatUsd } from '@/lib/formatters';
 import { Search, FileText } from 'lucide-react';
 import { transaccionMatchesMes, codigoPubToSelector } from '@/lib/mesUtils';
+import { PrintReport } from '@/components/PrintReport';
 
 export default function EgresosPage() {
   const { publicaciones, filtroMesGlobal, setFiltroMesGlobal } = useAppStore();
@@ -444,72 +445,20 @@ export default function EgresosPage() {
       </div>
     </div>
 
-      {/* ================= PRINT ONLY REPORT ================= */}
-      <div className="print-show-block text-black bg-white" style={{ width: '8.5in', minHeight: '11in', margin: '0 auto', padding: '0.5in', boxSizing: 'border-box', fontFamily: 'Arial, sans-serif' }}>
-        
-        {/* Membrete Formal */}
-        <div className="text-center mb-6">
-          <h2 className="font-bold text-lg uppercase tracking-wide">A.C. Propatria Carmelitas Chacaíto</h2>
-          <h3 className="font-bold text-sm text-gray-800">RIF: J-00188684-2</h3>
-        </div>
-
-        <h1 className="text-center text-xl font-bold uppercase mb-4 tracking-wider border-b-2 border-black pb-2">
-          Reporte de Egresos (Módulo Financiero) - {filtroMes || 'Histórico Total'}
-        </h1>
-
-        {/* Resumen */}
-        <div className="flex justify-between mb-6 text-sm">
-          <div>
-            <p><strong>Total Egresos (Equivalente USD):</strong> {formatUsd(kpis.totalUsd)}</p>
-            <p><strong>Total (Ref. Bs):</strong> Bs. {kpis.totalBs.toLocaleString('es-VE', {minimumFractionDigits: 2})}</p>
-          </div>
-          <div className="text-right">
-            <p><strong>Vía Banco (USD Eq.):</strong> {formatUsd(kpis.bancoUsd)}</p>
-            <p><strong>Vía Efectivo Físico:</strong> {formatUsd(kpis.efectivoUsd)}</p>
-          </div>
-        </div>
-
-        {/* Tabla */}
-        <table className="w-full text-xs border-collapse">
-          <thead>
-            <tr className="border-b-2 border-black text-left">
-              <th className="pb-1">Fecha</th>
-              <th className="pb-1">Recibo</th>
-              <th className="pb-1">Receptor / Destino</th>
-              <th className="pb-1 text-center">Forma</th>
-              <th className="pb-1 text-right">Monto USD Eq.</th>
-              <th className="pb-1 text-right">Bs.</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredData.map((tx: any) => {
-               const formas = tx.formas_pago || [];
-               const metodos = formas.length > 0 ? formas.map((f: any) => f.tipo_pago).join(', ') : 'Efectivo';
-               const nombre = tx.socio?.nombre_apellido || tx.tercero?.nombre || 'S/N';
-               const receptor = tx.socio ? `${tx.socio.ficha || '-'} - ${nombre}` : nombre;
-               return (
-                 <tr key={tx.id} className="border-b border-gray-300">
-                    <td className="py-2">{new Date(tx.fecha).toLocaleDateString('es-VE')}</td>
-                    <td className="py-2 font-mono">{tx.recibo || '-'}</td>
-                    <td className="py-2">
-                      <span className="font-bold">{receptor}</span><br/>
-                      <span className="text-[10px] text-gray-600">{tx.clasificacion} {tx.codigo_concepto && `- ${tx.codigo_concepto}`}</span>
-                    </td>
-                    <td className="py-2 text-center">{metodos}</td>
-                    <td className="py-2 text-right font-bold">{formatUsd(tx.monto_usd || (tx.monto_bs / (tx.tasa_cambio || 360)))}</td>
-                    <td className="py-2 text-right">Bs. {Number(tx.monto_bs || 0).toLocaleString('es-VE', {minimumFractionDigits: 2})}</td>
-                 </tr>
-               )
-            })}
-          </tbody>
-        </table>
-
-        <div className="mt-12 text-center text-xs text-gray-500">
-          <p>Documento generado el {new Date().toLocaleString('es-VE')}</p>
-          <p className="mt-6">Firma y Sello de Finanzas: _______________________________</p>
-          <p className="mt-8 text-[10px] text-gray-400">Software desarrollado y diseñado por Leydi Zerpa</p>
-        </div>
-      </div>
+      <PrintReport
+        titulo="Auditoría Financiera: Egresos"
+        subtitulo="Módulo Financiero — Análisis de Gastos y Pagos"
+        periodo={filtroMes || 'Histórico Total'}
+        tipo="EGRESO"
+        transacciones={filteredData}
+        kpis={{
+          totalUsd: kpis.totalUsd,
+          totalBs:  kpis.totalBs,
+          bancoUsd: kpis.bancoUsd,
+          efectivoUsd: kpis.efectivoUsd,
+        }}
+        avgTasa={filteredData.length > 0 ? (kpis.totalBs / (kpis.totalUsd || 1)) : 360}
+      />
     </>
   );
 }
