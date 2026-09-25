@@ -96,18 +96,20 @@ export default function ResultadosPage() {
     
     const rules = [];
     
+    const formatNumber = (num: number) => new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(num);
+
     // Liquidez
     if (kpis.utilidad < 0) {
       rules.push({
         tipo: 'alerta',
         titulo: 'Déficit Financiero',
-        mensaje: `El período cerró en rojo con una pérdida de $${Math.abs(kpis.utilidad).toFixed(2)}. Los egresos superaron la capacidad de recaudación.`
+        mensaje: `El período cerró en rojo con una pérdida de $${formatNumber(Math.abs(kpis.utilidad))}. Los egresos superaron la capacidad de recaudación.`
       });
     } else {
       rules.push({
         tipo: 'exito',
         titulo: 'Superávit Saludable',
-        mensaje: `Se alcanzó una utilidad neta positiva de $${kpis.utilidad.toFixed(2)}, reteniendo el ${kpis.margen.toFixed(1)}% de los ingresos totales.`
+        mensaje: `Se alcanzó una utilidad neta positiva de $${formatNumber(kpis.utilidad)}, reteniendo el ${kpis.margen.toFixed(1)}% de los ingresos totales.`
       });
     }
 
