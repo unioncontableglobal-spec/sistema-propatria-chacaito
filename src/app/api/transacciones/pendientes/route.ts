@@ -16,16 +16,10 @@ export async function GET(req: NextRequest) {
     
     const [year, month] = mes.split('-');
     
-    const startDate = new Date(Number(year), Number(month) - 1, 1);
-    const endDate = new Date(Number(year), Number(month), 0, 23, 59, 59);
-
+    // En SQLite (Turso vs Local), las fechas a veces se guardan como string ISO y otras como numérico (epoch).
+    // Usar gte/lte con objetos Date en Prisma suele fallar silenciosamente y retornar [].
+    // Solución robusta: traer todas y filtrar en memoria (es muy rápido para miles de registros).
     const transacciones = await prisma.transaccion.findMany({
-      where: {
-        fecha: {
-          gte: startDate,
-          lte: endDate
-        }
-      },
       include: {
         socio: true,
         formas_pago: true
@@ -35,7 +29,13 @@ export async function GET(req: NextRequest) {
       }
     });
     
-    return NextResponse.json(transacciones);
+    const transaccionesFiltradas = transacciones.filter(t => {
+      if (!t.fecha) return false;
+      const d = new Date(t.fecha);
+      return d.getFullYear() === Number(year) && (d.getMonth() + 1) === Number(month);
+    });
+
+    return NextResponse.json(transaccionesFiltradas);
   } catch (error) {
     console.error('Error fetching pendientes:', error);
     return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 });
