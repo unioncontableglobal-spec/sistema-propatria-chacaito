@@ -26,11 +26,11 @@ export default function CxcPage() {
 
   const metaCxc = useMemo(() => {
     if (!data?.cxcRaw) return 0;
-    const targetMes = filtroMesGlobal !== 'HISTÓRICO TOTAL' ? selectorToCodigoPub(filtroMesGlobal) : null;
+    const targetMes = filtroMesGlobal !== 'HISTÓRICO TOTAL' ? filtroMesGlobal.toUpperCase() : null;
     let total = 0;
     data.cxcRaw.forEach(cxc => {
       if (targetMes && cxc.mes !== targetMes) return;
-      total += (cxc.monto_a_cobrar || 0);
+      total += (cxc.fianzas || 0) + (cxc.ayudasBs || 0) + (cxc.vidrios || 0) + (cxc.montepio || 0) + (cxc.grua || 0);
     });
     return total;
   }, [data?.cxcRaw, filtroMesGlobal]);

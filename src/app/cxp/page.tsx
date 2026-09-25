@@ -26,11 +26,11 @@ export default function CxpPage() {
 
   const metaCxp = useMemo(() => {
     if (!data?.cxpRaw) return 0;
-    const targetMes = filtroMesGlobal !== 'HISTÓRICO TOTAL' ? selectorToCodigoPub(filtroMesGlobal) : null;
+    const targetMes = filtroMesGlobal !== 'HISTÓRICO TOTAL' ? filtroMesGlobal.toUpperCase() : null;
     let total = 0;
     data.cxpRaw.forEach(cxp => {
       if (targetMes && cxp.mes !== targetMes) return;
-      total += (cxp.total || cxp.monto || 0);
+      total += (cxp.montoUsd || 0);
     });
     return total;
   }, [data?.cxpRaw, filtroMesGlobal]);
