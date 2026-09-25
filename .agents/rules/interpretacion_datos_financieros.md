@@ -14,3 +14,8 @@ Cuando un registro tiene `monto_usd == 1` y `tasa_cambio == monto_bs` (o una tas
 - **Regla Estricta**: Los submódulos de CxC (Cuentas por Cobrar) y CxP (Cuentas por Pagar) dentro del **Módulo de Asociados** están destinados **única y exclusivamente** al tratamiento y desglose de los recibos generados por **Publicaciones**.
 - **Filtros Mandatorios**: En cualquier consulta o endpoint dirigido a CxC o CxP, se debe aplicar explícitamente el filtro de clasificación (ej. `clasificacion = 'INGRESO_CXP'` o conceptos específicos de las publicaciones).
 - **Exclusión**: No se deben renderizar, auditar ni listar ingresos o egresos de conceptos "varios", administrativos o ajenos a las publicaciones de los socios en estos submódulos. Todo lo externo pertenece al **Módulo Financiero**.
+
+## 5. Cálculo de Meta de Recaudación (CxC)
+- **Fórmula Base**: La "Meta CxC" (Total a recaudar) de un mes específico es el resultado de: `(Cantidad de Socios Activos) × (Costo Per Cápita de la Publicación)`.
+- **Naturaleza del Dato**: El sistema materializa esta meta creando registros individuales en la tabla `CuentaPorCobrar` para cada socio activo durante la "Aprobación de la Publicación".
+- **Conceptos Exclusivos**: La multiplicación no es homogénea para todos los conceptos. Por ejemplo, el cobro de "Grúa" se prorratea y multiplica **únicamente** por los socios con cupo tipo "SA".
