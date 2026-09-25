@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useAppStore } from '@/store/useAppStore';
+import { labelFiltro } from '@/lib/mesUtils';
 import { Scale, Loader2, Download, CheckCircle2, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
 
@@ -30,14 +31,6 @@ export default function BalanceComprobacionPage() {
 
   const formatBs = (amount: number) => {
     return new Intl.NumberFormat('es-VE', { style: 'currency', currency: 'VES' }).format(amount || 0);
-  };
-
-  const labelFiltro = (mes: string) => {
-    if (mes === 'HISTORICO' || mes === 'HISTÓRICO TOTAL') return 'HISTÓRICO GENERAL';
-    if (!mes || !mes.includes('-')) return 'HISTÓRICO GENERAL';
-    const [year, month] = mes.split('-');
-    const date = new Date(Number(year), Number(month) - 1);
-    return date.toLocaleDateString('es-VE', { month: 'long', year: 'numeric' }).toUpperCase();
   };
 
   return (

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { selectorToYyyyMm } from '@/lib/mesUtils';
 
 export const dynamic = 'force-dynamic';
 
@@ -9,26 +10,28 @@ export async function GET(req: NextRequest) {
     const mes = searchParams.get('mes') || '';
 
     // Si es mes historico o no hay mes, tomamos todo.
-    // Si hay un mes específico (ej. "2026-01"), tomamos transacciones <= a ese mes.
+    // Si hay un mes específico (ej. "ENERO"), tomamos transacciones <= a ese mes.
     // Por simplicidad, el Balance de Comprobación muestra el acumulado hasta esa fecha.
 
-    let dateFilter = {};
-    if (mes && mes !== 'HISTORICO' && mes !== 'HISTÓRICO TOTAL' && mes.includes('-')) {
-      const [yearStr, monthStr] = mes.split('-');
-      // Ultimo dia del mes seleccionado
-      const endDate = new Date(Number(yearStr), Number(monthStr), 0, 23, 59, 59);
-      dateFilter = {
-        fecha: {
-          lte: endDate
-        }
-      };
+    let dateFilter: any = undefined;
+    
+    if (mes && mes !== 'HISTORICO' && mes !== 'HISTÓRICO TOTAL') {
+      const yyyymm = selectorToYyyyMm(mes); // Ej: "2026-01"
+      if (yyyymm) {
+        const [yearStr, monthStr] = yyyymm.split('-');
+        // Ultimo dia del mes seleccionado
+        const endDate = new Date(Number(yearStr), Number(monthStr), 0, 23, 59, 59);
+        dateFilter = {
+          fecha: {
+            lte: endDate
+          }
+        };
+      }
     }
 
     // 1. Obtener todos los detalles de asiento hasta la fecha de corte
     const detalles = await prisma.detalleAsiento.findMany({
-      where: {
-        asiento: dateFilter
-      },
+      where: dateFilter ? { asiento: dateFilter } : undefined,
       include: {
         cuenta: true
       }
