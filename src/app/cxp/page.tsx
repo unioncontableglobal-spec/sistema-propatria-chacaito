@@ -445,6 +445,75 @@ export default function CxpPage() {
             </tbody>
           </table>
         </div>
+        </div>
+      </div>
+
+      {/* ================= PRINT ONLY REPORT ================= */}
+      <div className="hidden print:block print-only text-black bg-white" style={{ width: '8.5in', minHeight: '11in', margin: '0 auto', padding: '0.5in', boxSizing: 'border-box', fontFamily: 'Arial, sans-serif' }}>
+        
+        {/* Membrete Formal */}
+        <div className="text-center mb-6">
+          <h2 className="font-bold text-lg uppercase tracking-wide">A.C. Propatria Carmelitas Chacaíto</h2>
+          <h3 className="font-bold text-sm text-gray-800">RIF: J-00188684-2</h3>
+        </div>
+
+        <h1 className="text-center text-xl font-bold uppercase mb-4 tracking-wider border-b-2 border-black pb-2">
+          Reporte de Egresos (CxP) - {filtroMes || 'Histórico Total'}
+        </h1>
+
+        {/* Resumen */}
+        <div className="flex justify-between mb-6 text-sm">
+          <div>
+            <p><strong>Meta de Pago:</strong> {formatUsd(metaCxp)}</p>
+            <p><strong>Total Pagado (USD):</strong> {formatUsd(kpis.totalUsd)}</p>
+            <p><strong>Porcentaje Pagado:</strong> {metaCxp > 0 ? ((kpis.totalUsd / metaCxp) * 100).toFixed(1) : 0}%</p>
+          </div>
+          <div className="text-right">
+            <p><strong>Vía Banco:</strong> {formatUsd(kpis.bancoUsd)}</p>
+            <p><strong>Vía Efectivo:</strong> {formatUsd(kpis.efectivoUsd)}</p>
+            <p><strong>Total (Ref. Bs):</strong> Bs. {kpis.totalBs.toLocaleString('es-VE', {minimumFractionDigits: 2})}</p>
+          </div>
+        </div>
+
+        {/* Tabla */}
+        <table className="w-full text-xs border-collapse">
+          <thead>
+            <tr className="border-b-2 border-black text-left">
+              <th className="pb-1">Fecha</th>
+              <th className="pb-1">Recibo</th>
+              <th className="pb-1">Beneficiario / Concepto</th>
+              <th className="pb-1 text-center">F. Pago</th>
+              <th className="pb-1 text-right">USD</th>
+              <th className="pb-1 text-right">Bs.</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredData.map((tx: any) => {
+               const formas = tx.formas_pago || [];
+               const metodos = formas.length > 0 ? formas.map((f: any) => f.tipo_pago).join(', ') : 'Efectivo';
+               const nombre = tx.socio?.nombre_apellido || tx.tercero?.nombre || 'S/N';
+               return (
+                 <tr key={tx.id} className="border-b border-gray-300">
+                    <td className="py-2">{new Date(tx.fecha).toLocaleDateString('es-VE')}</td>
+                    <td className="py-2 font-mono">{tx.recibo || '-'}</td>
+                    <td className="py-2">
+                      <span className="font-bold">{tx.socio ? tx.socio.ficha : ''} {nombre}</span><br/>
+                      <span className="text-[10px] text-gray-600">{tx.clasificacion} {tx.codigo_concepto && `- ${tx.codigo_concepto}`}</span>
+                    </td>
+                    <td className="py-2 text-center">{metodos}</td>
+                    <td className="py-2 text-right font-bold">{formatUsd(tx.monto_usd || 0)}</td>
+                    <td className="py-2 text-right">Bs. {Number(tx.monto_bs || 0).toLocaleString('es-VE', {minimumFractionDigits: 2})}</td>
+                 </tr>
+               )
+            })}
+          </tbody>
+        </table>
+
+        <div className="mt-12 text-center text-xs text-gray-500">
+          <p>Documento generado el {new Date().toLocaleString('es-VE')}</p>
+          <p className="mt-6">Firma y Sello de Finanzas: _______________________________</p>
+          <p className="mt-8 text-[10px] text-gray-400">Software desarrollado y diseñado por Leydi Zerpa</p>
+        </div>
       </div>
     </div>
   );

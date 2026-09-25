@@ -97,6 +97,10 @@ export default function PrintCartelCxC({ reglas }: { reglas: ReglasMensuales }) 
         <p>VALOR DEL DÓLAR</p>
         <p>TIPO DE CAMBIO DE REFERENCIA AL BCV</p>
       </div>
+
+      <div className="mt-8 text-center text-[10px] text-gray-400 font-normal">
+        <p>Software desarrollado y diseñado por Leydi Zerpa</p>
+      </div>
     </div>
   );
 }
