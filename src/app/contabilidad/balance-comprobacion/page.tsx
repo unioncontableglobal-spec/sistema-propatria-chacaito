@@ -33,7 +33,8 @@ export default function BalanceComprobacionPage() {
   };
 
   const labelFiltro = (mes: string) => {
-    if (mes === 'HISTORICO') return 'HISTÓRICO GENERAL';
+    if (mes === 'HISTORICO' || mes === 'HISTÓRICO TOTAL') return 'HISTÓRICO GENERAL';
+    if (!mes || !mes.includes('-')) return 'HISTÓRICO GENERAL';
     const [year, month] = mes.split('-');
     const date = new Date(Number(year), Number(month) - 1);
     return date.toLocaleDateString('es-VE', { month: 'long', year: 'numeric' }).toUpperCase();

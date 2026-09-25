@@ -13,7 +13,7 @@ export async function GET(req: NextRequest) {
     // Por simplicidad, el Balance de Comprobación muestra el acumulado hasta esa fecha.
 
     let dateFilter = {};
-    if (mes && mes !== 'HISTORICO') {
+    if (mes && mes !== 'HISTORICO' && mes !== 'HISTÓRICO TOTAL' && mes.includes('-')) {
       const [yearStr, monthStr] = mes.split('-');
       // Ultimo dia del mes seleccionado
       const endDate = new Date(Number(yearStr), Number(monthStr), 0, 23, 59, 59);

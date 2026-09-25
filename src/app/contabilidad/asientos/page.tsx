@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { Inbox, CheckCircle, Clock, ArrowRight, Zap, Loader2 } from 'lucide-react';
+import { Inbox, CheckCircle, Clock, ArrowRight, Zap, Loader2, Undo } from 'lucide-react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import Link from 'next/link';
@@ -68,6 +68,21 @@ export default function AsientosContablesPage() {
     } finally {
       setIsProcessingMasivo(false);
       cargarTransacciones(); 
+    }
+  };
+
+  const handleReversar = async (asientoId: number) => {
+    if (!confirm('¿Estás seguro de que deseas reversar este asiento? El recibo volverá a estar PENDIENTE.')) return;
+
+    try {
+      const res = await fetch(`/api/asientos/${asientoId}`, { method: 'DELETE' });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Error al reversar');
+      
+      alert('Asiento reversado correctamente.');
+      cargarTransacciones();
+    } catch (err: any) {
+      alert(`Error: ${err.message}`);
     }
   };
 
@@ -195,12 +210,21 @@ export default function AsientosContablesPage() {
                       </td>
                       <td className="px-4 py-3 text-center whitespace-nowrap">
                         {isContabilizado ? (
-                          <Link 
-                            href="/contabilidad/libro-diario" 
-                            className="text-[#3B82F6] hover:underline text-xs font-semibold whitespace-nowrap"
-                          >
-                            Ver en Diario
-                          </Link>
+                          <div className="flex items-center justify-center gap-3">
+                            <Link 
+                              href="/contabilidad/libro-diario" 
+                              className="text-[#3B82F6] hover:underline text-xs font-semibold whitespace-nowrap"
+                            >
+                              Ver en Diario
+                            </Link>
+                            <button
+                              onClick={() => handleReversar(t.asientoId)}
+                              className="text-red-500 hover:text-red-700 hover:bg-red-50 p-1.5 rounded transition-colors"
+                              title="Reversar y poner PENDIENTE"
+                            >
+                              <Undo size={16} />
+                            </button>
+                          </div>
                         ) : (
                           <button
                             onClick={() => router.push(`/contabilidad/asientos/nuevo?transaccionId=${t.id}`)}
