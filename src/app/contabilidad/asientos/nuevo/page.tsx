@@ -181,7 +181,7 @@ export default function NuevoAsientoPage() {
   };
 
   return (
-    <div className="p-6 max-w-5xl mx-auto">
+    <div className="p-3 md:p-6 max-w-5xl mx-auto">
       <div className="flex items-center gap-4 mb-6">
         <Link href="/contabilidad/asientos" className="text-gray-400 hover:text-[#0F172A] transition-colors">
           <ArrowLeft size={24} />
@@ -279,8 +279,8 @@ export default function NuevoAsientoPage() {
           </div>
         </div>
 
-        <div className="p-0">
-          <table className="w-full text-sm text-left">
+        <div className="p-0 overflow-x-auto">
+          <table className="w-full text-sm text-left min-w-[600px]">
             <thead className="bg-[#0F172A] text-white">
               <tr>
                 <th className="px-6 py-4 font-semibold w-1/2">Cuenta Contable</th>
