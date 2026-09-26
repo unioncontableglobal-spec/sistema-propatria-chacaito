@@ -74,6 +74,7 @@ async function _loadAllData() {
   return { dashData, sociosData, transaccionesData, pubData, tercerosData, catData };
 }
 
+// ✅ REFACTORIZADO: Carga progresiva para no bloquear el Dashboard
 export const useAppStore = create<AppState>((set, get) => ({
   data: null,
   sociosDirectorio: [],
@@ -91,19 +92,33 @@ export const useAppStore = create<AppState>((set, get) => ({
   initializeData: async () => {
     if (get().data) return; // already loaded
     set({ isLoading: true, error: null });
+    
+    // 1. Cargar el Dashboard PRIMERO para mostrar la pantalla principal instantáneamente
     try {
-      const { dashData, sociosData, transaccionesData, pubData, tercerosData, catData } = await _loadAllData();
-      console.log("Datos inicializados:", { socios: sociosData?.length, transacciones: transaccionesData?.length, publicaciones: pubData?.length });
-      set({
-        data: dashData,
-        sociosDirectorio: sociosData || [],
-        transacciones: transaccionesData || [],
-        publicaciones: pubData || [],
-        terceros: tercerosData || [],
-        categoriasMovimiento: catData || [],
-        isLoading: false,
-        error: null
-      });
+      fetch('/api/dashboard')
+        .then(res => res.ok ? res.json() : null)
+        .then(dashData => {
+          if (dashData) set({ data: dashData, isLoading: false });
+        })
+        .catch(err => console.error("Error loading dashboard data:", err));
+        
+      // 2. Cargar el resto de los datos en paralelo sin bloquear
+      Promise.all([
+        fetch('/api/socios?status=TODOS', { cache: 'no-store' }).then(res => res.ok ? res.json() : []),
+        fetch('/api/transacciones', { cache: 'no-store' }).then(res => res.ok ? res.json() : []),
+        fetch('/api/publicaciones', { cache: 'no-store' }).then(res => res.ok ? res.json() : []),
+        fetch('/api/terceros', { cache: 'no-store' }).then(res => res.ok ? res.json() : []),
+        fetch('/api/categorias', { cache: 'no-store' }).then(res => res.ok ? res.json() : [])
+      ]).then(([sociosData, transaccionesData, pubData, tercerosData, catData]) => {
+        set({
+          sociosDirectorio: sociosData || [],
+          transacciones: transaccionesData || [],
+          publicaciones: pubData || [],
+          terceros: tercerosData || [],
+          categoriasMovimiento: catData || [],
+        });
+      }).catch(err => console.error("Error loading secondary data:", err));
+
     } catch (error) {
       console.error("Error crítico en initializeData:", error);
       set({ error: (error as Error).message, isLoading: false });
@@ -113,14 +128,23 @@ export const useAppStore = create<AppState>((set, get) => ({
   refreshData: async () => {
     set({ isLoading: true, error: null });
     try {
-      const { dashData, sociosData, transaccionesData, pubData, tercerosData, catData } = await _loadAllData();
+      // Para refresh, sí esperamos todo para evitar parpadeos extraños
+      const [dashRes, sociosRes, transRes, pubRes, tercerosRes, catRes] = await Promise.all([
+        fetch('/api/dashboard', { cache: 'no-store' }),
+        fetch('/api/socios?status=TODOS', { cache: 'no-store' }),
+        fetch('/api/transacciones', { cache: 'no-store' }),
+        fetch('/api/publicaciones', { cache: 'no-store' }),
+        fetch('/api/terceros', { cache: 'no-store' }),
+        fetch('/api/categorias', { cache: 'no-store' })
+      ]);
+
       set({
-        data: dashData,
-        sociosDirectorio: sociosData || [],
-        transacciones: transaccionesData || [],
-        publicaciones: pubData || [],
-        terceros: tercerosData || [],
-        categoriasMovimiento: catData || [],
+        data: dashRes.ok ? await dashRes.json() : get().data,
+        sociosDirectorio: sociosRes.ok ? await sociosRes.json() : get().sociosDirectorio,
+        transacciones: transRes.ok ? await transRes.json() : get().transacciones,
+        publicaciones: pubRes.ok ? await pubRes.json() : get().publicaciones,
+        terceros: tercerosRes.ok ? await tercerosRes.json() : get().terceros,
+        categoriasMovimiento: catRes.ok ? await catRes.json() : get().categoriasMovimiento,
         isLoading: false,
         error: null
       });

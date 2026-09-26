@@ -165,7 +165,11 @@ export async function GET() {
       tasaPorMes: avgRateByMonth
     };
 
-    return NextResponse.json(rawData);
+    return NextResponse.json(rawData, {
+      headers: {
+        'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=30',
+      }
+    });
   } catch (error) {
     console.error('Error fetching dashboard raw data:', error);
     return NextResponse.json({ error: 'Error fetching dashboard data' }, { status: 500 });
