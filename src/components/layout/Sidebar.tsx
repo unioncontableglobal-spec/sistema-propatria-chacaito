@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { 
@@ -21,7 +21,9 @@ import {
   Calculator,
   ClipboardList,
   Inbox,
-  LogOut
+  LogOut,
+  Menu,
+  X
 } from "lucide-react";
 import GlobalMonthSelector from "@/components/layout/GlobalMonthSelector";
 import { useAppStore } from '@/store/useAppStore';
@@ -30,6 +32,7 @@ export default function Sidebar({ initialRole }: { initialRole: string | null })
   const pathname = usePathname();
   const router = useRouter();
   const { userRole, setUserRole } = useAppStore();
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
 
   // Inicializar rol si no estaba en Zustand
   React.useEffect(() => {
@@ -37,6 +40,11 @@ export default function Sidebar({ initialRole }: { initialRole: string | null })
       setUserRole(initialRole);
     }
   }, [initialRole, userRole, setUserRole]);
+
+  // Cerrar menú móvil al cambiar de ruta
+  React.useEffect(() => {
+    setIsMobileOpen(false);
+  }, [pathname]);
 
   const activeRole = userRole || initialRole;
 
@@ -52,16 +60,44 @@ export default function Sidebar({ initialRole }: { initialRole: string | null })
   };
 
   return (
-    <aside className="sidebar flex flex-col justify-between h-screen sticky top-0 bg-[#0F172A] text-white overflow-hidden w-[280px] shrink-0 border-r border-[#1E293B] print:hidden">
-      <div className="flex-1 overflow-y-auto">
-        <div className="p-6 pb-4 border-b border-[#1E293B]">
-          <h1 className="text-[14px] font-extrabold text-blue-400 tracking-wider">ASOC. CIVIL PROPATRIA CHACAITO</h1>
-          <p className="text-[10px] text-gray-400 font-bold mt-1">RIF: J-00188684-2</p>
-          <p className="text-[10px] text-gray-500 font-semibold tracking-widest mt-3 border-t border-[#1E293B] pt-2">DESARROLLADO POR:</p>
-          <p className="text-[10px] text-gray-300 font-bold tracking-widest">UNIÓN CONTABLE GLOBAL</p>
-          <p className="text-[10px] text-gray-400 font-bold">RIF: J-50714716-9</p>
-        </div>
-        
+    <>
+      {/* Botón flotante para abrir menú en móviles */}
+      <button 
+        onClick={() => setIsMobileOpen(true)}
+        className="md:hidden fixed top-4 right-4 z-40 bg-[#0F172A] text-white p-2 rounded-lg shadow-lg"
+      >
+        <Menu size={24} />
+      </button>
+
+      {/* Overlay oscuro en móviles */}
+      {isMobileOpen && (
+        <div 
+          className="md:hidden fixed inset-0 bg-black/50 z-40"
+          onClick={() => setIsMobileOpen(false)}
+        />
+      )}
+
+      {/* Sidebar */}
+      <aside className={`sidebar flex flex-col justify-between h-screen fixed md:sticky top-0 left-0 bg-[#0F172A] text-white overflow-hidden w-[280px] shrink-0 border-r border-[#1E293B] print:hidden z-50 transition-transform duration-300 ease-in-out ${isMobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
+        <div className="flex-1 overflow-y-auto relative">
+          
+          {/* Botón cerrar en móviles */}
+          <button 
+            onClick={() => setIsMobileOpen(false)}
+            className="md:hidden absolute top-4 right-4 text-gray-400 hover:text-white"
+          >
+            <X size={20} />
+          </button>
+
+          <div className="p-6 pb-4 border-b border-[#1E293B]">
+            <h1 className="text-[14px] font-extrabold text-blue-400 tracking-wider pr-6">ASOC. CIVIL PROPATRIA CHACAITO</h1>
+            <p className="text-[10px] text-gray-400 font-bold mt-1">RIF: J-00188684-2</p>
+            <p className="text-[10px] text-gray-500 font-semibold tracking-widest mt-3 border-t border-[#1E293B] pt-2">DESARROLLADO POR:</p>
+            <p className="text-[10px] text-gray-300 font-bold tracking-widest">UNIÓN CONTABLE GLOBAL</p>
+            <p className="text-[10px] text-gray-400 font-bold">RIF: J-50714716-9</p>
+          </div>
+          
+
         <div className="px-5 mt-4 mb-2">
           <GlobalMonthSelector />
         </div>

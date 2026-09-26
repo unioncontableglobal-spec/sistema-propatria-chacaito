@@ -52,7 +52,7 @@ export default async function RootLayout({
         <GlobalLoader>
           <div className="layout-container">
             <Sidebar initialRole={initialRole} />
-            <main className="main-content">
+            <main className="main-content pt-14 md:pt-0">
               {children}
               <AIAssistant />
             </main>

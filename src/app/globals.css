@@ -242,6 +242,19 @@ ul {
   min-height: 100vh;
 }
 
+/* On mobile, the sidebar is hidden (it slides in/out via Tailwind translate classes) */
+/* The main content takes full width on mobile */
+@media (max-width: 767px) {
+  .layout-container {
+    flex-direction: column;
+  }
+  
+  .main-content {
+    padding: 1rem;
+    min-height: 100vh;
+  }
+}
+
 .sidebar {
   width: 260px;
   background-color: var(--color-primary);
