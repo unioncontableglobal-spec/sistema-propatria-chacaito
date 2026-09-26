@@ -460,11 +460,39 @@ ul {
     border-radius: 0 !important;
     overflow-y: auto;
   }
+
+  /* ── OVERRIDES GLOBALES DE PADDING (Evitar p-6, p-8 fijos en móvil) ── */
+  .p-6, .p-8 {
+    padding: 1rem !important;
+  }
+  .px-6, .px-8 {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+  .py-6, .py-8 {
+    padding-top: 1rem !important;
+    padding-bottom: 1rem !important;
+  }
+  .gap-6, .gap-8 {
+    gap: 1rem !important;
+  }
+  .mb-8 {
+    margin-bottom: 1.5rem !important;
+  }
 }
 
 @media (max-width: 480px) {
   /* En pantallas muy pequeñas, los grids de 2 columnas se vuelven 1 */
   .grid-cols-2 {
     grid-template-columns: repeat(1, minmax(0, 1fr)) !important;
+  }
+  
+  /* Más reducción de padding en móviles pequeños */
+  .p-4, .p-5, .p-6, .p-8 {
+    padding: 0.75rem !important;
+  }
+  .px-4, .px-5, .px-6, .px-8 {
+    padding-left: 0.75rem !important;
+    padding-right: 0.75rem !important;
   }
 }
