@@ -321,9 +321,41 @@ ul {
 
 .main-content {
   flex: 1;
-  padding: 2rem;
+  min-width: 0;
+  overflow-x: hidden;
+  padding: 1.5rem 2rem;
   display: flex;
   flex-direction: column;
+}
+
+/* ── Mobile & Tablet (< 768px) ── */
+@media (max-width: 767px) {
+  .layout-container {
+    display: block; /* sidebar es fixed, no ocupa espacio */
+  }
+
+  .main-content {
+    padding: 0.75rem 1rem 2rem 1rem;
+    width: 100vw;
+    max-width: 100vw;
+  }
+
+  /* Tables always scroll horizontally on mobile */
+  table {
+    min-width: 600px;
+  }
+
+  .table-container, .overflow-x-auto {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* ── Tablet (768px – 1024px) ── */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .main-content {
+    padding: 1rem 1.5rem;
+  }
 }
 
 .header {

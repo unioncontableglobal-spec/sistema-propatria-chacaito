@@ -11,7 +11,6 @@ import {
   TrendingDown, 
   FileText, 
   ClipboardCheck, 
-  ArrowRightLeft, 
   Book, 
   BookOpen, 
   Scale,
@@ -34,7 +33,6 @@ export default function Sidebar({ initialRole }: { initialRole: string | null })
   const { userRole, setUserRole } = useAppStore();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
 
-  // Inicializar rol si no estaba en Zustand
   React.useEffect(() => {
     if (initialRole && !userRole) {
       setUserRole(initialRole);
@@ -48,148 +46,171 @@ export default function Sidebar({ initialRole }: { initialRole: string | null })
 
   const activeRole = userRole || initialRole;
 
-  if (pathname === '/login') {
-    return null;
-  }
+  if (pathname === '/login') return null;
 
   const handleLogout = async () => {
     await fetch('/api/auth/logout', { method: 'POST' });
     setUserRole(null);
     router.push('/login');
-    router.refresh(); // Refrescar para que el middleware tome la nueva cookie
+    router.refresh();
   };
+
+  const linkCls = (active: boolean) =>
+    `flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors text-sm ${
+      active ? 'bg-blue-600 text-white font-semibold' : 'text-gray-400 hover:text-white hover:bg-[#1E293B]'
+    }`;
 
   return (
     <>
-      {/* Botón flotante para abrir menú en móviles */}
-      <button 
-        onClick={() => setIsMobileOpen(true)}
-        className="md:hidden fixed top-4 right-4 z-40 bg-[#0F172A] text-white p-2 rounded-lg shadow-lg"
-      >
-        <Menu size={24} />
-      </button>
+      {/* ── MOBILE: Barra superior fija ── */}
+      <div className="md:hidden fixed top-0 left-0 right-0 z-50 bg-[#0F172A] border-b border-[#1E293B] flex items-center justify-between px-4 h-14">
+        <div>
+          <p className="text-[11px] font-extrabold text-blue-400 tracking-wider leading-tight">ASOC. CIVIL PROPATRIA</p>
+          <p className="text-[9px] text-gray-500 font-bold">CHACAITO · J-00188684-2</p>
+        </div>
+        <button 
+          onClick={() => setIsMobileOpen(true)}
+          className="p-2 text-gray-300 hover:text-white"
+          aria-label="Abrir menú"
+        >
+          <Menu size={22} />
+        </button>
+      </div>
 
-      {/* Overlay oscuro en móviles */}
+      {/* ── MOBILE: Overlay ── */}
       {isMobileOpen && (
         <div 
-          className="md:hidden fixed inset-0 bg-black/50 z-40"
+          className="md:hidden fixed inset-0 bg-black/60 z-50 backdrop-blur-sm"
           onClick={() => setIsMobileOpen(false)}
         />
       )}
 
-      {/* Sidebar */}
-      <aside className={`sidebar flex flex-col justify-between h-screen fixed md:sticky top-0 left-0 bg-[#0F172A] text-white overflow-hidden w-[280px] shrink-0 border-r border-[#1E293B] print:hidden z-50 transition-transform duration-300 ease-in-out ${isMobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
-        <div className="flex-1 overflow-y-auto relative">
+      {/* ── SIDEBAR ── */}
+      <aside className={`
+        flex flex-col justify-between
+        fixed md:sticky top-0 left-0
+        h-screen w-[270px] shrink-0
+        bg-[#0F172A] text-white
+        border-r border-[#1E293B]
+        z-50 transition-transform duration-300 ease-in-out
+        print:hidden
+        ${isMobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
+      `}>
+        
+        {/* ── Scrollable content ── */}
+        <div className="flex-1 overflow-y-auto overscroll-contain">
           
-          {/* Botón cerrar en móviles */}
+          {/* Logo / Header */}
+          <div className="p-5 pb-4 border-b border-[#1E293B] flex items-start justify-between">
+            <div>
+              <h1 className="text-[13px] font-extrabold text-blue-400 tracking-wider leading-tight">ASOC. CIVIL PROPATRIA CHACAITO</h1>
+              <p className="text-[10px] text-gray-400 font-bold mt-1">RIF: J-00188684-2</p>
+              <p className="text-[10px] text-gray-500 font-semibold tracking-widest mt-2.5 border-t border-[#1E293B] pt-2">DESARROLLADO POR:</p>
+              <p className="text-[10px] text-gray-300 font-bold tracking-widest">UNIÓN CONTABLE GLOBAL</p>
+              <p className="text-[10px] text-gray-400 font-bold">RIF: J-50714716-9</p>
+            </div>
+            <button onClick={() => setIsMobileOpen(false)} className="md:hidden text-gray-500 hover:text-white ml-2 mt-0.5">
+              <X size={18} />
+            </button>
+          </div>
+
+          {/* Filtro Mes */}
+          <div className="px-4 pt-4 pb-2">
+            <GlobalMonthSelector />
+          </div>
+
+          {/* Navigation */}
+          <nav className="px-3 pb-4 space-y-4">
+            
+            {activeRole !== 'ASISTENTE' && (
+              <div>
+                <Link href="/" className={linkCls(pathname === '/')}>
+                  <BarChart2 size={17} /> Balance General
+                </Link>
+              </div>
+            )}
+
+            {activeRole !== 'ASISTENTE' && (
+              <div>
+                <p className="text-[9px] font-bold text-gray-600 tracking-widest px-3 mb-1.5 uppercase">Publicaciones</p>
+                <ul className="space-y-0.5">
+                  <li><Link href="/publicaciones" className={linkCls(pathname.startsWith('/publicaciones'))}><ClipboardCheck size={17} /> Publicación Mensual</Link></li>
+                </ul>
+              </div>
+            )}
+
+            <div>
+              <p className="text-[9px] font-bold text-gray-600 tracking-widest px-3 mb-1.5 uppercase">Recibos</p>
+              <ul className="space-y-0.5">
+                <li><Link href="/recibos" className={linkCls(pathname === '/recibos')}><Receipt size={17} /> Emisión de Recibos</Link></li>
+                <li><Link href="/recibos/historial" className={linkCls(pathname.startsWith('/recibos/historial'))}><ClipboardList size={17} /> Historial de Recibos</Link></li>
+              </ul>
+            </div>
+
+            {activeRole !== 'ASISTENTE' && (
+              <div>
+                <p className="text-[9px] font-bold text-gray-600 tracking-widest px-3 mb-1.5 uppercase">Asociados</p>
+                <ul className="space-y-0.5">
+                  <li><Link href="/directorio" className={linkCls(pathname.startsWith('/directorio'))}><Users size={17} /> Directorio</Link></li>
+                  <li><Link href="/movimientos-socios" className={linkCls(pathname.startsWith('/movimientos-socios'))}><FolderOpen size={17} /> Inscripciones y Cambios</Link></li>
+                  <li><Link href="/cxc" className={linkCls(pathname.startsWith('/cxc'))}><TrendingUp size={17} /> CxC</Link></li>
+                  <li><Link href="/cxp" className={linkCls(pathname.startsWith('/cxp'))}><TrendingDown size={17} /> CxP</Link></li>
+                </ul>
+              </div>
+            )}
+
+            {activeRole !== 'ASISTENTE' && (
+              <div>
+                <p className="text-[9px] font-bold text-gray-600 tracking-widest px-3 mb-1.5 uppercase">Financiero</p>
+                <ul className="space-y-0.5">
+                  <li><Link href="/ingresos" className={linkCls(pathname.startsWith('/ingresos'))}><FileText size={17} /> Auditoría Ingresos</Link></li>
+                  <li><Link href="/egresos" className={linkCls(pathname.startsWith('/egresos'))}><ClipboardCheck size={17} /> Auditoría Egresos</Link></li>
+                  <li><Link href="/resultados" className={linkCls(pathname.startsWith('/resultados'))}><TrendingUp size={17} /> Auditoría Resultados</Link></li>
+                </ul>
+              </div>
+            )}
+
+            {activeRole === 'CONTABLE' && (
+              <div>
+                <p className="text-[9px] font-bold text-gray-600 tracking-widest px-3 mb-1.5 uppercase">Libros Contables</p>
+                <ul className="space-y-0.5">
+                  <li><Link href="/contabilidad/asientos" className={linkCls(pathname.startsWith('/contabilidad/asientos'))}><Calculator size={17} /> Asientos Contables</Link></li>
+                  <li><Link href="/contabilidad/plan-cuentas" className={linkCls(pathname.startsWith('/contabilidad/plan-cuentas'))}><ClipboardList size={17} /> Plan de Cuentas</Link></li>
+                  <li><Link href="/contabilidad/libro-diario" className={linkCls(pathname.startsWith('/contabilidad/libro-diario'))}><Book size={17} /> Libro Diario</Link></li>
+                  <li><Link href="/contabilidad/libro-mayor" className={linkCls(pathname.startsWith('/contabilidad/libro-mayor'))}><BookOpen size={17} /> Libro Mayor</Link></li>
+                  <li><Link href="/contabilidad/balance-comprobacion" className={linkCls(pathname.startsWith('/contabilidad/balance-comprobacion'))}><Scale size={17} /> Balance de Comprobación</Link></li>
+                  <li><Link href="/contabilidad/estado-situacion" className={linkCls(pathname.startsWith('/contabilidad/estado-situacion'))}><PieChart size={17} /> Edo. Situación Financiera</Link></li>
+                  <li><Link href="/contabilidad/estado-resultados" className={linkCls(pathname.startsWith('/contabilidad/estado-resultados'))}><TrendingUp size={17} /> Estado de Resultados</Link></li>
+                  <li><Link href="/contabilidad/cierre" className={linkCls(pathname.startsWith('/contabilidad/cierre'))}><Lock size={17} /> Asientos de Cierre</Link></li>
+                </ul>
+              </div>
+            )}
+
+            {activeRole !== 'ASISTENTE' && (
+              <div>
+                <p className="text-[9px] font-bold text-gray-600 tracking-widest px-3 mb-1.5 uppercase">Sistema</p>
+                <ul className="space-y-0.5">
+                  <li><Link href="/configuracion" className={linkCls(pathname.startsWith('/configuracion'))}><Inbox size={17} /> Configuración y Respaldos</Link></li>
+                </ul>
+              </div>
+            )}
+
+          </nav>
+        </div>
+
+        {/* Footer */}
+        <div className="p-4 border-t border-[#1E293B] shrink-0">
+          <p className="px-1 py-1 text-[11px] text-gray-500 mb-2">
+            Conectado como: <span className="text-white font-bold">{activeRole || 'Invitado'}</span>
+          </p>
           <button 
-            onClick={() => setIsMobileOpen(false)}
-            className="md:hidden absolute top-4 right-4 text-gray-400 hover:text-white"
+            onClick={handleLogout}
+            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-red-500/10 text-red-400 font-semibold rounded-lg hover:bg-red-500 hover:text-white transition-colors text-sm"
           >
-            <X size={20} />
+            <LogOut size={16} /> Cerrar Sesión
           </button>
-
-          <div className="p-6 pb-4 border-b border-[#1E293B]">
-            <h1 className="text-[14px] font-extrabold text-blue-400 tracking-wider pr-6">ASOC. CIVIL PROPATRIA CHACAITO</h1>
-            <p className="text-[10px] text-gray-400 font-bold mt-1">RIF: J-00188684-2</p>
-            <p className="text-[10px] text-gray-500 font-semibold tracking-widest mt-3 border-t border-[#1E293B] pt-2">DESARROLLADO POR:</p>
-            <p className="text-[10px] text-gray-300 font-bold tracking-widest">UNIÓN CONTABLE GLOBAL</p>
-            <p className="text-[10px] text-gray-400 font-bold">RIF: J-50714716-9</p>
-          </div>
-          
-
-        <div className="px-5 mt-4 mb-2">
-          <GlobalMonthSelector />
         </div>
-
-        <nav className="p-4 space-y-6">
-          {activeRole !== 'ASISTENTE' && (
-            <div className="space-y-1">
-              <Link href="/" className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${pathname === '/' ? 'bg-blue-600 text-white font-semibold' : 'text-gray-400 hover:text-white hover:bg-[#1E293B]'}`}>
-                <BarChart2 size={18} /> Balance General
-              </Link>
-            </div>
-          )}
-
-          {activeRole !== 'ASISTENTE' && (
-            <div className="space-y-1">
-              <div className="text-[10px] font-bold text-gray-500 tracking-widest px-3 mb-2 uppercase">MÓDULO DE PUBLICACIONES</div>
-              <ul className="space-y-1">
-                <li><Link href="/publicaciones" className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${pathname.startsWith('/publicaciones') ? 'bg-[#1E293B] text-white font-medium' : 'text-gray-400 hover:text-white hover:bg-[#1E293B]'}`}><ClipboardCheck size={18} /> Publicación Mensual</Link></li>
-              </ul>
-            </div>
-          )}
-
-          <div className="space-y-1">
-            <div className="text-[10px] font-bold text-gray-500 tracking-widest px-3 mb-2 uppercase">MÓDULO DE RECIBOS</div>
-            <ul className="space-y-1">
-              <li><Link href="/recibos" className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${pathname === '/recibos' ? 'bg-[#1E293B] text-white font-medium' : 'text-gray-400 hover:text-white hover:bg-[#1E293B]'}`}><Receipt size={18} /> Emisión de Recibos</Link></li>
-              <li><Link href="/recibos/historial" className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${pathname.startsWith('/recibos/historial') ? 'bg-[#1E293B] text-white font-medium' : 'text-gray-400 hover:text-white hover:bg-[#1E293B]'}`}><ClipboardList size={18} /> Historial de Recibos</Link></li>
-            </ul>
-          </div>
-
-          {activeRole !== 'ASISTENTE' && (
-            <div className="space-y-1">
-              <div className="text-[10px] font-bold text-gray-500 tracking-widest px-3 mb-2 uppercase">MÓDULO DE ASOCIADOS</div>
-              <ul className="space-y-1">
-                <li><Link href="/directorio" className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${pathname.startsWith('/directorio') ? 'bg-[#1E293B] text-white font-medium' : 'text-gray-400 hover:text-white hover:bg-[#1E293B]'}`}><Users size={18} /> Directorio de Asociados</Link></li>
-                <li><Link href="/movimientos-socios" className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${pathname.startsWith('/movimientos-socios') ? 'bg-[#1E293B] text-white font-medium' : 'text-gray-400 hover:text-white hover:bg-[#1E293B]'}`}><FolderOpen size={18} /> Inscripciones y Cambios</Link></li>
-                <li><Link href="/cxc" className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${pathname.startsWith('/cxc') ? 'bg-[#1E293B] text-white font-medium' : 'text-gray-400 hover:text-white hover:bg-[#1E293B]'}`}><TrendingUp size={18} /> Cuenta por Cobrar (CxC)</Link></li>
-                <li><Link href="/cxp" className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${pathname.startsWith('/cxp') ? 'bg-[#1E293B] text-white font-medium' : 'text-gray-400 hover:text-white hover:bg-[#1E293B]'}`}><TrendingDown size={18} /> Cuenta por Pagar (CxP)</Link></li>
-              </ul>
-            </div>
-          )}
-
-          {activeRole !== 'ASISTENTE' && (
-            <div className="space-y-1">
-              <div className="text-[10px] font-bold text-gray-500 tracking-widest px-3 mb-2 uppercase">MÓDULO FINANCIERO</div>
-              <ul className="space-y-1">
-                <li><Link href="/ingresos" className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${pathname.startsWith('/ingresos') ? 'bg-[#1E293B] text-white font-medium' : 'text-gray-400 hover:text-white hover:bg-[#1E293B]'}`}><FileText size={18} /> Auditoría de Ingresos</Link></li>
-                <li><Link href="/egresos" className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${pathname.startsWith('/egresos') ? 'bg-[#1E293B] text-white font-medium' : 'text-gray-400 hover:text-white hover:bg-[#1E293B]'}`}><ClipboardCheck size={18} /> Auditoría de Egresos</Link></li>
-                <li><Link href="/resultados" className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${pathname.startsWith('/resultados') ? 'bg-blue-600 text-white font-medium' : 'text-gray-400 hover:text-white hover:bg-[#1E293B]'}`}><TrendingUp size={18} /> Auditoría de Resultados</Link></li>
-              </ul>
-            </div>
-          )}
-
-          {activeRole === 'CONTABLE' && (
-            <div className="space-y-1">
-              <div className="text-[10px] font-bold text-gray-500 tracking-widest px-3 mb-2 uppercase">LIBROS CONTABLES LEGALES</div>
-              <ul className="space-y-1">
-                <li><Link href="/contabilidad/asientos" className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${pathname.startsWith('/contabilidad/asientos') ? 'bg-[#1E293B] text-white font-medium' : 'text-gray-400 hover:text-white hover:bg-[#1E293B]'}`}><Calculator size={18} /> Asientos Contables</Link></li>
-                <li><Link href="/contabilidad/plan-cuentas" className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${pathname.startsWith('/contabilidad/plan-cuentas') ? 'bg-[#1E293B] text-white font-medium' : 'text-gray-400 hover:text-white hover:bg-[#1E293B]'}`}><ClipboardList size={18} /> Plan de Cuentas</Link></li>
-                <li><Link href="/contabilidad/libro-diario" className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-gray-400 hover:text-white hover:bg-[#1E293B]`}><Book size={18} /> Libro Diario</Link></li>
-                <li><Link href="/contabilidad/libro-mayor" className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-gray-400 hover:text-white hover:bg-[#1E293B]`}><BookOpen size={18} /> Libro Mayor</Link></li>
-                <li><Link href="/contabilidad/balance-comprobacion" className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-gray-400 hover:text-white hover:bg-[#1E293B]`}><Scale size={18} /> Balance de Comprobación</Link></li>
-                <li><Link href="/contabilidad/estado-situacion" className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-gray-400 hover:text-white hover:bg-[#1E293B]`}><PieChart size={18} /> Edo. Situación Financiera</Link></li>
-                <li><Link href="/contabilidad/estado-resultados" className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-gray-400 hover:text-white hover:bg-[#1E293B]`}><TrendingUp size={18} /> Estado de Resultados</Link></li>
-                <li><Link href="/contabilidad/cierre" className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-gray-400 hover:text-white hover:bg-[#1E293B]`}><Lock size={18} /> Asientos de Cierre</Link></li>
-              </ul>
-            </div>
-          )}
-
-          {activeRole !== 'ASISTENTE' && (
-            <div className="space-y-1">
-              <div className="text-[10px] font-bold text-gray-500 tracking-widest px-3 mb-2 uppercase">SISTEMA</div>
-              <ul className="space-y-1">
-                <li><Link href="/configuracion" className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${pathname.startsWith('/configuracion') ? 'bg-[#1E293B] text-white font-medium' : 'text-gray-400 hover:text-white hover:bg-[#1E293B]'}`}><Inbox size={18} /> Configuración y Respaldos</Link></li>
-              </ul>
-            </div>
-          )}
-
-        </nav>
-      </div>
-
-      <div className="p-4 border-t border-[#1E293B]">
-        <div className="px-3 py-2 text-xs text-gray-500 mb-2 font-medium">
-          Conectado como: <span className="text-white font-bold">{activeRole || 'Invitado'}</span>
-        </div>
-        <button 
-          onClick={handleLogout}
-          className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-red-500/10 text-red-500 font-semibold rounded-lg hover:bg-red-500 hover:text-white transition-colors"
-        >
-          <LogOut size={16} /> Cerrar Sesión
-        </button>
-      </div>
-    </aside>
+      </aside>
+    </>
   );
 }

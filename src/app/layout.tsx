@@ -1,23 +1,10 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import Link from "next/link";
-import { 
-  BarChart2, 
-  Users, 
-  FolderOpen, 
-  TrendingUp, 
-  TrendingDown, 
-  FileText, 
-  ClipboardCheck, 
-  ArrowRightLeft, 
-  Book, 
-  BookOpen, 
-  Scale,
-  Receipt
-} from "lucide-react";
 import { cookies } from "next/headers";
 import Sidebar from "@/components/layout/Sidebar";
+import GlobalLoader from "@/components/GlobalLoader";
+import AIAssistant from "@/components/AIAssistant";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -29,13 +16,16 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-import GlobalLoader from "@/components/GlobalLoader";
-import GlobalMonthSelector from "@/components/layout/GlobalMonthSelector";
-import AIAssistant from "@/components/AIAssistant";
-
 export const metadata: Metadata = {
-  title: "Unión Contable Global",
-  description: "Sistema contable web integral",
+  title: "Unión Contable Global – Propatria Chacaito",
+  description: "Sistema contable web integral – Asoc. Civil Propatria Chacaito",
+};
+
+// ✅ Viewport correcta para tablets y celulares
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
 };
 
 export default async function RootLayout({
@@ -52,7 +42,8 @@ export default async function RootLayout({
         <GlobalLoader>
           <div className="layout-container">
             <Sidebar initialRole={initialRole} />
-            <main className="main-content pt-14 md:pt-0">
+            {/* pt-14 en móvil: espacio para la barra superior fija */}
+            <main className="main-content pt-14 md:pt-0 min-w-0 overflow-x-hidden">
               {children}
               <AIAssistant />
             </main>
