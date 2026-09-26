@@ -402,3 +402,69 @@ ul {
 .print-show-block {
   display: none;
 }
+
+/* ════════════════════════════════════════════════════════
+   RESPONSIVE GLOBAL — aplica a todos los módulos
+   ════════════════════════════════════════════════════════ */
+
+/* ── Todas las tablas tienen scroll horizontal en móvil ── */
+.overflow-x-auto {
+  -webkit-overflow-scrolling: touch;
+}
+
+@media (max-width: 767px) {
+  /* Títulos grandes → más pequeños en móvil */
+  h1 {
+    font-size: 1.25rem !important;
+    line-height: 1.4 !important;
+  }
+
+  h2 {
+    font-size: 1.1rem !important;
+  }
+
+  /* Forzar overflow-x scroll en contenedores de tabla */
+  div:has(> table),
+  .table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Reducir padding en cards globales */
+  .card {
+    padding: 0.875rem;
+  }
+
+  /* Stat cards: grid de 2 columnas mínimo */
+  .grid {
+    gap: 0.75rem !important;
+  }
+
+  /* Botones: texto más pequeño en móvil */
+  button {
+    font-size: 0.8rem;
+  }
+
+  /* Reducir padding de encabezados de tabla */
+  th, td {
+    padding-left: 0.75rem !important;
+    padding-right: 0.75rem !important;
+  }
+
+  /* Modales: pantalla completa en móvil */
+  [class*="fixed"][class*="inset-0"] > div[class*="bg-white"],
+  [class*="fixed"][class*="inset-0"] > div[class*="bg-gray"] {
+    width: 100% !important;
+    max-width: 100% !important;
+    max-height: 100% !important;
+    border-radius: 0 !important;
+    overflow-y: auto;
+  }
+}
+
+@media (max-width: 480px) {
+  /* En pantallas muy pequeñas, los grids de 2 columnas se vuelven 1 */
+  .grid-cols-2 {
+    grid-template-columns: repeat(1, minmax(0, 1fr)) !important;
+  }
+}

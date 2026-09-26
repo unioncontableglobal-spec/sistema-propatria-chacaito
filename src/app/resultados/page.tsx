@@ -228,7 +228,7 @@ export default function ResultadosPage() {
 
   // ── RENDER ───────────────────────────────────────────────────────────────
   return (
-    <div className="p-6 md:p-8 max-w-7xl mx-auto min-h-screen pb-24">
+    <div className="p-3 md:p-6 lg:p-8 max-w-7xl mx-auto min-h-screen pb-24">
 
       {/* ── HEADER ─────────────────────────────────────────────────────── */}
       <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-8 print-hide">

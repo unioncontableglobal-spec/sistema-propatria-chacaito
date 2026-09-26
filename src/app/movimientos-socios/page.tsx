@@ -98,7 +98,7 @@ export default function MovimientosSocios() {
   };
 
   return (
-    <div className="p-6 md:p-8 max-w-[1600px] mx-auto w-full animate-in fade-in duration-500">
+    <div className="p-3 md:p-6 lg:p-8 max-w-[1600px] mx-auto w-full animate-in fade-in duration-500">
       
       {/* Header Premium */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4">

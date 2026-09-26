@@ -8,7 +8,7 @@ export const metadata = {
 
 export default function RecibosPage() {
   return (
-    <div className="p-6">
+    <div className="p-3 md:p-6">
       <div className="mb-6 no-print">
         <h1 className="text-2xl font-bold text-[#0A1128]">Módulo de Facturación y Recibos</h1>
         <p className="text-gray-500">Gestione los ingresos y egresos de los asociados</p>

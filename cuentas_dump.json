@@ -1,0 +1,2158 @@
+[
+  {
+    "id": 1,
+    "codigo": "1",
+    "nombre": "ACTIVOS",
+    "tipoSaldo": "DEUDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 2,
+    "codigo": "11",
+    "nombre": "ACTIVOS CORRIENTES",
+    "tipoSaldo": "DEUDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 3,
+    "codigo": "1101",
+    "nombre": "Caja",
+    "tipoSaldo": "DEUDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 4,
+    "codigo": "1101001",
+    "nombre": "Caja Principal",
+    "tipoSaldo": "DEUDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 5,
+    "codigo": "1101002",
+    "nombre": "Caja A.C.P.C.CH. (BS.)",
+    "tipoSaldo": "DEUDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 6,
+    "codigo": "1101003",
+    "nombre": "Caja en Moneda Extranjera",
+    "tipoSaldo": "DEUDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 7,
+    "codigo": "1102",
+    "nombre": "Bancos",
+    "tipoSaldo": "DEUDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 8,
+    "codigo": "1102001",
+    "nombre": "Banco Bancamiga",
+    "tipoSaldo": "DEUDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 9,
+    "codigo": "1102002",
+    "nombre": "Banco Mercantil",
+    "tipoSaldo": "DEUDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 10,
+    "codigo": "1102003",
+    "nombre": "Banco de Venezuela",
+    "tipoSaldo": "DEUDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 11,
+    "codigo": "1102004",
+    "nombre": "Banco Banesco Banco Universal",
+    "tipoSaldo": "DEUDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 12,
+    "codigo": "1103",
+    "nombre": "Deudores Comerciales y Otras Cuentas por cobrar",
+    "tipoSaldo": "DEUDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 13,
+    "codigo": "1103001",
+    "nombre": "Cuentas Por Cobrar Clientes",
+    "tipoSaldo": "DEUDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 14,
+    "codigo": "1103002",
+    "nombre": "Cuentas Por Cobrar Comerciales o Proveedores",
+    "tipoSaldo": "DEUDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 15,
+    "codigo": "1103003",
+    "nombre": "Cuentas Por Cobrar Empresas Relacionadas",
+    "tipoSaldo": "DEUDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 16,
+    "codigo": "1103004",
+    "nombre": "Otras cuentas por Cobrar",
+    "tipoSaldo": "DEUDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 17,
+    "codigo": "1103021",
+    "nombre": "Provision para cuentas Incobrables",
+    "tipoSaldo": "DEUDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 18,
+    "codigo": "1103031",
+    "nombre": "Deudas por Reajustabilidad a Clientes y/o Empresas Relacionadas",
+    "tipoSaldo": "DEUDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 19,
+    "codigo": "1103032",
+    "nombre": "Deudas por Reajustabilidad a Comerciales o Proveedores",
+    "tipoSaldo": "DEUDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 20,
+    "codigo": "1104",
+    "nombre": "Anticipos a Proveedores y/o clientes",
+    "tipoSaldo": "DEUDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 21,
+    "codigo": "1104001",
+    "nombre": "Anticipos a Proveedores",
+    "tipoSaldo": "DEUDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 22,
+    "codigo": "1105",
+    "nombre": "Cuentas Por Cobrar Empleados, Directivos",
+    "tipoSaldo": "DEUDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 23,
+    "codigo": "1105001",
+    "nombre": "Prestamos Personales a empleados",
+    "tipoSaldo": "DEUDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 24,
+    "codigo": "1105002",
+    "nombre": "Prestamos Personales a Directivos y/o Socios",
+    "tipoSaldo": "DEUDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 25,
+    "codigo": "1105010",
+    "nombre": "Otros prestamos personales a empleados, Directivos y/o Socios",
+    "tipoSaldo": "DEUDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 26,
+    "codigo": "1106",
+    "nombre": "Anticipos de Prestaciones Sociales",
+    "tipoSaldo": "DEUDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 27,
+    "codigo": "1106001",
+    "nombre": "Anticipo Prestaciones Sociales a empleados",
+    "tipoSaldo": "DEUDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 28,
+    "codigo": "1106002",
+    "nombre": "Anticipo Prestaciones Sociales a Directivos y/o Socios",
+    "tipoSaldo": "DEUDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 29,
+    "codigo": "1106003",
+    "nombre": "Anticipo Utilidades a empleados",
+    "tipoSaldo": "DEUDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 30,
+    "codigo": "1106004",
+    "nombre": "Anticipo Utilidades a Directivos y/o Socios",
+    "tipoSaldo": "DEUDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 31,
+    "codigo": "1106010",
+    "nombre": "Otros Anticipos Laborales a empleados, Directivos y/o Socios",
+    "tipoSaldo": "DEUDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 32,
+    "codigo": "1107",
+    "nombre": "Inventarios",
+    "tipoSaldo": "DEUDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 33,
+    "codigo": "1107001",
+    "nombre": "Inventarios de Mercancía",
+    "tipoSaldo": "DEUDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 34,
+    "codigo": "1107011",
+    "nombre": "Deterioro en Inventarios de Mercancias",
+    "tipoSaldo": "DEUDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 35,
+    "codigo": "1108",
+    "nombre": "Impuestos Corrientes",
+    "tipoSaldo": "DEUDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 36,
+    "codigo": "1108001",
+    "nombre": "Declaracion Estimada del I.S.L.R",
+    "tipoSaldo": "DEUDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 37,
+    "codigo": "1108002",
+    "nombre": "Anticipos de I.S.L.R sobre Ventas Declaradas",
+    "tipoSaldo": "DEUDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 38,
+    "codigo": "1108003",
+    "nombre": "Anticipos de I.V.A por Debitos Fiscales",
+    "tipoSaldo": "DEUDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 39,
+    "codigo": "1108004",
+    "nombre": "I.V.A Crédito Fiscal sobre Compras",
+    "tipoSaldo": "DEUDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 40,
+    "codigo": "1108005",
+    "nombre": "I.V.A Retenido x Clientes",
+    "tipoSaldo": "DEUDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 41,
+    "codigo": "1108006",
+    "nombre": "Retencion I.S.L.R sobre Ingresos Bancarios",
+    "tipoSaldo": "DEUDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 42,
+    "codigo": "1108007",
+    "nombre": "I.S.L.R Retenido x Clientes",
+    "tipoSaldo": "DEUDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 43,
+    "codigo": "1109",
+    "nombre": "Prepagados",
+    "tipoSaldo": "DEUDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 44,
+    "codigo": "1109001",
+    "nombre": "Gastos pagados por distribuir",
+    "tipoSaldo": "DEUDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 45,
+    "codigo": "1109002",
+    "nombre": "Seguros de Transportes",
+    "tipoSaldo": "DEUDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 46,
+    "codigo": "1109003",
+    "nombre": "Seguros Todo Riesgo Empresarial",
+    "tipoSaldo": "DEUDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 47,
+    "codigo": "12",
+    "nombre": "ACTIVOS NO CORRIENTES",
+    "tipoSaldo": "DEUDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 48,
+    "codigo": "1201",
+    "nombre": "Propiedad, Planta y Equipos",
+    "tipoSaldo": "DEUDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 49,
+    "codigo": "1201001",
+    "nombre": "Terrenos",
+    "tipoSaldo": "DEUDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 50,
+    "codigo": "1201002",
+    "nombre": "Edificaciones",
+    "tipoSaldo": "DEUDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 51,
+    "codigo": "1201003",
+    "nombre": "Muebles y Enseres",
+    "tipoSaldo": "DEUDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 52,
+    "codigo": "1201004",
+    "nombre": "Equipos de Fotocopiado y Reproducción",
+    "tipoSaldo": "DEUDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 53,
+    "codigo": "1201005",
+    "nombre": "Equipos de Transporte",
+    "tipoSaldo": "DEUDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 54,
+    "codigo": "1201006",
+    "nombre": "Maquinarias y/o Herramientas en General",
+    "tipoSaldo": "DEUDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 55,
+    "codigo": "1201007",
+    "nombre": "Mobiliarios y Equipos de Oficina",
+    "tipoSaldo": "DEUDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 56,
+    "codigo": "1201100",
+    "nombre": "Otros Activos Propiedad Planta y Equipos",
+    "tipoSaldo": "DEUDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 57,
+    "codigo": "1202",
+    "nombre": "Depreciaciones Acumuladas Propiedad Plantas y Equipos",
+    "tipoSaldo": "DEUDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 58,
+    "codigo": "1202001",
+    "nombre": "Depreciación Acumulada de Bienes Inmuebles",
+    "tipoSaldo": "DEUDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 59,
+    "codigo": "1202002",
+    "nombre": "Depreciaciòn Acumulada de Otros Bienes inmuebles",
+    "tipoSaldo": "DEUDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 60,
+    "codigo": "1202003",
+    "nombre": "Depreciacón Acumulada de Equipos de Computación",
+    "tipoSaldo": "DEUDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 61,
+    "codigo": "1202004",
+    "nombre": "Depreciación Acumulada de Equipos de Fotocopiado y Reproducción",
+    "tipoSaldo": "DEUDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 62,
+    "codigo": "1202005",
+    "nombre": "Depreciación Acumulada de Equipos de Transporte",
+    "tipoSaldo": "DEUDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 63,
+    "codigo": "1202006",
+    "nombre": "Depreciación Acum. de Maq. y/o Htas. en General",
+    "tipoSaldo": "DEUDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 64,
+    "codigo": "1202007",
+    "nombre": "Depreciación Acum. de Muebles y Enseres",
+    "tipoSaldo": "DEUDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 65,
+    "codigo": "1202031",
+    "nombre": "Depreciaciòn Acumulada de Otros Activos Propiedad Planta y Equipos",
+    "tipoSaldo": "DEUDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 66,
+    "codigo": "1203",
+    "nombre": "Deterioro de Propiedad Planta y Equipos",
+    "tipoSaldo": "DEUDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 67,
+    "codigo": "1203001",
+    "nombre": "Deterioro de Bienes Inmuebles",
+    "tipoSaldo": "DEUDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 68,
+    "codigo": "1203002",
+    "nombre": "Deterioro de Otros Bienes inmuebles",
+    "tipoSaldo": "DEUDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 69,
+    "codigo": "1203003",
+    "nombre": "Deterioro de Equipos de Computación",
+    "tipoSaldo": "DEUDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 70,
+    "codigo": "1203004",
+    "nombre": "Deterioro de Equipos de Fotocopiado y Reproducción",
+    "tipoSaldo": "DEUDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 71,
+    "codigo": "1203005",
+    "nombre": "Deterioro de Equipos de Transporte",
+    "tipoSaldo": "DEUDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 72,
+    "codigo": "1203006",
+    "nombre": "Deterioro de Maquinarias y/o Equipos de Producción",
+    "tipoSaldo": "DEUDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 73,
+    "codigo": "1203007",
+    "nombre": "Deterioro de Mobiliarios y Equipos de Oficina",
+    "tipoSaldo": "DEUDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 74,
+    "codigo": "1203031",
+    "nombre": "Deterioro de Otros Activos Propiedad Planta y Equipos",
+    "tipoSaldo": "DEUDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 75,
+    "codigo": "1204",
+    "nombre": "Construciones en Proceso",
+    "tipoSaldo": "DEUDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 76,
+    "codigo": "1204001",
+    "nombre": "Construciones en Proceso",
+    "tipoSaldo": "DEUDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 77,
+    "codigo": "1205",
+    "nombre": "Activos Intangibles",
+    "tipoSaldo": "DEUDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 78,
+    "codigo": "1205001",
+    "nombre": "Patente de Marca Registrada",
+    "tipoSaldo": "DEUDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 79,
+    "codigo": "1206",
+    "nombre": "Amortizaciones Acumuladas de Activos Intangibles",
+    "tipoSaldo": "DEUDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 80,
+    "codigo": "1206001",
+    "nombre": "Amortización Acumulada de Marca Registrada",
+    "tipoSaldo": "DEUDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 81,
+    "codigo": "1207",
+    "nombre": "Deterioro de Activos Intangibles",
+    "tipoSaldo": "DEUDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 82,
+    "codigo": "1207001",
+    "nombre": "Deterioro de Marca Registrada",
+    "tipoSaldo": "DEUDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 83,
+    "codigo": "1208",
+    "nombre": "Propiedades De Inversión",
+    "tipoSaldo": "DEUDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 84,
+    "codigo": "1208001",
+    "nombre": "Equipos de Fotocopiado y Reproducción en alquiler",
+    "tipoSaldo": "DEUDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 85,
+    "codigo": "1208002",
+    "nombre": "Equipos de Maquinarias y Produccion en Alquiler",
+    "tipoSaldo": "DEUDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 86,
+    "codigo": "1208003",
+    "nombre": "Equipos de Transporte en Alquiler",
+    "tipoSaldo": "DEUDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 87,
+    "codigo": "1208004",
+    "nombre": "Locales Comerciales en Alquiler",
+    "tipoSaldo": "DEUDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 88,
+    "codigo": "1208005",
+    "nombre": "Mobiliarios y Equipos de Oficina en alquiler",
+    "tipoSaldo": "DEUDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 89,
+    "codigo": "1208006",
+    "nombre": "Propiedades en Arrendamiento",
+    "tipoSaldo": "DEUDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 90,
+    "codigo": "1208007",
+    "nombre": "Propiedades en CriptoActivos",
+    "tipoSaldo": "DEUDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 91,
+    "codigo": "1208011",
+    "nombre": "Otras Propiedades de Inversion en Alquiler",
+    "tipoSaldo": "DEUDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 92,
+    "codigo": "1209",
+    "nombre": "Ajuste Valor Razonable Propiedades De Inversisón",
+    "tipoSaldo": "DEUDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 93,
+    "codigo": "1209001",
+    "nombre": "Valor Razonable Equipos Fotocopiado y Reproducción",
+    "tipoSaldo": "DEUDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 94,
+    "codigo": "1209002",
+    "nombre": "Valor Razonable Equipos de Maquinarias y Producción",
+    "tipoSaldo": "DEUDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 95,
+    "codigo": "1209003",
+    "nombre": "Valor Razonable de Transporte",
+    "tipoSaldo": "DEUDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 96,
+    "codigo": "1209004",
+    "nombre": "Valor Razonable Locales Comerciales",
+    "tipoSaldo": "DEUDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 97,
+    "codigo": "1209005",
+    "nombre": "Valor Razonable de Mobiliarios y Equipos de Oficina",
+    "tipoSaldo": "DEUDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 98,
+    "codigo": "1209006",
+    "nombre": "Valor Razonable de Propiedades en CritoActivos",
+    "tipoSaldo": "DEUDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 99,
+    "codigo": "1209011",
+    "nombre": "Revaluación de Propiedades de Inversión y/o Arrendamiento",
+    "tipoSaldo": "DEUDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 100,
+    "codigo": "13",
+    "nombre": "OTROS ACTIVOS NO CORRIENTES",
+    "tipoSaldo": "DEUDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 101,
+    "codigo": "1301",
+    "nombre": "Otros Activos",
+    "tipoSaldo": "DEUDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 102,
+    "codigo": "1301001",
+    "nombre": "Activo Por Impuestos Diferidos",
+    "tipoSaldo": "DEUDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 103,
+    "codigo": "1301002",
+    "nombre": "Cuentas a Cobrar Intercompañias",
+    "tipoSaldo": "DEUDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 104,
+    "codigo": "1301003",
+    "nombre": "Cuentas a Cobrar Socios",
+    "tipoSaldo": "DEUDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 105,
+    "codigo": "1301005",
+    "nombre": "Otros Activos No Corrientes",
+    "tipoSaldo": "DEUDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 106,
+    "codigo": "2",
+    "nombre": "PASIVOS",
+    "tipoSaldo": "ACREEDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 107,
+    "codigo": "21",
+    "nombre": "PASIVOS CORRIENTES",
+    "tipoSaldo": "ACREEDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 108,
+    "codigo": "2101",
+    "nombre": "Acreedores Comerciales y Otras Cuentas por pagar",
+    "tipoSaldo": "ACREEDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 109,
+    "codigo": "2101001",
+    "nombre": "Cuentas Por Pagar a Clientes",
+    "tipoSaldo": "ACREEDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 110,
+    "codigo": "2101002",
+    "nombre": "Cuentas Por Pagar Comerciales o Proveedores",
+    "tipoSaldo": "ACREEDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 111,
+    "codigo": "2101003",
+    "nombre": "Cuentas Por Pagar a Empresas Relacionadas",
+    "tipoSaldo": "ACREEDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 112,
+    "codigo": "2101004",
+    "nombre": "Depositos en Garantias",
+    "tipoSaldo": "ACREEDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 113,
+    "codigo": "2101005",
+    "nombre": "Anticipo de Clientes",
+    "tipoSaldo": "ACREEDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 114,
+    "codigo": "2101011",
+    "nombre": "Otras Cuentas Por Pagar",
+    "tipoSaldo": "ACREEDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 115,
+    "codigo": "2102",
+    "nombre": "Impuestos Corrientes",
+    "tipoSaldo": "ACREEDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 116,
+    "codigo": "2102001",
+    "nombre": "Declaraciones I.S.L.R. por pagar",
+    "tipoSaldo": "ACREEDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 117,
+    "codigo": "2102002",
+    "nombre": "I.V.A. Débito Fiscal sobre Ventas",
+    "tipoSaldo": "ACREEDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 118,
+    "codigo": "2102003",
+    "nombre": "Retenciones de I.V.A. sobre Compras",
+    "tipoSaldo": "ACREEDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 119,
+    "codigo": "2102004",
+    "nombre": "Impuesto SENIAT - I.V.A. por Pagar",
+    "tipoSaldo": "ACREEDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 120,
+    "codigo": "2102005",
+    "nombre": "Retenciones I.S.L.R. sobre Compras",
+    "tipoSaldo": "ACREEDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 121,
+    "codigo": "2102006",
+    "nombre": "Retenciones de Impuesto Municipal",
+    "tipoSaldo": "ACREEDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 122,
+    "codigo": "2102007",
+    "nombre": "Impuesto SENIAT - Dec. Proteccion de Pensiones",
+    "tipoSaldo": "ACREEDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 123,
+    "codigo": "2102011",
+    "nombre": "Otras Retenciones de Impuestos por pagar",
+    "tipoSaldo": "ACREEDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 124,
+    "codigo": "2103",
+    "nombre": "Contribuciones, Retenciones Laborales",
+    "tipoSaldo": "ACREEDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 125,
+    "codigo": "2103001",
+    "nombre": "Nomina Laboral de Empleados por pagar",
+    "tipoSaldo": "ACREEDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 126,
+    "codigo": "2103002",
+    "nombre": "Retenciones ISLR-ARI Empleados por Pagar",
+    "tipoSaldo": "ACREEDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 127,
+    "codigo": "2103003",
+    "nombre": "Retencion Aportes I.N.C.E.S. por pagar",
+    "tipoSaldo": "ACREEDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 128,
+    "codigo": "2103004",
+    "nombre": "Retenciones Aportes F.A.O.V. por pagar",
+    "tipoSaldo": "ACREEDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 129,
+    "codigo": "2103005",
+    "nombre": "Retenciones Aportes S.S.O. y Regimen Prestacional de Empleo por pagar",
+    "tipoSaldo": "ACREEDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 130,
+    "codigo": "2103011",
+    "nombre": "Impuesto SENIAT - Dec. Proteccion de Pensiones",
+    "tipoSaldo": "ACREEDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 131,
+    "codigo": "2103012",
+    "nombre": "Impuestos Para Fondo Nacional Antidrogas (FONA)",
+    "tipoSaldo": "ACREEDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 132,
+    "codigo": "2103013",
+    "nombre": "Impuestos Para Ley de Deportes",
+    "tipoSaldo": "ACREEDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 133,
+    "codigo": "2103021",
+    "nombre": "Otros Impuestos y Contribuciones por pagar",
+    "tipoSaldo": "ACREEDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 134,
+    "codigo": "2104",
+    "nombre": "Provisiones Laborales",
+    "tipoSaldo": "ACREEDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 135,
+    "codigo": "2104001",
+    "nombre": "Deposito Garantía de Prestaciones Sociales",
+    "tipoSaldo": "ACREEDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 136,
+    "codigo": "2104002",
+    "nombre": "Provisión Intereses sobre Prestaciones Sociales",
+    "tipoSaldo": "ACREEDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 137,
+    "codigo": "2104003",
+    "nombre": "Provisión Bono de Utilidades",
+    "tipoSaldo": "ACREEDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 138,
+    "codigo": "2104004",
+    "nombre": "Provisión Bono Vacacional",
+    "tipoSaldo": "ACREEDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 139,
+    "codigo": "2104005",
+    "nombre": "Provisión Nomina Laboral",
+    "tipoSaldo": "ACREEDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 140,
+    "codigo": "2104006",
+    "nombre": "Provisión Bono de Alimentación",
+    "tipoSaldo": "ACREEDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 141,
+    "codigo": "2104011",
+    "nombre": "Otras Provisiones Laborales por pagar",
+    "tipoSaldo": "ACREEDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 142,
+    "codigo": "2105",
+    "nombre": "Creditos Diferidos",
+    "tipoSaldo": "ACREEDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 143,
+    "codigo": "2105001",
+    "nombre": "Ingresos Cobrados Por Anticipado",
+    "tipoSaldo": "ACREEDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 144,
+    "codigo": "2105002",
+    "nombre": "Alquileres Cobrados Por Anticipado",
+    "tipoSaldo": "ACREEDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 145,
+    "codigo": "22",
+    "nombre": "PASIVOS NO CORRIENTES",
+    "tipoSaldo": "ACREEDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 146,
+    "codigo": "2201",
+    "nombre": "Efectos a Largo Plazo",
+    "tipoSaldo": "ACREEDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 147,
+    "codigo": "2201001",
+    "nombre": "Efectos por pagar a Banco A",
+    "tipoSaldo": "ACREEDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 148,
+    "codigo": "2201002",
+    "nombre": "Efectos por pagar a Banco B",
+    "tipoSaldo": "ACREEDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 149,
+    "codigo": "2201003",
+    "nombre": "Efectos por pagar a Banco en Moneda Extranjera",
+    "tipoSaldo": "ACREEDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 150,
+    "codigo": "2201004",
+    "nombre": "Efectos por pagar a Clientes y/o Proveedores en Moneda Extranjera",
+    "tipoSaldo": "ACREEDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 151,
+    "codigo": "2202",
+    "nombre": "Impuesto Municipales por Pagar",
+    "tipoSaldo": "ACREEDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 152,
+    "codigo": "2202001",
+    "nombre": "Patente de Industria y Comercio",
+    "tipoSaldo": "ACREEDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 153,
+    "codigo": "2202002",
+    "nombre": "Ambiente",
+    "tipoSaldo": "ACREEDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 154,
+    "codigo": "2202011",
+    "nombre": "Otros Servicios Basicos por pagar",
+    "tipoSaldo": "ACREEDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 155,
+    "codigo": "23",
+    "nombre": "OTROS PASIVOS NO CORRIENTES",
+    "tipoSaldo": "ACREEDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 156,
+    "codigo": "2301",
+    "nombre": "Otros Pasivos",
+    "tipoSaldo": "ACREEDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 157,
+    "codigo": "2301001",
+    "nombre": "Cuentas Por Pagar Accionistas",
+    "tipoSaldo": "ACREEDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 158,
+    "codigo": "2301002",
+    "nombre": "Cuentas Por Pagar a Socio B",
+    "tipoSaldo": "ACREEDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 159,
+    "codigo": "2301011",
+    "nombre": "Dividendos Por Pagar A",
+    "tipoSaldo": "ACREEDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 160,
+    "codigo": "2301012",
+    "nombre": "Dividendos Por Pagar B",
+    "tipoSaldo": "ACREEDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 161,
+    "codigo": "2302",
+    "nombre": "Pasivo Por Impuesto Diferido",
+    "tipoSaldo": "ACREEDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 162,
+    "codigo": "2302001",
+    "nombre": "Pasivo Impuesto Diferido",
+    "tipoSaldo": "ACREEDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 163,
+    "codigo": "2302011",
+    "nombre": "Otros Arrendamientos y/o alquileres",
+    "tipoSaldo": "ACREEDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 164,
+    "codigo": "3",
+    "nombre": "PATRIMONIO",
+    "tipoSaldo": "ACREEDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 165,
+    "codigo": "31",
+    "nombre": "PATRIMONIO",
+    "tipoSaldo": "ACREEDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 166,
+    "codigo": "3101",
+    "nombre": "Capital Social",
+    "tipoSaldo": "ACREEDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 167,
+    "codigo": "3101001",
+    "nombre": "Capital Social - Aportes de Socios",
+    "tipoSaldo": "ACREEDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 168,
+    "codigo": "3101002",
+    "nombre": "Capital Social",
+    "tipoSaldo": "ACREEDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 169,
+    "codigo": "3102",
+    "nombre": "Reserva Legal",
+    "tipoSaldo": "ACREEDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 170,
+    "codigo": "3102001",
+    "nombre": "Reserva Legal",
+    "tipoSaldo": "ACREEDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 171,
+    "codigo": "3102002",
+    "nombre": "Otras Reservas de Patrominio",
+    "tipoSaldo": "ACREEDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 172,
+    "codigo": "3103",
+    "nombre": "Resultados de Ejercicios",
+    "tipoSaldo": "ACREEDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 173,
+    "codigo": "3103001",
+    "nombre": "Resultado Ejercicios Anteriores",
+    "tipoSaldo": "ACREEDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 174,
+    "codigo": "3103002",
+    "nombre": "Resultado del ejercicio",
+    "tipoSaldo": "ACREEDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 175,
+    "codigo": "3104",
+    "nombre": "Cuentas Fiscales",
+    "tipoSaldo": "ACREEDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 176,
+    "codigo": "3104001",
+    "nombre": "Actualización del Patrimonio",
+    "tipoSaldo": "ACREEDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 177,
+    "codigo": "3104002",
+    "nombre": "Exclusiones Historicas al Patrimonio",
+    "tipoSaldo": "ACREEDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 178,
+    "codigo": "3104003",
+    "nombre": "Reajuste por Inflacion Fiscal",
+    "tipoSaldo": "ACREEDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 179,
+    "codigo": "3104004",
+    "nombre": "Superavit por Revaluación de Activos",
+    "tipoSaldo": "ACREEDOR",
+    "clase": "REAL"
+  },
+  {
+    "id": 180,
+    "codigo": "4",
+    "nombre": "INGRESOS",
+    "tipoSaldo": "ACREEDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 181,
+    "codigo": "41",
+    "nombre": "INGRESOS ORDINARIOS",
+    "tipoSaldo": "ACREEDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 182,
+    "codigo": "4101",
+    "nombre": "Ventas",
+    "tipoSaldo": "ACREEDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 183,
+    "codigo": "4101001",
+    "nombre": "Ingresos por Alquileres",
+    "tipoSaldo": "ACREEDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 184,
+    "codigo": "4101002",
+    "nombre": "Ingresos por Servicios",
+    "tipoSaldo": "ACREEDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 185,
+    "codigo": "4101003",
+    "nombre": "Ingresos por Ventas",
+    "tipoSaldo": "ACREEDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 186,
+    "codigo": "4101004",
+    "nombre": "Ingresos por Ventas de CriptoActivos",
+    "tipoSaldo": "ACREEDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 187,
+    "codigo": "4101011",
+    "nombre": "Otros Ingresos",
+    "tipoSaldo": "ACREEDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 188,
+    "codigo": "4101021",
+    "nombre": "Ingresos por Envite y Azar",
+    "tipoSaldo": "ACREEDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 189,
+    "codigo": "4101022",
+    "nombre": "Ingresos por Participacion Señal Satelital",
+    "tipoSaldo": "ACREEDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 190,
+    "codigo": "5",
+    "nombre": "COSTOS",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 191,
+    "codigo": "51",
+    "nombre": "COSTOS DE VENTAS",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 192,
+    "codigo": "5101",
+    "nombre": "Compras Netas",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 193,
+    "codigo": "5101001",
+    "nombre": "Compras de mercancias y/o productos",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 194,
+    "codigo": "5101002",
+    "nombre": "Compras de mercancias y/o productos en Moneda Extranjera",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 195,
+    "codigo": "5101003",
+    "nombre": "Devoluciones en Compras",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 196,
+    "codigo": "5101004",
+    "nombre": "Descuentos en Compras",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 197,
+    "codigo": "5101011",
+    "nombre": "Costos por Adquisiciòn de CriptoActivos",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 198,
+    "codigo": "5101012",
+    "nombre": "Costos de Ventas",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 199,
+    "codigo": "5101013",
+    "nombre": "Costos por Participación a Operadoras",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 200,
+    "codigo": "5102",
+    "nombre": "Inventarios Iniciales",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 201,
+    "codigo": "5102001",
+    "nombre": "Inventario Inicial de Mercancía",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 202,
+    "codigo": "5103",
+    "nombre": "Inventarios Finales",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 203,
+    "codigo": "5103001",
+    "nombre": "Inventario Final de Mercancía",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 204,
+    "codigo": "61",
+    "nombre": "GASTOS DE OPERACIÓN",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 205,
+    "codigo": "6101",
+    "nombre": "Gastos del Personal",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 206,
+    "codigo": "6101001",
+    "nombre": "Sueldos y Salarios",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 207,
+    "codigo": "6101002",
+    "nombre": "Bono Vacacional",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 208,
+    "codigo": "6101003",
+    "nombre": "Bono de Utilidades",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 209,
+    "codigo": "6101004",
+    "nombre": "Comisiones pagadas a empleados",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 210,
+    "codigo": "6101011",
+    "nombre": "Otras Asignaciones laborales",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 211,
+    "codigo": "6102",
+    "nombre": "Beneficios Sociales",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 212,
+    "codigo": "6102001",
+    "nombre": "Prestaciones Sociales / Antigüedad",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 213,
+    "codigo": "6102002",
+    "nombre": "Intereses de Prestaciones Sociales",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 214,
+    "codigo": "6102003",
+    "nombre": "Cesta Tickets Socialista",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 215,
+    "codigo": "6102004",
+    "nombre": "Dotaciones al empleado",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 216,
+    "codigo": "6102005",
+    "nombre": "Contribucion para salud laboral",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 217,
+    "codigo": "6102011",
+    "nombre": "Otros Beneficios Laborales",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 218,
+    "codigo": "6103",
+    "nombre": "Aportes Laborales",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 219,
+    "codigo": "6103001",
+    "nombre": "Gastos Aportes F.A.O.V.  (Banavih)",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 220,
+    "codigo": "6103002",
+    "nombre": "Gastos Aportes I.N.C.E.S.",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 221,
+    "codigo": "6103003",
+    "nombre": "Gastos Aportes TIUNA (I.V.S.S)",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 222,
+    "codigo": "6103004",
+    "nombre": "Proteccion de Pensiones",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 223,
+    "codigo": "6103005",
+    "nombre": "Gasto Fona",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 224,
+    "codigo": "6103006",
+    "nombre": "Gasto Ley Del Deporte",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 225,
+    "codigo": "6103007",
+    "nombre": "Seguro Pólizas a Empleados",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 226,
+    "codigo": "6103008",
+    "nombre": "Viajes, Comidas, Hospedajes para empleados",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 227,
+    "codigo": "6103011",
+    "nombre": "Otros Gastos del Personal",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 228,
+    "codigo": "6104",
+    "nombre": "Gastos Generales de Operación",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 229,
+    "codigo": "6104001",
+    "nombre": "Alquileres de instalaciones",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 230,
+    "codigo": "6104002",
+    "nombre": "Cobranzas Administrativas",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 231,
+    "codigo": "6104003",
+    "nombre": "Fletes, transporte y encomiendas",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 232,
+    "codigo": "6104004",
+    "nombre": "Gastos De Representación",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 233,
+    "codigo": "6104005",
+    "nombre": "ISLR",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 234,
+    "codigo": "6104006",
+    "nombre": "Honorarios Profesionales",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 235,
+    "codigo": "6104007",
+    "nombre": "Impuestos Municipales",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 236,
+    "codigo": "6104008",
+    "nombre": "Gastos de Vehiculo",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 237,
+    "codigo": "6104009",
+    "nombre": "Mantenimiento y Reparaciones de equipos de oficina",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 238,
+    "codigo": "6104010",
+    "nombre": "Mantenimiento y Reparaciones de instalaciones",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 239,
+    "codigo": "6104011",
+    "nombre": "Mantenimiento y Reparaciones de maquinarias",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 240,
+    "codigo": "6104012",
+    "nombre": "Mantenimiento y Reparaciones de transporte",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 241,
+    "codigo": "6104013",
+    "nombre": "Publicidad y Mercadeo",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 242,
+    "codigo": "6104014",
+    "nombre": "Seguros de Transportes",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 243,
+    "codigo": "6104016",
+    "nombre": "Servicios de Agua Potable",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 244,
+    "codigo": "6104017",
+    "nombre": "Servicios de Electricidad, Aseo, Gas",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 245,
+    "codigo": "6104018",
+    "nombre": "Servicios de Estacionamiento",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 246,
+    "codigo": "6104019",
+    "nombre": "Servicios de telecomunicaciones (cantv, movil,cable)",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 247,
+    "codigo": "6104020",
+    "nombre": "Servicios de Vigilancia para las instalaciones",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 248,
+    "codigo": "6104021",
+    "nombre": "Servicios Tecnologicos",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 249,
+    "codigo": "6104022",
+    "nombre": "Sueldos de Directores",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 250,
+    "codigo": "6104023",
+    "nombre": "Suministros para la Oficina",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 251,
+    "codigo": "6104024",
+    "nombre": "Viajes, Comidas, Hospedajes a Directores y/o Socios",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 252,
+    "codigo": "6104031",
+    "nombre": "Otros Gastos de operaciones",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 253,
+    "codigo": "6104032",
+    "nombre": "Gastos de administracion",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 254,
+    "codigo": "6105",
+    "nombre": "Gastos de Depreciación, Amortización y Deterioro",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 255,
+    "codigo": "6105001",
+    "nombre": "Depreciación de Bienes Inmuebles",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 256,
+    "codigo": "6105002",
+    "nombre": "Depreciaciòn de Otros Bienes inmuebles",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 257,
+    "codigo": "6105003",
+    "nombre": "Depreciaicón de Equipos de Computación",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 258,
+    "codigo": "6105004",
+    "nombre": "Depreciación de Equipos de Fotocopiado y Reproducción",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 259,
+    "codigo": "6105005",
+    "nombre": "Depreciación de Equipos de Transporte",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 260,
+    "codigo": "6105006",
+    "nombre": "Depreciación de Maq. y/o Htas. En General",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 261,
+    "codigo": "6105007",
+    "nombre": "Depreciación de Muebles y Enseres",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 262,
+    "codigo": "6105008",
+    "nombre": "Depreciación de Propiedades en CritoActivos",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 263,
+    "codigo": "6105021",
+    "nombre": "Depreciaciòn de Otros Activos Propiedad Planta y Equipos",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 264,
+    "codigo": "6105031",
+    "nombre": "Depreciación por Deterioro de Bienes Inmuebles",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 265,
+    "codigo": "6105032",
+    "nombre": "Depreciación por Deterioro de Otros Bienes Inmuebles",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 266,
+    "codigo": "6105033",
+    "nombre": "Depreciación por Deterioro de Equipos de Computación",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 267,
+    "codigo": "6105034",
+    "nombre": "Depreciación por Deterioro de Equipos de Fotocopiado y Reproducción",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 268,
+    "codigo": "6105035",
+    "nombre": "Depreciación por Deterioro de Equipos de Transporte",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 269,
+    "codigo": "6105036",
+    "nombre": "Depreciación por Deterioro de Maquinarias y/o Equipos de Producción",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 270,
+    "codigo": "6105037",
+    "nombre": "Depreciación por Deterioro de Mobiliarios y Equipos de Oficina",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 271,
+    "codigo": "6105051",
+    "nombre": "Depreciación por Deterioro de Otros Activos Propiedad Planta y Equipos",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 272,
+    "codigo": "7",
+    "nombre": "OTROS INGRESOS",
+    "tipoSaldo": "ACREEDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 273,
+    "codigo": "71",
+    "nombre": "OTROS INGRESOS",
+    "tipoSaldo": "ACREEDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 274,
+    "codigo": "7101",
+    "nombre": "Ingresos Bancarios",
+    "tipoSaldo": "ACREEDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 275,
+    "codigo": "7101001",
+    "nombre": "Comisiones Ganadas",
+    "tipoSaldo": "ACREEDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 276,
+    "codigo": "7101002",
+    "nombre": "Ingresos Por Intereses",
+    "tipoSaldo": "ACREEDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 277,
+    "codigo": "7101003",
+    "nombre": "Ingresos por instrumentos negociables",
+    "tipoSaldo": "ACREEDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 278,
+    "codigo": "7101004",
+    "nombre": "Ingresos por instrumentos negociables en Moneda Extranjera",
+    "tipoSaldo": "ACREEDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 279,
+    "codigo": "7101011",
+    "nombre": "Otros Ingresos bancarios",
+    "tipoSaldo": "ACREEDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 280,
+    "codigo": "7102",
+    "nombre": "Ingresos Utilidad Valor Razonable",
+    "tipoSaldo": "ACREEDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 281,
+    "codigo": "7102001",
+    "nombre": "Ingreso Valor Razonable sobre ventas",
+    "tipoSaldo": "ACREEDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 282,
+    "codigo": "7102011",
+    "nombre": "Otros Ingresos por Valor Razonable",
+    "tipoSaldo": "ACREEDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 283,
+    "codigo": "8",
+    "nombre": "OTROS EGRESOS",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 284,
+    "codigo": "81",
+    "nombre": "OTROS EGRESOS",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 285,
+    "codigo": "8101",
+    "nombre": "Egresos Financieros",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 286,
+    "codigo": "8101001",
+    "nombre": "Intereses por sobre giro bancario",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 287,
+    "codigo": "8101006",
+    "nombre": "Intereses y/o comisión por prestamos bancarios",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 288,
+    "codigo": "8101007",
+    "nombre": "Comisiones Bancarias",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 289,
+    "codigo": "8102",
+    "nombre": "Impuestos y Contribuciones",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 290,
+    "codigo": "8102001",
+    "nombre": "Multas y Sanciones Tributarias",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 291,
+    "codigo": "8102002",
+    "nombre": "Multas y Sanciones Municipales",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 292,
+    "codigo": "8102003",
+    "nombre": "Multas y Sanciones Laborales",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 293,
+    "codigo": "8102011",
+    "nombre": "Multas y Saciones por Otras Fiscalizaciones",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 294,
+    "codigo": "8103",
+    "nombre": "Gastos No deducibles",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 295,
+    "codigo": "8103001",
+    "nombre": "Declaracion Impuesto sobre Actividades de Juego Envite y Azar",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 296,
+    "codigo": "8103002",
+    "nombre": "Declaración Impuesto sobre Ganancias Fortuitas",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 297,
+    "codigo": "8103003",
+    "nombre": "Declaración Impuesto Sobre La Renta Anual",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 298,
+    "codigo": "8103004",
+    "nombre": "Impuesto a las Grandes Transaciones Financieras I.G.T.F.",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 299,
+    "codigo": "8103005",
+    "nombre": "Intereses de mora I.N.C.E.S.",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 300,
+    "codigo": "8103006",
+    "nombre": "Intereses de mora S.S.O.",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 301,
+    "codigo": "8103007",
+    "nombre": "Intereses por Fiscalizaciones Municipales",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 302,
+    "codigo": "8103008",
+    "nombre": "Intereses por Fiscalizaciones Tributarias",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 303,
+    "codigo": "8103009",
+    "nombre": "Otros Gastos de Compras No deducibles",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 304,
+    "codigo": "8103010",
+    "nombre": "Otros Gastos de Servicios No deducibles",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 305,
+    "codigo": "8104",
+    "nombre": "Otros Resultados Integrales",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 306,
+    "codigo": "8104001",
+    "nombre": "Utilidad O Perdida Cambiaria",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 307,
+    "codigo": "8104002",
+    "nombre": "Utilidad O Perdida Cálculos Actuariales",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  },
+  {
+    "id": 308,
+    "codigo": "8104003",
+    "nombre": "Utilidad O Perdida Cálculos de CriptoActivos",
+    "tipoSaldo": "DEUDOR",
+    "clase": "NOMINAL"
+  }
+]

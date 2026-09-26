@@ -1,0 +1,3 @@
+◇ injected env (0) from .env.local // tip: ⌘ enable debugging { debug: true }
+Fetching all transactions without include...
+Success! Fetched 2334 rows in 1593ms

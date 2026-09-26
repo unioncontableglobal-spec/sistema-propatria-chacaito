@@ -189,7 +189,7 @@ export default function IngresosPage() {
 
   return (
     <>
-      <div className="p-6 bg-[#F8FAFC] min-h-screen print-hide">
+      <div className="p-3 md:p-6 bg-[#F8FAFC] min-h-screen print-hide">
       <div className="flex justify-between items-center mb-6">
         <div>
           <h1 className="text-2xl font-black text-[#0A1128]">Auditoría Financiera: Ingresos</h1>
