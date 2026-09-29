@@ -26,7 +26,7 @@ export default function AIAssistant() {
           onClick={() => setIsOpen(true)}
           className="bg-white hover:bg-gray-50 border-2 border-indigo-600 p-2 rounded-full shadow-2xl transition-all duration-300 flex items-center justify-center animate-bounce hover:animate-none"
         >
-          <Image src="/logo.png" alt="Agente" width={32} height={32} className="object-contain rounded-full" />
+          <Image src="/agente.png" alt="Agente" width={32} height={32} className="object-contain rounded-full" />
         </button>
       )}
 
@@ -37,7 +37,7 @@ export default function AIAssistant() {
           <div className="bg-indigo-600 text-white p-4 flex justify-between items-center shadow-md z-10">
             <div className="flex items-center gap-2">
               <div className="bg-white p-1 rounded-full w-9 h-9 flex items-center justify-center shadow-sm">
-                <Image src="/logo.png" alt="Agente" width={24} height={24} className="object-contain rounded-full" />
+                <Image src="/agente.png" alt="Agente" width={24} height={24} className="object-contain rounded-full" />
               </div>
               <div>
                 <h3 className="font-bold text-sm leading-tight">Super Agente Propatria</h3>
@@ -60,7 +60,7 @@ export default function AIAssistant() {
                 className={`flex gap-2 max-w-[85%] ${m.role === 'user' ? 'self-end flex-row-reverse' : 'self-start'}`}
               >
                 <div className={`shrink-0 w-8 h-8 rounded-full flex items-center justify-center shadow-sm ${m.role === 'user' ? 'bg-blue-100 text-blue-600' : 'bg-white border border-gray-200 p-0.5'}`}>
-                  {m.role === 'user' ? <User size={16} /> : <Image src="/logo.png" alt="Agente" width={24} height={24} className="object-contain rounded-full" />}
+                  {m.role === 'user' ? <User size={16} /> : <Image src="/agente.png" alt="Agente" width={24} height={24} className="object-contain rounded-full" />}
                 </div>
                 <div 
                   className={`p-3 rounded-2xl text-sm shadow-sm ${
@@ -77,7 +77,7 @@ export default function AIAssistant() {
             {isLoading && (
               <div className="flex gap-2 max-w-[85%] self-start">
                 <div className="shrink-0 w-8 h-8 rounded-full bg-white border border-gray-200 p-0.5 flex items-center justify-center shadow-sm">
-                  <Image src="/logo.png" alt="Agente" width={24} height={24} className="object-contain rounded-full" />
+                  <Image src="/agente.png" alt="Agente" width={24} height={24} className="object-contain rounded-full" />
                 </div>
                 <div className="p-3 rounded-2xl bg-white border border-gray-100 text-gray-400 text-sm italic rounded-tl-none flex items-center gap-2">
                   <div className="w-1.5 h-1.5 bg-indigo-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
