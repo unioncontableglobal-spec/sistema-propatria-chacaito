@@ -24,7 +24,7 @@ export default function AIAssistant() {
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="bg-white hover:bg-gray-50 border-2 border-indigo-600 p-2 rounded-full shadow-2xl transition-all duration-300 flex items-center justify-center animate-bounce hover:animate-none"
+          className="bg-white hover:bg-gray-50 border-2 border-indigo-600 p-2 rounded-full shadow-2xl transition-all duration-300 flex items-center justify-center hover:scale-110"
         >
           <Image src="/agente.png" alt="Agente" width={32} height={32} className="object-contain rounded-full" />
         </button>
