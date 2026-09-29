@@ -236,7 +236,7 @@ export default function IngresosPage() {
           onClick={() => setActiveTab('BANCOS')}
           className={`pb-3 text-sm font-black transition-colors border-b-2 flex items-center gap-2 ${activeTab === 'BANCOS' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-400 hover:text-gray-700'}`}
         >
-          Detalle Bancario (Ingresos y Egresos)
+          Detalle Bancario (Solo Ingresos)
         </button>
       </div>
 
