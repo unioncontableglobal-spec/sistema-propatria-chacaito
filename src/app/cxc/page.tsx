@@ -358,12 +358,32 @@ export default function CxcPage() {
 
         <div className="bg-[#0A1128] rounded-2xl p-5 shadow-sm text-white flex flex-col justify-center relative overflow-hidden">
           <div className="absolute -right-4 -bottom-4 opacity-10">
-            <svg width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v8"/><path d="M8 12h8"/></svg>
+            <svg width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>
           </div>
-          <p className="text-[10px] font-bold text-blue-400 uppercase tracking-wider mb-2 relative z-10">Desglose CxC</p>
-          <div className="flex justify-between text-xs mb-1.5 relative z-10"><span>Finanzas:</span> <span className="font-bold text-blue-100">{formatUsd(kpis.finanzas)}</span></div>
-          <div className="flex justify-between text-xs mb-1.5 relative z-10"><span>Montepíos:</span> <span className="font-bold text-blue-100">{formatUsd(kpis.montepios)}</span></div>
-          <div className="flex justify-between text-xs relative z-10"><span>Vidrios:</span> <span className="font-bold text-blue-100">{formatUsd(kpis.vidrios)}</span></div>
+          <p className="text-[10px] font-bold text-blue-400 uppercase tracking-wider mb-3 relative z-10">Composición CxC</p>
+          <div className="relative z-10 space-y-2.5">
+            <div>
+              <div className="flex justify-between text-[11px] mb-1">
+                <span className="text-gray-300">Finanzas</span>
+                <span className="font-bold text-white">{formatUsd(kpis.finanzas)} <span className="text-blue-400 font-normal ml-1">({kpis.totalUsd > 0 ? ((kpis.finanzas / kpis.totalUsd) * 100).toFixed(0) : 0}%)</span></span>
+              </div>
+              <div className="w-full bg-gray-800 rounded-full h-1"><div className="bg-blue-500 h-1 rounded-full" style={{ width: `${kpis.totalUsd > 0 ? (kpis.finanzas / kpis.totalUsd) * 100 : 0}%` }}></div></div>
+            </div>
+            <div>
+              <div className="flex justify-between text-[11px] mb-1">
+                <span className="text-gray-300">Montepíos</span>
+                <span className="font-bold text-white">{formatUsd(kpis.montepios)} <span className="text-blue-400 font-normal ml-1">({kpis.totalUsd > 0 ? ((kpis.montepios / kpis.totalUsd) * 100).toFixed(0) : 0}%)</span></span>
+              </div>
+              <div className="w-full bg-gray-800 rounded-full h-1"><div className="bg-purple-500 h-1 rounded-full" style={{ width: `${kpis.totalUsd > 0 ? (kpis.montepios / kpis.totalUsd) * 100 : 0}%` }}></div></div>
+            </div>
+            <div>
+              <div className="flex justify-between text-[11px] mb-1">
+                <span className="text-gray-300">Vidrios</span>
+                <span className="font-bold text-white">{formatUsd(kpis.vidrios)} <span className="text-blue-400 font-normal ml-1">({kpis.totalUsd > 0 ? ((kpis.vidrios / kpis.totalUsd) * 100).toFixed(0) : 0}%)</span></span>
+              </div>
+              <div className="w-full bg-gray-800 rounded-full h-1"><div className="bg-cyan-500 h-1 rounded-full" style={{ width: `${kpis.totalUsd > 0 ? (kpis.vidrios / kpis.totalUsd) * 100 : 0}%` }}></div></div>
+            </div>
+          </div>
         </div>
       </div>
 
