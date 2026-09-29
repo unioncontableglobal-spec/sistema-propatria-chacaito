@@ -117,10 +117,8 @@ export default function CxpPage() {
         if (!searchStr.includes(term)) return false;
       }
       return true;
-    });
-
-    // Ordenar: Primero por categoría (concepto), luego por fecha (más reciente a más antigua)
-    filtered.sort((a, b) => {
+    }).sort((a: any, b: any) => {
+      // Ordenar: Primero por categoría (concepto), luego por fecha (más reciente a más antigua)
       const catA = a.clasificacion || '';
       const catB = b.clasificacion || '';
       if (catA < catB) return -1;
@@ -129,8 +127,6 @@ export default function CxpPage() {
       const dateB = new Date(b.fecha).getTime();
       return dateB - dateA;
     });
-
-    return filtered;
   }, [transacciones, filtroMes, filtroCupo, filtroCategoria, filtroFormaPago, busqueda]);
 
   // KPIs
