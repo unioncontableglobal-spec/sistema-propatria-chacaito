@@ -485,6 +485,7 @@ export default function EgresosPage() {
       ) : (
         <BancosTab tipo="EGRESO" />
       )}
+      </div>
 
       <PrintReport
         titulo="Auditoría Financiera: Egresos"
