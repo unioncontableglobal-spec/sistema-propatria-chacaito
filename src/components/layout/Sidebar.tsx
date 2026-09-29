@@ -165,6 +165,7 @@ export default function Sidebar({ initialRole }: { initialRole: string | null })
                 <ul className="space-y-0.5">
                   <li><Link href="/ingresos" className={linkCls(pathname.startsWith('/ingresos'))}><FileText size={17} /> Auditoría Ingresos</Link></li>
                   <li><Link href="/egresos" className={linkCls(pathname.startsWith('/egresos'))}><ClipboardCheck size={17} /> Auditoría Egresos</Link></li>
+                  <li><Link href="/bancos" className={linkCls(pathname.startsWith('/bancos'))}><Calculator size={17} /> Detalle de Bancos</Link></li>
                   <li><Link href="/resultados" className={linkCls(pathname.startsWith('/resultados'))}><TrendingUp size={17} /> Auditoría Resultados</Link></li>
                 </ul>
               </div>
