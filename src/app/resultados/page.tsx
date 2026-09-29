@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState, useMemo } from 'react';
 import { useAppStore } from '@/store/useAppStore';
+import BancosTab from '@/components/recibos/BancosTab';
 
 // ─── Tipos correctos que coinciden con la API ───────────────────────────────
 type FormaPago = {
@@ -66,6 +67,7 @@ const fmtNum = (v: number) =>
 // ──────────────────────────────────────────────────────────────────────────
 export default function ResultadosPage() {
   const { filtroMesGlobal } = useAppStore();
+  const [activeTab, setActiveTab] = useState<'GENERAL' | 'BANCOS'>('GENERAL');
   const [ingresos, setIngresos]     = useState<Transaccion[]>([]);
   const [egresos, setEgresos]       = useState<Transaccion[]>([]);
   const [loading, setLoading]       = useState(true);
@@ -263,6 +265,24 @@ export default function ResultadosPage() {
         </div>
       </div>
 
+      {/* PESTAÑAS (TABS) */}
+      <div className="flex border-b border-gray-200 mb-8 gap-8 print-hide">
+        <button 
+          onClick={() => setActiveTab('GENERAL')}
+          className={`pb-3 text-sm font-black transition-colors border-b-2 ${activeTab === 'GENERAL' ? 'border-[#0A1128] text-[#0A1128]' : 'border-transparent text-gray-400 hover:text-gray-700'}`}
+        >
+          Estado de Resultados
+        </button>
+        <button 
+          onClick={() => setActiveTab('BANCOS')}
+          className={`pb-3 text-sm font-black transition-colors border-b-2 flex items-center gap-2 ${activeTab === 'BANCOS' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-400 hover:text-gray-700'}`}
+        >
+          Análisis Bancario (Ingresos vs Egresos)
+        </button>
+      </div>
+
+      {activeTab === 'GENERAL' ? (
+        <div className="animate-in fade-in duration-500">
       {/* ── PRINT HEADER ───────────────────────────────────────────────── */}
       <div className="hidden print-show-block text-center mb-8 border-b-2 border-[#0A1128] pb-4">
         <h1 className="text-xl font-black text-[#0A1128] uppercase tracking-widest">Asoc. Civil Propatria Chacaito · RIF: J-00188684-2</h1>
@@ -447,6 +467,11 @@ export default function ResultadosPage() {
           </table>
         </div>
       </div>
+
+      </div>
+      ) : (
+        <BancosTab tipo="AMBOS" />
+      )}
 
     </div>
   );
