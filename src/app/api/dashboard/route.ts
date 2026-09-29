@@ -28,7 +28,14 @@ export async function GET() {
         }
       }),
       prisma.cuentaPorCobrar.findMany({
-        select: { mes: true, tipo_publicacion: true, monto_a_cobrar: true }
+        select: { 
+          mes: true, 
+          tipo_publicacion: true, 
+          monto_a_cobrar: true,
+          socio: {
+            select: { ficha: true }
+          }
+        }
       }),
       prisma.cuentaPorPagar.findMany({
         select: { mes: true, monto: true, total: true }
@@ -113,6 +120,7 @@ export async function GET() {
     // Simplify CxC / CxP for now or use realistic values based on current schema
     const cxcRaw = cxcList.map(c => ({
       mes: mapMonthDb(c.mes),
+      ficha: c.socio?.ficha || '',
       fianzas: (c.tipo_publicacion === 'FIANZA' || c.tipo_publicacion === 'FINANZAS') ? c.monto_a_cobrar : 0,
       ayudasBs: c.tipo_publicacion?.includes('AYUDA') ? c.monto_a_cobrar : 0,
       vidrios: c.tipo_publicacion?.includes('VIDRIO') ? c.monto_a_cobrar : 0,

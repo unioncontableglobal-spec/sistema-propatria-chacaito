@@ -14,14 +14,21 @@ export default function CxpPage() {
 
   const { saCount, sbCount } = useMemo(() => {
     let sa = 0; let sb = 0;
-    if (data?.sociosActivosRaw) {
-      data.sociosActivosRaw.forEach(s => {
-        if (s.tipo === 'SA') sa++;
-        if (s.tipo === 'SB') sb++;
+    if (data?.cxcRaw) {
+      const targetMes = filtroMesGlobal !== 'HISTÓRICO TOTAL' ? filtroMesGlobal.toUpperCase() : null;
+      const fichasVistas = new Set<string>();
+      
+      data.cxcRaw.forEach(c => {
+        if (targetMes && c.mes !== targetMes) return;
+        if (!c.ficha || fichasVistas.has(c.ficha)) return;
+        fichasVistas.add(c.ficha);
+        
+        if (c.ficha.startsWith('SA')) sa++;
+        if (c.ficha.startsWith('SB')) sb++;
       });
     }
     return { saCount: sa, sbCount: sb };
-  }, [data?.sociosActivosRaw]);
+  }, [data?.cxcRaw, filtroMesGlobal]);
 
   // Filtros
   const filtroMes = filtroMesGlobal === 'HISTÓRICO TOTAL' ? '' : filtroMesGlobal;

@@ -16,10 +16,15 @@ export default function CxcPage() {
     let sa = 0; let sb = 0;
     if (data?.cxcRaw) {
       const targetMes = filtroMesGlobal !== 'HISTÓRICO TOTAL' ? filtroMesGlobal.toUpperCase() : null;
+      const fichasVistas = new Set<string>();
+      
       data.cxcRaw.forEach(c => {
         if (targetMes && c.mes !== targetMes) return;
-        if (c.socio?.ficha?.startsWith('SA')) sa++;
-        if (c.socio?.ficha?.startsWith('SB')) sb++;
+        if (!c.ficha || fichasVistas.has(c.ficha)) return;
+        fichasVistas.add(c.ficha);
+        
+        if (c.ficha.startsWith('SA')) sa++;
+        if (c.ficha.startsWith('SB')) sb++;
       });
     }
     return { saCount: sa, sbCount: sb };
@@ -29,7 +34,13 @@ export default function CxcPage() {
     if (!publicaciones || publicaciones.length === 0) return null;
     const targetMes = filtroMesGlobal !== 'HISTÓRICO TOTAL' ? filtroMesGlobal.toUpperCase() : null;
     if (!targetMes) return publicaciones[0];
-    return publicaciones.find(p => p.mes === targetMes) || publicaciones[0];
+    return publicaciones.find(p => {
+      try {
+        return codigoPubToSelector(p.mes).toUpperCase() === targetMes;
+      } catch {
+        return false;
+      }
+    }) || publicaciones[0];
   }, [publicaciones, filtroMesGlobal]);
 
   const montoPublicacion = useMemo(() => {
