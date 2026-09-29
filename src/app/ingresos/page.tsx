@@ -93,6 +93,15 @@ export default function IngresosPage() {
       }
 
       return true;
+    }).sort((a: any, b: any) => {
+      // Ordenar: Primero por categoría (concepto), luego por fecha (más reciente a más antigua)
+      const catA = a.clasificacion || '';
+      const catB = b.clasificacion || '';
+      if (catA < catB) return -1;
+      if (catA > catB) return 1;
+      const dateA = new Date(a.fecha).getTime();
+      const dateB = new Date(b.fecha).getTime();
+      return dateB - dateA;
     });
   }, [transacciones, filtroMes, filtroCupo, filtroCategoria, filtroFormaPago, busqueda]);
 
@@ -173,7 +182,11 @@ export default function IngresosPage() {
       .slice(0, 5);
 
     const topConceptos = Array.from(conceptosMap.entries())
-      .map(([concepto, monto]) => ({ concepto, monto }))
+      .map(([concepto, monto]) => ({ 
+        concepto, 
+        monto, 
+        porcentaje: totalUsd > 0 ? (monto / totalUsd) * 100 : 0 
+      }))
       .sort((a, b) => b.monto - a.monto)
       .slice(0, 4);
 
@@ -285,9 +298,12 @@ export default function IngresosPage() {
           </div>
           <p className="text-[10px] font-bold text-blue-400 uppercase tracking-wider mb-2 relative z-10">Top Conceptos Facturados</p>
           {kpis.topConceptos.length === 0 ? <span className="text-xs text-gray-400 z-10">Sin datos</span> : kpis.topConceptos.map(c => (
-            <div key={c.concepto} className="flex justify-between text-xs mb-1 relative z-10">
-              <span className="truncate w-24" title={c.concepto}>{c.concepto}:</span> 
-              <span className="font-bold text-blue-100">{formatUsd(c.monto)}</span>
+            <div key={c.concepto} className="flex justify-between items-center text-xs mb-1 relative z-10">
+              <span className="truncate flex-1 pr-2" title={c.concepto}>{c.concepto}:</span> 
+              <div className="flex gap-2 items-center justify-end">
+                <span className="font-bold text-blue-100">{formatUsd(c.monto)}</span>
+                <span className="text-[10px] text-blue-400/80 font-bold w-8 text-right">{c.porcentaje.toFixed(0)}%</span>
+              </div>
             </div>
           ))}
         </div>
@@ -437,7 +453,7 @@ export default function IngresosPage() {
                         {tx.codigo_concepto && <div className="text-[10px] text-gray-500">{tx.codigo_concepto}</div>}
                       </td>
                       <td className="px-4 py-3 text-xs text-gray-600">
-                        {metodos}
+                        {metodos.toUpperCase().includes('INGRESO') || metodos.toUpperCase().includes('EGRESO') ? 'COMPENSACIÓN / CANJE' : metodos}
                       </td>
                       <td className="px-4 py-3 text-right font-black text-emerald-600">
                         {formatUsd(tx.monto_usd || (tx.monto_bs / (tx.tasa_cambio || 360)))}
