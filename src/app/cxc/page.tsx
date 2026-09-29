@@ -28,13 +28,18 @@ export default function CxcPage() {
   const metaCxc = useMemo(() => {
     if (!data?.cxcRaw) return 0;
     const targetMes = filtroMesGlobal !== 'HISTÓRICO TOTAL' ? filtroMesGlobal.toUpperCase() : null;
-    let total = 0;
+    let totalUsd = 0;
     data.cxcRaw.forEach(cxc => {
       if (targetMes && cxc.mes !== targetMes) return;
-      total += (cxc.fianzas || 0) + (cxc.ayudasBs || 0) + (cxc.vidrios || 0) + (cxc.montepio || 0) + (cxc.grua || 0);
+      
+      const usdParts = (cxc.fianzas || 0) + (cxc.vidrios || 0) + (cxc.montepio || 0) + (cxc.grua || 0);
+      const tasa = data.tasaPorMes?.[cxc.mes] || 36.5;
+      const ayudasUsd = (cxc.ayudasBs || 0) / tasa;
+      
+      totalUsd += usdParts + ayudasUsd;
     });
-    return total;
-  }, [data?.cxcRaw, filtroMesGlobal]);
+    return totalUsd;
+  }, [data, filtroMesGlobal]);
 
   // Fetch de ingresos
   const fetchIngresos = async () => {
@@ -100,6 +105,17 @@ export default function CxcPage() {
       }
 
       return true;
+    }).sort((a, b) => {
+      // 1. Ordenar por Categoría
+      const catA = (a.clasificacion || '').toLowerCase();
+      const catB = (b.clasificacion || '').toLowerCase();
+      if (catA < catB) return -1;
+      if (catA > catB) return 1;
+      
+      // 2. Si es la misma categoría, ordenar por Fecha (más reciente primero)
+      const timeA = new Date(a.fecha).getTime();
+      const timeB = new Date(b.fecha).getTime();
+      return timeB - timeA;
     });
   }, [transacciones, filtroMes, filtroCupo, filtroCategoria, filtroFormaPago, busqueda]);
 
