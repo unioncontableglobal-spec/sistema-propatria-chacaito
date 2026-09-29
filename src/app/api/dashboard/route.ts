@@ -113,7 +113,7 @@ export async function GET() {
     // Simplify CxC / CxP for now or use realistic values based on current schema
     const cxcRaw = cxcList.map(c => ({
       mes: mapMonthDb(c.mes),
-      fianzas: c.tipo_publicacion === 'FIANZA' ? c.monto_a_cobrar : 0,
+      fianzas: (c.tipo_publicacion === 'FIANZA' || c.tipo_publicacion === 'FINANZAS') ? c.monto_a_cobrar : 0,
       ayudasBs: c.tipo_publicacion?.includes('AYUDA') ? c.monto_a_cobrar : 0,
       vidrios: c.tipo_publicacion?.includes('VIDRIO') ? c.monto_a_cobrar : 0,
       montepio: c.tipo_publicacion?.includes('MONTEPIO') ? c.monto_a_cobrar : 0,
