@@ -23,6 +23,25 @@ export default function CxcPage() {
     return { saCount: sa, sbCount: sb };
   }, [data?.sociosActivosRaw]);
 
+  const currentPub = useMemo(() => {
+    if (!publicaciones || publicaciones.length === 0) return null;
+    const targetMes = filtroMesGlobal !== 'HISTÓRICO TOTAL' ? filtroMesGlobal.toUpperCase() : null;
+    if (!targetMes) return publicaciones[0];
+    return publicaciones.find(p => p.mes === targetMes) || publicaciones[0];
+  }, [publicaciones, filtroMesGlobal]);
+
+  const montoPublicacion = useMemo(() => {
+    if (!currentPub) return 0;
+    try {
+      const reglas = JSON.parse(currentPub.reglas_json || '{}');
+      return (reglas.finanzas || 0) + 
+             (reglas.perCapita?.vidrios || 0) + 
+             (reglas.perCapita?.montepio || 0) + 
+             (reglas.perCapita?.grua || 0) + 
+             (reglas.perCapita?.ayudas || 0);
+    } catch { return 0; }
+  }, [currentPub]);
+
   // Filtros
   const filtroMes = filtroMesGlobal === 'HISTÓRICO TOTAL' ? '' : filtroMesGlobal;
   const setFiltroMes = (val: string) => setFiltroMesGlobal(val || 'HISTÓRICO TOTAL');
@@ -284,22 +303,29 @@ export default function CxcPage() {
           <div>
             <div className="flex justify-between items-start mb-1">
               <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Recaudación (Ingresos)</p>
-              <div className="flex flex-col items-end gap-1">
-                <span className="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">
-                  Meta: {formatUsd(metaCxc)}
-                </span>
-                <span className="text-[9px] font-bold text-gray-400">Población: {saCount} SA | {sbCount} SB</span>
-              </div>
+              <span className="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">
+                Meta: {formatUsd(metaCxc)}
+              </span>
             </div>
             <p className="text-3xl font-black text-[#0A1128]">{formatUsd(kpis.totalUsd)}</p>
           </div>
           <div className="mt-2 pt-2 border-t border-gray-100 w-full">
-            <div className="w-full bg-gray-100 rounded-full h-1.5 mb-1">
+            <div className="flex justify-between items-center mb-1.5">
+              <span className="text-[10px] text-gray-500 font-medium">Tot. Bs: {kpis.totalBs.toLocaleString('es-VE', {minimumFractionDigits: 2})}</span>
+              <span className="text-[10px] font-bold text-gray-700 bg-gray-100 px-2 py-0.5 rounded-md" title="Monto de la Cuota (Base SA)">
+                Cuota Mes: {montoPublicacion ? formatUsd(montoPublicacion) : '---'}
+              </span>
+            </div>
+            <div className="w-full bg-gray-100 rounded-full h-1.5 mb-1.5">
               <div className="bg-blue-600 h-1.5 rounded-full" style={{ width: `${metaCxc > 0 ? Math.min((kpis.totalUsd / metaCxc) * 100, 100) : 0}%` }}></div>
             </div>
-            <div className="flex justify-between items-center">
-              <span className="text-[10px] font-bold text-gray-400">Tot. Bs: {kpis.totalBs.toLocaleString('es-VE', {minimumFractionDigits: 2})}</span>
-              <p className="text-[10px] text-gray-500 font-bold text-right">{metaCxc > 0 ? ((kpis.totalUsd / metaCxc) * 100).toFixed(1) : 0}% cobrado</p>
+            <div className="flex justify-between items-center mb-1.5">
+              <span className="text-[10px] text-gray-400 font-bold">{metaCxc > 0 ? ((kpis.totalUsd / metaCxc) * 100).toFixed(1) : 0}% cobrado</span>
+            </div>
+            <div className="flex justify-center text-center bg-gray-50 py-1.5 rounded-lg border border-gray-100 mt-1">
+              <span className="text-[9px] font-bold text-gray-500 uppercase tracking-widest">
+                Población Activa: <span className="text-gray-800 ml-1">{saCount} SA</span> <span className="text-gray-300 mx-1">|</span> <span className="text-gray-800">{sbCount} SB</span>
+              </span>
             </div>
           </div>
         </div>
