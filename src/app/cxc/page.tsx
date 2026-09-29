@@ -14,14 +14,16 @@ export default function CxcPage() {
 
   const { saCount, sbCount } = useMemo(() => {
     let sa = 0; let sb = 0;
-    if (data?.sociosActivosRaw) {
-      data.sociosActivosRaw.forEach(s => {
-        if (s.tipo === 'SA') sa++;
-        if (s.tipo === 'SB') sb++;
+    if (data?.cxcRaw) {
+      const targetMes = filtroMesGlobal !== 'HISTÓRICO TOTAL' ? filtroMesGlobal.toUpperCase() : null;
+      data.cxcRaw.forEach(c => {
+        if (targetMes && c.mes !== targetMes) return;
+        if (c.socio?.ficha?.startsWith('SA')) sa++;
+        if (c.socio?.ficha?.startsWith('SB')) sb++;
       });
     }
     return { saCount: sa, sbCount: sb };
-  }, [data?.sociosActivosRaw]);
+  }, [data?.cxcRaw, filtroMesGlobal]);
 
   const currentPub = useMemo(() => {
     if (!publicaciones || publicaciones.length === 0) return null;
@@ -76,8 +78,8 @@ export default function CxcPage() {
     setIsLoading(true);
     try {
       const url = filtroMesGlobal !== 'HISTÓRICO TOTAL' 
-        ? `/api/recibos/historial?tipo=INGRESO&clasificacion=INGRESO_CXP&mes=${filtroMesGlobal}` 
-        : `/api/recibos/historial?tipo=INGRESO&clasificacion=INGRESO_CXP`;
+        ? `/api/recibos/historial?tipo=INGRESO&clasificacion=INGRESO_CXC&mes=${filtroMesGlobal}` 
+        : `/api/recibos/historial?tipo=INGRESO&clasificacion=INGRESO_CXC`;
       const res = await fetch(url);
       const data = await res.json();
       if (data.success) {
@@ -481,7 +483,7 @@ export default function CxcPage() {
                         {tx.codigo_concepto && <div className="text-[10px] text-gray-500">{tx.codigo_concepto}</div>}
                       </td>
                       <td className="px-4 py-3 text-xs text-gray-600">
-                        {metodos.toUpperCase().includes('EGRESO') ? 'COMPENSACIÓN / CANJE' : metodos}
+                        {metodos.toUpperCase().includes('INGRESO') || metodos.toUpperCase().includes('EGRESO') ? 'COMPENSACIÓN / CANJE' : metodos}
                       </td>
                       <td className="px-4 py-3 text-right font-black text-emerald-600">
                         {formatUsd(tx.monto_usd || 0)}

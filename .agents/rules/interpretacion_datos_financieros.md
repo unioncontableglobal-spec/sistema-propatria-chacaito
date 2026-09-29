@@ -19,3 +19,9 @@ Cuando un registro tiene `monto_usd == 1` y `tasa_cambio == monto_bs` (o una tas
 - **Fórmula Base**: La "Meta CxC" (Total a recaudar) de un mes específico es el resultado de: `(Cantidad de Socios Activos) × (Costo Per Cápita de la Publicación)`.
 - **Naturaleza del Dato**: El sistema materializa esta meta creando registros individuales en la tabla `CuentaPorCobrar` para cada socio activo durante la "Aprobación de la Publicación".
 - **Conceptos Exclusivos**: La multiplicación no es homogénea para todos los conceptos. Por ejemplo, el cobro de "Grúa" se prorratea y multiplica **únicamente** por los socios con cupo tipo "SA".
+
+## 6. Estándares UI y Filtrado del Panel General (Dashboard)
+- **Desglose Poblacional**: Siempre que se muestre la métrica de "Socios Activos" (Población) en cualquier tarjeta de KPI del Dashboard, esta debe desglosarse obligatoriamente por tipo de cupo (Ej: `Población Activa: 316 SA | 236 SB`). No se debe mostrar un simple número global sin el contexto del cupo.
+- **Exclusividad de la Tabla de Recientes**: La tabla de detalles de recibos del Panel General (`app/page.tsx`) debe estar filtrada para mostrar **única y exclusivamente** los pagos de publicaciones de CxC (Ingresos de CxC). No debe incluir egresos de CxP, remanentes ni pagos administrativos.
+- **Mapeo de Formas de Pago**: En cualquier tabla de detalles, si un método de pago dice "Ingreso" (cuando proviene de una operación de compensación de saldo a favor), el sistema debe renderizarlo en pantalla como **"COMPENSACIÓN / CANJE"**.
+- **Ordenamiento Visual de Detalles**: Todas las tablas de recibos (CxC, CxP y Dashboard) deben estar ordenadas en pantalla primero por **Categoría/Concepto (alfabético)** y luego por **Fecha (de más reciente a más antigua)** para agrupar visualmente los pagos del mismo rubro.
