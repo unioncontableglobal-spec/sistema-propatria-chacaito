@@ -12,6 +12,17 @@ export default function CxpPage() {
   const [transacciones, setTransacciones] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
+  const { saCount, sbCount } = useMemo(() => {
+    let sa = 0; let sb = 0;
+    if (data?.sociosActivosRaw) {
+      data.sociosActivosRaw.forEach(s => {
+        if (s.tipo === 'SA') sa++;
+        if (s.tipo === 'SB') sb++;
+      });
+    }
+    return { saCount: sa, sbCount: sb };
+  }, [data?.sociosActivosRaw]);
+
   // Filtros
   const filtroMes = filtroMesGlobal === 'HISTÓRICO TOTAL' ? '' : filtroMesGlobal;
   const setFiltroMes = (val: string) => setFiltroMesGlobal(val || 'HISTÓRICO TOTAL');
@@ -98,9 +109,21 @@ export default function CxpPage() {
         const searchStr = `${tx.recibo || ''} ${tx.socio?.ficha || ''} ${tx.socio?.nombre_apellido || ''} ${tx.tercero?.nombre || ''} ${tx.clasificacion || ''} ${tx.codigo_concepto || ''}`.toLowerCase();
         if (!searchStr.includes(term)) return false;
       }
-
       return true;
     });
+
+    // Ordenar: Primero por categoría (concepto), luego por fecha (más reciente a más antigua)
+    filtered.sort((a, b) => {
+      const catA = a.clasificacion || '';
+      const catB = b.clasificacion || '';
+      if (catA < catB) return -1;
+      if (catA > catB) return 1;
+      const dateA = new Date(a.fecha).getTime();
+      const dateB = new Date(b.fecha).getTime();
+      return dateB - dateA;
+    });
+
+    return filtered;
   }, [transacciones, filtroMes, filtroCupo, filtroCategoria, filtroFormaPago, busqueda]);
 
   // KPIs
@@ -278,12 +301,22 @@ export default function CxpPage() {
             <p className="text-3xl font-black text-[#0A1128]">{formatUsd(kpis.totalUsd)}</p>
           </div>
           <div className="mt-2 pt-2 border-t border-gray-100 w-full">
-            <div className="w-full bg-gray-100 rounded-full h-1.5 mb-1">
+            <div className="flex justify-between items-center mb-1.5">
+              <span className="text-[10px] text-gray-500 font-medium">Tot. Bs: {kpis.totalBs.toLocaleString('es-VE', {minimumFractionDigits: 2})}</span>
+              <span className="text-[10px] font-bold text-gray-700 bg-gray-100 px-2 py-0.5 rounded-md" title="Meta Total de Egresos">
+                Meta: {formatUsd(metaCxp)}
+              </span>
+            </div>
+            <div className="w-full bg-gray-100 rounded-full h-1.5 mb-1.5">
               <div className="bg-red-500 h-1.5 rounded-full" style={{ width: `${metaCxp > 0 ? Math.min((kpis.totalUsd / metaCxp) * 100, 100) : 0}%` }}></div>
             </div>
-            <div className="flex justify-between items-center">
-              <span className="text-[10px] font-bold text-gray-400">Tot. Bs: {kpis.totalBs.toLocaleString('es-VE', {minimumFractionDigits: 2})}</span>
-              <p className="text-[10px] text-gray-500 font-bold text-right">{metaCxp > 0 ? ((kpis.totalUsd / metaCxp) * 100).toFixed(1) : 0}% pagado</p>
+            <div className="flex justify-between items-center mb-1.5">
+              <span className="text-[10px] text-gray-400 font-bold">{metaCxp > 0 ? ((kpis.totalUsd / metaCxp) * 100).toFixed(1) : 0}% pagado</span>
+            </div>
+            <div className="flex justify-center text-center bg-gray-50 py-1.5 rounded-lg border border-gray-100 mt-1">
+              <span className="text-[9px] font-bold text-gray-500 uppercase tracking-widest">
+                Población Activa: <span className="text-gray-800 ml-1">{saCount} SA</span> <span className="text-gray-300 mx-1">|</span> <span className="text-gray-800">{sbCount} SB</span>
+              </span>
             </div>
           </div>
         </div>
@@ -316,12 +349,32 @@ export default function CxpPage() {
 
         <div className="bg-[#0A1128] rounded-2xl p-5 shadow-sm text-white flex flex-col justify-center relative overflow-hidden">
           <div className="absolute -right-4 -bottom-4 opacity-10">
-            <svg width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v8"/><path d="M8 12h8"/></svg>
+            <svg width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>
           </div>
-          <p className="text-[10px] font-bold text-red-300 uppercase tracking-wider mb-2 relative z-10">Desglose a Socios</p>
-          <div className="flex justify-between text-xs mb-1.5 relative z-10"><span>Ayudas:</span> <span className="font-bold text-red-100">{formatUsd(kpis.ayudas)}</span></div>
-          <div className="flex justify-between text-xs mb-1.5 relative z-10"><span>Montepíos:</span> <span className="font-bold text-red-100">{formatUsd(kpis.montepios)}</span></div>
-          <div className="flex justify-between text-xs relative z-10"><span>Vidrios:</span> <span className="font-bold text-red-100">{formatUsd(kpis.vidrios)}</span></div>
+          <p className="text-[10px] font-bold text-red-300 uppercase tracking-wider mb-3 relative z-10">Composición de Egresos</p>
+          <div className="relative z-10 space-y-2.5">
+            <div>
+              <div className="flex justify-between text-[11px] mb-1">
+                <span className="text-gray-300">Ayudas</span>
+                <span className="font-bold text-white">{formatUsd(kpis.ayudas)} <span className="text-red-300 font-normal ml-1">({kpis.totalUsd > 0 ? ((kpis.ayudas / kpis.totalUsd) * 100).toFixed(0) : 0}%)</span></span>
+              </div>
+              <div className="w-full bg-gray-800 rounded-full h-1"><div className="bg-red-400 h-1 rounded-full" style={{ width: `${kpis.totalUsd > 0 ? (kpis.ayudas / kpis.totalUsd) * 100 : 0}%` }}></div></div>
+            </div>
+            <div>
+              <div className="flex justify-between text-[11px] mb-1">
+                <span className="text-gray-300">Montepíos</span>
+                <span className="font-bold text-white">{formatUsd(kpis.montepios)} <span className="text-red-300 font-normal ml-1">({kpis.totalUsd > 0 ? ((kpis.montepios / kpis.totalUsd) * 100).toFixed(0) : 0}%)</span></span>
+              </div>
+              <div className="w-full bg-gray-800 rounded-full h-1"><div className="bg-orange-400 h-1 rounded-full" style={{ width: `${kpis.totalUsd > 0 ? (kpis.montepios / kpis.totalUsd) * 100 : 0}%` }}></div></div>
+            </div>
+            <div>
+              <div className="flex justify-between text-[11px] mb-1">
+                <span className="text-gray-300">Vidrios</span>
+                <span className="font-bold text-white">{formatUsd(kpis.vidrios)} <span className="text-red-300 font-normal ml-1">({kpis.totalUsd > 0 ? ((kpis.vidrios / kpis.totalUsd) * 100).toFixed(0) : 0}%)</span></span>
+              </div>
+              <div className="w-full bg-gray-800 rounded-full h-1"><div className="bg-yellow-400 h-1 rounded-full" style={{ width: `${kpis.totalUsd > 0 ? (kpis.vidrios / kpis.totalUsd) * 100 : 0}%` }}></div></div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -435,7 +488,7 @@ export default function CxpPage() {
                         {tx.codigo_concepto && <div className="text-[10px] text-gray-500">{tx.codigo_concepto}</div>}
                       </td>
                       <td className="px-4 py-3 text-xs text-gray-600">
-                        {metodos}
+                        {metodos.toUpperCase().includes('INGRESO') ? 'COMPENSACIÓN / CANJE' : metodos}
                       </td>
                       <td className="px-4 py-3 text-right font-black text-red-600">
                         {formatUsd(tx.monto_usd || 0)}
