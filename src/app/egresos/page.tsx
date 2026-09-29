@@ -6,9 +6,11 @@ import { formatUsd } from '@/lib/formatters';
 import { Search, FileText } from 'lucide-react';
 import { transaccionMatchesMes, codigoPubToSelector } from '@/lib/mesUtils';
 import { PrintReport } from '@/components/PrintReport';
+import BancosTab from '@/components/recibos/BancosTab';
 
 export default function EgresosPage() {
   const { publicaciones, filtroMesGlobal, setFiltroMesGlobal } = useAppStore();
+  const [activeTab, setActiveTab] = useState<'GENERAL' | 'BANCOS'>('GENERAL');
   const [transacciones, setTransacciones] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -206,8 +208,26 @@ export default function EgresosPage() {
         </button>
       </div>
 
-      {/* FILTROS */}
-      <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm mb-6 flex flex-wrap gap-4 items-end">
+      {/* PESTAÑAS (TABS) */}
+      <div className="flex border-b border-gray-200 mb-6 gap-8">
+        <button 
+          onClick={() => setActiveTab('GENERAL')}
+          className={`pb-3 text-sm font-black transition-colors border-b-2 ${activeTab === 'GENERAL' ? 'border-[#0A1128] text-[#0A1128]' : 'border-transparent text-gray-400 hover:text-gray-700'}`}
+        >
+          Auditoría de Egresos
+        </button>
+        <button 
+          onClick={() => setActiveTab('BANCOS')}
+          className={`pb-3 text-sm font-black transition-colors border-b-2 flex items-center gap-2 ${activeTab === 'BANCOS' ? 'border-red-600 text-red-600' : 'border-transparent text-gray-400 hover:text-gray-700'}`}
+        >
+          Detalle Bancario (Solo Egresos)
+        </button>
+      </div>
+
+      {activeTab === 'GENERAL' ? (
+        <div className="animate-in fade-in duration-500">
+          {/* FILTROS */}
+          <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm mb-6 flex flex-wrap gap-4 items-end">
         <div className="flex-1 min-w-[150px]">
           <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Mes</label>
           <select value={filtroMes} onChange={e => setFiltroMes(e.target.value)} className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 bg-gray-50 text-sm font-medium">
@@ -461,7 +481,10 @@ export default function EgresosPage() {
           </table>
         </div>
       </div>
-    </div>
+      </div>
+      ) : (
+        <BancosTab tipo="EGRESO" />
+      )}
 
       <PrintReport
         titulo="Auditoría Financiera: Egresos"

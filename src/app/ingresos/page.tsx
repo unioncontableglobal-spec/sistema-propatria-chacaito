@@ -499,7 +499,7 @@ export default function IngresosPage() {
       </div>
       </div>
       ) : (
-        <BancosTab />
+        <BancosTab tipo="INGRESO" />
       )}
 
       {isModalOpen && (

@@ -6,7 +6,11 @@ import { formatUsd } from '@/lib/formatters';
 import { Search, Building, FileText } from 'lucide-react';
 import { transaccionMatchesMes, codigoPubToSelector } from '@/lib/mesUtils';
 
-export default function BancosTab() {
+interface BancosTabProps {
+  tipo: 'INGRESO' | 'EGRESO' | 'AMBOS';
+}
+
+export default function BancosTab({ tipo }: BancosTabProps) {
   const { publicaciones, filtroMesGlobal, setFiltroMesGlobal } = useAppStore();
   const [transacciones, setTransacciones] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -57,6 +61,8 @@ export default function BancosTab() {
     transacciones.forEach(tx => {
       // Filtrar por mes local si existe
       if (filtroMes && !transaccionMatchesMes(tx.mes, filtroMes)) return;
+      // Filtrar por tipo si es necesario
+      if (tipo !== 'AMBOS' && tx.tipo !== tipo) return;
       
       const esIngreso = tx.tipo === 'INGRESO';
 
@@ -173,24 +179,30 @@ export default function BancosTab() {
       </div>
 
       {/* KPIs PRINCIPALES */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <div className="bg-white border-l-4 border-emerald-500 rounded-2xl p-5 shadow-sm">
-          <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1">Ingresos Bancarios (USD eq)</p>
-          <p className="text-3xl font-black text-[#0A1128]">{formatUsd(kpis.totalIngresosUsd)}</p>
-          <p className="text-xs font-bold text-emerald-600 mt-2">Bs. {kpis.totalIngresosBs.toLocaleString('es-VE', {minimumFractionDigits: 2})}</p>
-        </div>
+      <div className={`grid grid-cols-1 md:grid-cols-${tipo === 'AMBOS' ? '3' : '2'} gap-4 mb-6`}>
+        {(tipo === 'INGRESO' || tipo === 'AMBOS') && (
+          <div className="bg-white border-l-4 border-emerald-500 rounded-2xl p-5 shadow-sm">
+            <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1">Ingresos Bancarios (USD eq)</p>
+            <p className="text-3xl font-black text-[#0A1128]">{formatUsd(kpis.totalIngresosUsd)}</p>
+            <p className="text-xs font-bold text-emerald-600 mt-2">Bs. {kpis.totalIngresosBs.toLocaleString('es-VE', {minimumFractionDigits: 2})}</p>
+          </div>
+        )}
         
-        <div className="bg-white border-l-4 border-red-500 rounded-2xl p-5 shadow-sm">
-          <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1">Egresos Bancarios (USD eq)</p>
-          <p className="text-3xl font-black text-red-600">{formatUsd(kpis.totalEgresosUsd)}</p>
-          <p className="text-xs font-bold text-red-400 mt-2">Bs. {kpis.totalEgresosBs.toLocaleString('es-VE', {minimumFractionDigits: 2})}</p>
-        </div>
+        {(tipo === 'EGRESO' || tipo === 'AMBOS') && (
+          <div className="bg-white border-l-4 border-red-500 rounded-2xl p-5 shadow-sm">
+            <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1">Egresos Bancarios (USD eq)</p>
+            <p className="text-3xl font-black text-red-600">{formatUsd(kpis.totalEgresosUsd)}</p>
+            <p className="text-xs font-bold text-red-400 mt-2">Bs. {kpis.totalEgresosBs.toLocaleString('es-VE', {minimumFractionDigits: 2})}</p>
+          </div>
+        )}
 
-        <div className="bg-[#0A1128] border-l-4 border-blue-400 rounded-2xl p-5 shadow-sm text-white">
-          <p className="text-[10px] font-bold text-blue-400 uppercase tracking-wider mb-1">Balance Neto Bancario (USD eq)</p>
-          <p className="text-3xl font-black text-white">{formatUsd(kpis.balanceUsd)}</p>
-          <p className="text-xs font-medium text-gray-400 mt-2">Diferencia Ingresos - Egresos</p>
-        </div>
+        {tipo === 'AMBOS' && (
+          <div className="bg-[#0A1128] border-l-4 border-blue-400 rounded-2xl p-5 shadow-sm text-white">
+            <p className="text-[10px] font-bold text-blue-400 uppercase tracking-wider mb-1">Balance Neto Bancario (USD eq)</p>
+            <p className="text-3xl font-black text-white">{formatUsd(kpis.balanceUsd)}</p>
+            <p className="text-xs font-medium text-gray-400 mt-2">Diferencia Ingresos - Egresos</p>
+          </div>
+        )}
       </div>
 
       {/* RESUMEN POR BANCO */}
@@ -205,19 +217,28 @@ export default function BancosTab() {
             <div key={b.banco} className="p-4 rounded-xl border border-gray-100 bg-gray-50 flex flex-col justify-between">
               <div>
                 <p className="font-bold text-gray-800 uppercase text-sm mb-3">{b.banco}</p>
-                <div className="flex justify-between items-center mb-1">
-                  <span className="text-xs text-gray-500 font-medium">Ingresos</span>
-                  <span className="text-xs font-bold text-emerald-600">{formatUsd(b.ingresos)}</span>
-                </div>
-                <div className="flex justify-between items-center mb-3">
-                  <span className="text-xs text-gray-500 font-medium">Egresos</span>
-                  <span className="text-xs font-bold text-red-500">{formatUsd(b.egresos)}</span>
-                </div>
+                
+                {(tipo === 'INGRESO' || tipo === 'AMBOS') && (
+                  <div className="flex justify-between items-center mb-1">
+                    <span className="text-xs text-gray-500 font-medium">Ingresos</span>
+                    <span className="text-xs font-bold text-emerald-600">{formatUsd(b.ingresos)}</span>
+                  </div>
+                )}
+                
+                {(tipo === 'EGRESO' || tipo === 'AMBOS') && (
+                  <div className={`flex justify-between items-center ${tipo === 'AMBOS' ? 'mb-3' : 'mb-1'}`}>
+                    <span className="text-xs text-gray-500 font-medium">Egresos</span>
+                    <span className="text-xs font-bold text-red-500">{formatUsd(b.egresos)}</span>
+                  </div>
+                )}
               </div>
-              <div className="pt-2 border-t border-gray-200 flex justify-between items-center">
-                <span className="text-[10px] uppercase font-bold text-gray-500 tracking-wider">Balance</span>
-                <span className={`text-sm font-black ${b.balance >= 0 ? 'text-blue-700' : 'text-red-600'}`}>{formatUsd(b.balance)}</span>
-              </div>
+              
+              {tipo === 'AMBOS' && (
+                <div className="pt-2 border-t border-gray-200 flex justify-between items-center">
+                  <span className="text-[10px] uppercase font-bold text-gray-500 tracking-wider">Balance</span>
+                  <span className={`text-sm font-black ${b.balance >= 0 ? 'text-blue-700' : 'text-red-600'}`}>{formatUsd(b.balance)}</span>
+                </div>
+              )}
             </div>
           ))}
           {kpis.bancosDetalle.length === 0 && (
