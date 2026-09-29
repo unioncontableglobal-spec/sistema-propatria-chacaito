@@ -332,15 +332,24 @@ export default function Home() {
             <div className="space-y-1.5">
               <div className="flex justify-between items-center py-1.5 border-b border-slate-50">
                 <span className="text-xs text-slate-600">Ingresos Realizados</span>
-                <span className="text-xs font-black text-blue-700">{formatBs(data.totalIngresosBs)}</span>
+                <div className="text-right">
+                  <span className="text-xs font-black text-blue-700 block">{formatBs(data.totalIngresosBs)}</span>
+                  <span className="text-[9px] font-bold text-slate-400">{formatUsd(data.totalIngresosBs / TASA_CAMBIO)} USD</span>
+                </div>
               </div>
               <div className="flex justify-between items-center py-1.5 border-b border-slate-50">
                 <span className="text-xs text-slate-600">Cuentas por Cobrar (CxC)</span>
-                <span className="text-xs font-bold text-amber-600">{formatBs(data.cxcBs)}</span>
+                <div className="text-right">
+                  <span className="text-xs font-bold text-amber-600 block">{formatBs(data.cxcBs)}</span>
+                  <span className="text-[9px] font-bold text-slate-400">{formatUsd(data.cxcBs / TASA_CAMBIO)} USD</span>
+                </div>
               </div>
               <div className="flex justify-between items-center py-1.5 font-black">
                 <span className="text-xs text-slate-800">Total Activo</span>
-                <span className="text-xs text-blue-700">{formatBs(data.activoTotalBs)}</span>
+                <div className="text-right">
+                  <span className="text-xs text-blue-700 block">{formatBs(data.activoTotalBs)}</span>
+                  <span className="text-[9px] font-bold text-slate-400">{formatUsd(data.activoTotalBs / TASA_CAMBIO)} USD</span>
+                </div>
               </div>
             </div>
           </div>
@@ -349,15 +358,24 @@ export default function Home() {
             <div className="space-y-1.5">
               <div className="flex justify-between items-center py-1.5 border-b border-slate-50">
                 <span className="text-xs text-slate-600">Cuentas por Pagar (CxP)</span>
-                <span className="text-xs font-bold text-rose-600">{formatBs(data.cxpBs)}</span>
+                <div className="text-right">
+                  <span className="text-xs font-bold text-rose-600 block">{formatBs(data.cxpBs)}</span>
+                  <span className="text-[9px] font-bold text-slate-400">{formatUsd(data.cxpBs / TASA_CAMBIO)} USD</span>
+                </div>
               </div>
               <div className="flex justify-between items-center py-1.5 border-b border-slate-50">
                 <span className="text-xs text-slate-600">Préstamos Emitidos</span>
-                <span className="text-xs font-bold text-rose-600">{formatBs(data.prestamosBs)}</span>
+                <div className="text-right">
+                  <span className="text-xs font-bold text-rose-600 block">{formatBs(data.prestamosBs)}</span>
+                  <span className="text-[9px] font-bold text-slate-400">{formatUsd(data.prestamosBs / TASA_CAMBIO)} USD</span>
+                </div>
               </div>
               <div className="flex justify-between items-center py-1.5 font-black">
                 <span className="text-xs text-slate-800">Total Pasivo</span>
-                <span className="text-xs text-rose-700">{formatBs(data.pasivoTotalBs)}</span>
+                <div className="text-right">
+                  <span className="text-xs text-rose-700 block">{formatBs(data.pasivoTotalBs)}</span>
+                  <span className="text-[9px] font-bold text-slate-400">{formatUsd(data.pasivoTotalBs / TASA_CAMBIO)} USD</span>
+                </div>
               </div>
             </div>
           </div>
@@ -502,9 +520,12 @@ export default function Home() {
                 {cats.map((c, i) => (
                   <div key={i}>
                     <div className="flex justify-between items-center mb-1">
-                      <span className="text-xs font-bold text-slate-700 truncate max-w-[55%]">{c.cat}</span>
+                      <span className="text-xs font-bold text-slate-700 truncate max-w-[45%]">{c.cat}</span>
                       <div className="flex items-center gap-2">
-                        <span className={`text-xs font-black ${color}`}>{formatBs(c.bs)}</span>
+                        <div className="text-right">
+                          <span className={`text-xs font-black ${color} block`}>{formatBs(c.bs)}</span>
+                          <span className="text-[9px] font-bold text-slate-400">{formatUsd(c.bs / TASA_CAMBIO)}</span>
+                        </div>
                         <span className="text-[10px] font-black text-slate-400 w-10 text-right">{fmtPct(c.pct)}</span>
                       </div>
                     </div>

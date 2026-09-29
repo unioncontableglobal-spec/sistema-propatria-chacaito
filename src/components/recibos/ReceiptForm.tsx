@@ -670,19 +670,48 @@ export default function ReceiptForm() {
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-1">Tasa BCV</label>
                 <input 
-                  type="number" 
+                  type="number" step="0.01"
                   value={pago.tasa_cambio || ''}
-                  onChange={e => setPago({...pago, tasa_cambio: parseFloat(e.target.value)})}
+                  onChange={e => {
+                    const newTasa = parseFloat(e.target.value);
+                    setPago(prev => ({
+                      ...prev, 
+                      tasa_cambio: newTasa,
+                      monto_bs: prev.tipo_pago.includes('USD') && prev.monto_usd && !isNaN(newTasa) ? prev.monto_usd * newTasa : prev.monto_bs
+                    }));
+                  }}
                   className="w-full p-2.5 border border-gray-300 rounded-lg" 
                 />
               </div>
+              {pago.tipo_pago.includes('USD') && (
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">Monto Pagado USD</label>
+                  <input 
+                    type="number" step="0.01"
+                    value={pago.monto_usd || ''}
+                    onChange={e => {
+                      const newUsd = parseFloat(e.target.value);
+                      setPago(prev => ({
+                        ...prev, 
+                        monto_usd: newUsd,
+                        monto_bs: !isNaN(newUsd) && prev.tasa_cambio ? newUsd * prev.tasa_cambio : prev.monto_bs
+                      }));
+                    }}
+                    className="w-full p-2.5 border border-green-300 bg-green-50 rounded-lg font-bold text-green-700" 
+                    placeholder="0.00"
+                  />
+                </div>
+              )}
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">Monto Pagado Bs</label>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">
+                  Monto Pagado Bs {pago.tipo_pago.includes('USD') && <span className="text-[10px] text-blue-500">(Auto)</span>}
+                </label>
                 <input 
-                  type="number" 
+                  type="number" step="0.01"
                   value={pago.monto_bs || ''}
                   onChange={e => setPago({...pago, monto_bs: parseFloat(e.target.value)})}
-                  className="w-full p-2.5 border border-gray-300 rounded-lg font-bold text-blue-700" 
+                  readOnly={pago.tipo_pago.includes('USD')}
+                  className={`w-full p-2.5 border rounded-lg font-bold ${pago.tipo_pago.includes('USD') ? 'bg-blue-50 border-blue-200 text-blue-900 cursor-not-allowed' : 'border-gray-300 text-blue-700'}`} 
                 />
               </div>
             </div>

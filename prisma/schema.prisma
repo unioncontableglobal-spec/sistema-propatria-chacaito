@@ -136,6 +136,9 @@ model AsientoContable {
   numero      Int      @unique
   fecha       DateTime
   descripcion String
+  estado      String   @default("BORRADOR") // "BORRADOR", "MAYORIZADO", "ANULADO"
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
   
   detalles    DetalleAsiento[]
   transaccion Transaccion?
