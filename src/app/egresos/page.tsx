@@ -130,7 +130,9 @@ export default function EgresosPage() {
       let realUsd = usd;
       if ((usd === 1 && Math.abs(tasa - bs) < 1) || usd === 0) {
         efecto1UsdBs += bs;
-        realUsd = bs / avgTasa;
+        // Usar la tasa del día si es válida, si no recurrir al promedio
+        const currentTasa = tasa > 1 ? tasa : avgTasa;
+        realUsd = bs > 0 ? (bs / currentTasa) : 0;
       } else {
         dolaresRealesUsd += realUsd;
       }
@@ -147,7 +149,9 @@ export default function EgresosPage() {
       let isEfectivo = false;
       if (tx.formas_pago && tx.formas_pago.length > 0) {
         tx.formas_pago.forEach((fp: any) => {
-          const fpUsd = fp.monto_usd || (fp.monto_bs / avgTasa);
+          const fpTasa = Number(fp.tasa_cambio || tx.tasa_cambio || 0);
+          const currentFpTasa = fpTasa > 1 ? fpTasa : avgTasa;
+          const fpUsd = Number(fp.monto_usd) > 0 ? Number(fp.monto_usd) : (Number(fp.monto_bs) / currentFpTasa);
           if (fp.tipo_pago.toLowerCase().includes('efectivo')) {
             efectivoUsd += fpUsd;
             isEfectivo = true;
@@ -171,7 +175,11 @@ export default function EgresosPage() {
       .slice(0, 5);
 
     const topConceptos = Array.from(conceptosMap.entries())
-      .map(([concepto, monto]) => ({ concepto, monto }))
+      .map(([concepto, monto]) => ({ 
+        concepto, 
+        monto, 
+        porcentaje: totalUsd > 0 ? (monto / totalUsd) * 100 : 0 
+      }))
       .sort((a, b) => b.monto - a.monto)
       .slice(0, 4);
 
@@ -277,12 +285,22 @@ export default function EgresosPage() {
             <svg width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 2v20"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
           </div>
           <p className="text-[10px] font-bold text-red-300 uppercase tracking-wider mb-2 relative z-10">Top Egresos (Destino)</p>
+          <div className="flex flex-col gap-3 mt-1">
           {kpis.topConceptos.length === 0 ? <span className="text-xs text-gray-400 z-10">Sin datos</span> : kpis.topConceptos.map(c => (
-            <div key={c.concepto} className="flex justify-between text-xs mb-1 relative z-10">
-              <span className="truncate w-24" title={c.concepto}>{c.concepto}:</span> 
-              <span className="font-bold text-red-100">{formatUsd(c.monto)}</span>
+            <div key={c.concepto} className="relative z-10">
+              <div className="flex justify-between items-center text-xs mb-1">
+                <span className="truncate pr-2 text-gray-200" title={c.concepto}>{c.concepto}</span> 
+                <div className="flex gap-2 items-center justify-end">
+                  <span className="font-bold text-white">{formatUsd(c.monto)}</span>
+                  <span className="text-[10px] font-black text-red-400 bg-red-900/60 px-1.5 py-0.5 rounded">{c.porcentaje.toFixed(1)}%</span>
+                </div>
+              </div>
+              <div className="w-full bg-slate-700/50 rounded-full h-1.5">
+                <div className="bg-red-500 h-1.5 rounded-full" style={{ width: `${c.porcentaje}%` }}></div>
+              </div>
             </div>
           ))}
+          </div>
         </div>
       </div>
 
