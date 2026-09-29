@@ -12,6 +12,17 @@ export default function CxcPage() {
   const [transacciones, setTransacciones] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
+  const { saCount, sbCount } = useMemo(() => {
+    let sa = 0; let sb = 0;
+    if (data?.sociosActivosRaw) {
+      data.sociosActivosRaw.forEach(s => {
+        if (s.tipo === 'SA') sa++;
+        if (s.tipo === 'SB') sb++;
+      });
+    }
+    return { saCount: sa, sbCount: sb };
+  }, [data?.sociosActivosRaw]);
+
   // Filtros
   const filtroMes = filtroMesGlobal === 'HISTÓRICO TOTAL' ? '' : filtroMesGlobal;
   const setFiltroMes = (val: string) => setFiltroMesGlobal(val || 'HISTÓRICO TOTAL');
@@ -273,9 +284,12 @@ export default function CxcPage() {
           <div>
             <div className="flex justify-between items-start mb-1">
               <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Recaudación (Ingresos)</p>
-              <span className="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">
-                Meta: {formatUsd(metaCxc)}
-              </span>
+              <div className="flex flex-col items-end gap-1">
+                <span className="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">
+                  Meta: {formatUsd(metaCxc)}
+                </span>
+                <span className="text-[9px] font-bold text-gray-400">Población: {saCount} SA | {sbCount} SB</span>
+              </div>
             </div>
             <p className="text-3xl font-black text-[#0A1128]">{formatUsd(kpis.totalUsd)}</p>
           </div>
@@ -421,7 +435,7 @@ export default function CxcPage() {
                         {tx.codigo_concepto && <div className="text-[10px] text-gray-500">{tx.codigo_concepto}</div>}
                       </td>
                       <td className="px-4 py-3 text-xs text-gray-600">
-                        {metodos}
+                        {metodos.toUpperCase().includes('EGRESO') ? 'COMPENSACIÓN / CANJE' : metodos}
                       </td>
                       <td className="px-4 py-3 text-right font-black text-emerald-600">
                         {formatUsd(tx.monto_usd || 0)}
