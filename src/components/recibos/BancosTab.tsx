@@ -6,7 +6,7 @@ import { formatUsd } from '@/lib/formatters';
 import { Search, Building, FileText } from 'lucide-react';
 import { transaccionMatchesMes, codigoPubToSelector } from '@/lib/mesUtils';
 
-export default function BancosPage() {
+export default function BancosTab() {
   const { publicaciones, filtroMesGlobal, setFiltroMesGlobal } = useAppStore();
   const [transacciones, setTransacciones] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -142,14 +142,7 @@ export default function BancosPage() {
   }, [dataFiltrada]);
 
   return (
-    <div className="p-3 md:p-6 bg-[#F8FAFC] min-h-screen">
-      <div className="flex justify-between items-center mb-6">
-        <div>
-          <h1 className="text-2xl font-black text-[#0A1128]">Detalle de Bancos</h1>
-          <p className="text-sm text-gray-500 font-medium">Auditoría de ingresos y egresos por entidad bancaria.</p>
-        </div>
-      </div>
-
+    <div className="animate-in fade-in slide-in-from-bottom-2 duration-500">
       {/* FILTROS */}
       <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm mb-6 flex flex-wrap gap-4 items-end">
         <div className="flex-1 min-w-[150px]">
