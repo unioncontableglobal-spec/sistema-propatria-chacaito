@@ -22,7 +22,9 @@ export default function LibroDiarioPage() {
       .then(data => {
         if (!data.error) {
           // Filtrar por el mes seleccionado si aplica
-          const filtrados = data.filter((a: any) => a.fecha.startsWith(mesFiltro));
+          const filtrados = filtroMesGlobal === 'HISTÓRICO TOTAL' 
+            ? data 
+            : data.filter((a: any) => a.fecha.startsWith(mesFiltro));
           // Ordenar por fecha y luego por número de asiento ascendente (históricamente el diario se lee de viejo a nuevo)
           filtrados.sort((a: any, b: any) => {
             const dateA = new Date(a.fecha).getTime();

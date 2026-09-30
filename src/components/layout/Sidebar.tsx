@@ -179,9 +179,8 @@ export default function Sidebar({ initialRole }: { initialRole: string | null })
                   <li><Link href="/contabilidad/libro-diario" className={linkCls(pathname.startsWith('/contabilidad/libro-diario'))}><Book size={17} /> Libro Diario</Link></li>
                   <li><Link href="/contabilidad/libro-mayor" className={linkCls(pathname.startsWith('/contabilidad/libro-mayor'))}><BookOpen size={17} /> Libro Mayor</Link></li>
                   <li><Link href="/contabilidad/balance-comprobacion" className={linkCls(pathname.startsWith('/contabilidad/balance-comprobacion'))}><Scale size={17} /> Balance de Comprobación</Link></li>
-                  <li><Link href="/contabilidad/estado-situacion" className={linkCls(pathname.startsWith('/contabilidad/estado-situacion'))}><PieChart size={17} /> Edo. Situación Financiera</Link></li>
-                  <li><Link href="/contabilidad/estado-resultados" className={linkCls(pathname.startsWith('/contabilidad/estado-resultados'))}><TrendingUp size={17} /> Estado de Resultados</Link></li>
-                  <li><Link href="/contabilidad/cierre" className={linkCls(pathname.startsWith('/contabilidad/cierre'))}><Lock size={17} /> Asientos de Cierre</Link></li>
+                  {/* Redirigimos Resultados al módulo consolidado para evitar Error 404 */}
+                  <li><Link href="/resultados" className={linkCls(pathname.startsWith('/resultados'))}><TrendingUp size={17} /> Estado de Resultados</Link></li>
                 </ul>
               </div>
             )}

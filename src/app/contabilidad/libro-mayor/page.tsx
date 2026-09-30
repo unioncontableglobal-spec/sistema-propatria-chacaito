@@ -22,8 +22,9 @@ export default function LibroMayorPage() {
       .then(data => {
         if (!data.error) {
           // Filtrar y agrupar
-          const filterDate = new Date(mesFiltro + '-01T00:00:00');
-          const lastDayOfFilterMonth = endOfMonth(filterDate);
+          const isHistorico = filtroMesGlobal === 'HISTÓRICO TOTAL';
+          const filterDate = isHistorico ? new Date() : new Date(mesFiltro + '-01T00:00:00');
+          const lastDayOfFilterMonth = isHistorico ? new Date('2099-12-31') : endOfMonth(filterDate);
           
           // Filtrar asientos que sean <= al fin del mes seleccionado
           const asientosValidos = data.filter((a: any) => new Date(a.fecha) <= lastDayOfFilterMonth);
@@ -31,8 +32,8 @@ export default function LibroMayorPage() {
           const cuentaMap = new Map<number, any>();
 
           asientosValidos.forEach((asiento: any) => {
-            const isCurrentMonth = isSameMonth(new Date(asiento.fecha), filterDate);
-            const isPast = isBefore(new Date(asiento.fecha), filterDate);
+            const isCurrentMonth = isHistorico ? true : isSameMonth(new Date(asiento.fecha), filterDate);
+            const isPast = isHistorico ? false : isBefore(new Date(asiento.fecha), filterDate);
 
             asiento.detalles.forEach((detalle: any) => {
               if (!cuentaMap.has(detalle.cuenta.id)) {
