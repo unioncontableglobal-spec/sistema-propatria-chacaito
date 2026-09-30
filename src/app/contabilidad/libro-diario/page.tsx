@@ -17,7 +17,7 @@ export default function LibroDiarioPage() {
   const mesFiltro = selectorToYyyyMm(filtroMesGlobal);
 
   useEffect(() => {
-    fetch('/api/asientos')
+    fetch(`/api/asientos?_t=${new Date().getTime()}`, { cache: 'no-store' })
       .then(res => res.json())
       .then(data => {
         if (!data.error) {

@@ -17,7 +17,13 @@ export async function GET(req: NextRequest) {
         fecha: 'desc'
       }
     });
-    return NextResponse.json(asientos);
+    return NextResponse.json(asientos, {
+      headers: {
+        'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0',
+      }
+    });
   } catch (error) {
     console.error('Error fetching asientos:', error);
     return NextResponse.json({ error: 'Error al obtener asientos contables' }, { status: 500 });
