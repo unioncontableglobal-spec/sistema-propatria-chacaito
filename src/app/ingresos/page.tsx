@@ -209,12 +209,12 @@ export default function IngresosPage() {
   return (
     <>
       <div className="p-3 md:p-6 bg-[#F8FAFC] min-h-screen print-hide">
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6 gap-4">
         <div>
           <h1 className="text-2xl font-black text-[#0A1128]">Auditoría Financiera: Ingresos</h1>
           <p className="text-sm text-gray-500 font-medium">Análisis profundo de recaudación, bancos y conversión.</p>
         </div>
-        <div className="flex gap-3">
+        <div className="flex flex-wrap gap-3">
           <button onClick={() => window.print()} className="px-4 py-2 bg-white border border-gray-200 text-gray-700 rounded-lg text-sm font-bold shadow-sm hover:bg-gray-50 flex gap-2 items-center">
             <FileText size={16} /> Imprimir
           </button>

@@ -250,12 +250,12 @@ export default function CxcPage() {
   return (
     <>
       <div className="p-6 bg-[#F8FAFC] min-h-screen print-hide">
-        <div className="flex justify-between items-center mb-6">
+        <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6 gap-4">
         <div>
           <h1 className="text-2xl font-black text-[#0A1128]">Auditoría CxC y Recibos</h1>
           <p className="text-sm text-gray-500 font-medium">Revisión detallada de ingresos por concepto, socio y forma de pago.</p>
         </div>
-        <button onClick={() => window.print()} className="px-4 py-2 bg-[#0A1128] text-white rounded text-sm font-bold shadow hover:bg-gray-800 flex gap-2 items-center">
+        <button onClick={() => window.print()} className="px-4 py-2 bg-[#0A1128] text-white rounded text-sm font-bold shadow hover:bg-gray-800 flex gap-2 items-center w-fit">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
           Imprimir Reporte
         </button>

@@ -198,7 +198,7 @@ export default function EgresosPage() {
   return (
     <>
       <div className="p-3 md:p-6 bg-[#F8FAFC] min-h-screen print-hide">
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6 gap-4">
         <div>
           <h1 className="text-2xl font-black text-[#0A1128]">Auditoría Financiera: Egresos</h1>
           <p className="text-sm text-gray-500 font-medium">Análisis profundo de cuentas pagadas, proveedores y egresos generales.</p>
