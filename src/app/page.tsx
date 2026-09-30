@@ -210,9 +210,9 @@ export default function Home() {
   }, [rawData, filterMonthUpper, TASA_CAMBIO]);
 
   if (!data) return (
-    <div className="flex flex-col items-center justify-center min-h-[70vh] text-slate-400">
-      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
-      <p className="text-sm font-semibold animate-pulse">Analizando datos financieros...</p>
+    <div className="flex flex-col items-center justify-center min-h-[70vh] text-[#0A1128]">
+      <img src="/logoucg.png" alt="Iniciando..." className="w-32 h-auto mb-6 animate-pulse" />
+      <p className="text-sm font-black uppercase tracking-widest animate-pulse">Iniciando sistema...</p>
     </div>
   );
 
