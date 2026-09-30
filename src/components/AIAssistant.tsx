@@ -13,7 +13,7 @@ export default function AIAssistant() {
       {
         id: 'initial',
         role: 'assistant',
-        content: '¡Hola! Soy el nuevo Asistente Inteligente de Propatria. Conozco las reglas de las publicaciones, el efecto 1 USD, cómo cuadrar las cuentas y más. ¿En qué te ayudo hoy?'
+        content: '¡Hola! Soy el Agente Unión 👋\\nEstoy aquí para hacerte el trabajo mucho más fácil. Conozco todas las reglas contables del sistema, desde las publicaciones hasta el efecto 1 USD. ¿En qué te puedo ayudar hoy?'
       }
     ]
   });
@@ -40,8 +40,8 @@ export default function AIAssistant() {
                 <Image src="/agente.png" alt="Agente" width={24} height={24} className="object-contain rounded-full" />
               </div>
               <div>
-                <h3 className="font-bold text-sm leading-tight">Super Agente Propatria</h3>
-                <p className="text-[10px] text-indigo-200">En línea y listo para auditar</p>
+                <h3 className="font-bold text-sm leading-tight">Agente Unión</h3>
+                <p className="text-[10px] text-indigo-200">En línea y listo para ayudarte</p>
               </div>
             </div>
             <button 
