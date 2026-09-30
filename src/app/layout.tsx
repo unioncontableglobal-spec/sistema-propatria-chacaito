@@ -17,7 +17,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Unión Contable Global – Propatria Chacaito",
+  title: "ACPCC - Unión Contable Global",
   description: "Sistema contable web integral – Asoc. Civil Propatria Chacaito",
 };
 
